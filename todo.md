@@ -41,9 +41,9 @@
 - [x] Create visual flow system
 
 ## Export Functionality
-- [ ] Implement markdown export
-- [ ] Add PDF export with theming
-- [ ] Create preview panel
+- [x] Implement markdown export
+- [x] Add PDF export with theming
+- [x] Create preview panel
 
 ## Documentation and Finalization
 - [ ] Complete code documentation

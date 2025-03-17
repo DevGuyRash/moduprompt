@@ -7,7 +7,7 @@ import { NodeEditorProvider } from './contexts/NodeEditorContext';
 import SnippetPanel from './components/SnippetPanel/SnippetPanel';
 import NotebookEditor from './components/NotebookEditor/NotebookEditor';
 import NodeCanvas from './components/NodeCanvas/NodeCanvas';
-import MarkdownPreview from './components/MarkdownPreview/MarkdownPreview';
+import ExportPanel from './components/ExportPanel/ExportPanel';
 import './styles/App.css';
 
 enum EditorMode {
@@ -17,11 +17,7 @@ enum EditorMode {
 
 const App: React.FC = () => {
   const [editorMode, setEditorMode] = useState<EditorMode>(EditorMode.NOTEBOOK);
-  const [selectedSnippetContent, setSelectedSnippetContent] = useState<string>('');
-
-  const handleSelectSnippet = (snippet: any) => {
-    setSelectedSnippetContent(snippet.content);
-  };
+  const [showExportPanel, setShowExportPanel] = useState(false);
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -31,23 +27,31 @@ const App: React.FC = () => {
             <div className="app-container">
               <header className="app-header">
                 <h1>ModuPrompt</h1>
-                <div className="mode-toggle">
+                <div className="header-actions">
+                  <div className="mode-toggle">
+                    <button 
+                      className={editorMode === EditorMode.NOTEBOOK ? 'active' : ''}
+                      onClick={() => setEditorMode(EditorMode.NOTEBOOK)}
+                    >
+                      Notebook Mode
+                    </button>
+                    <button 
+                      className={editorMode === EditorMode.NODE ? 'active' : ''}
+                      onClick={() => setEditorMode(EditorMode.NODE)}
+                    >
+                      Node Mode
+                    </button>
+                  </div>
                   <button 
-                    className={editorMode === EditorMode.NOTEBOOK ? 'active' : ''}
-                    onClick={() => setEditorMode(EditorMode.NOTEBOOK)}
+                    className={`export-toggle ${showExportPanel ? 'active' : ''}`}
+                    onClick={() => setShowExportPanel(!showExportPanel)}
                   >
-                    Notebook Mode
-                  </button>
-                  <button 
-                    className={editorMode === EditorMode.NODE ? 'active' : ''}
-                    onClick={() => setEditorMode(EditorMode.NODE)}
-                  >
-                    Node Mode
+                    Export
                   </button>
                 </div>
               </header>
               <main className="app-content">
-                <SnippetPanel onSelectSnippet={handleSelectSnippet} />
+                <SnippetPanel onSelectSnippet={() => {}} />
                 
                 <div className="editor-container">
                   {editorMode === EditorMode.NOTEBOOK ? (
@@ -56,6 +60,10 @@ const App: React.FC = () => {
                     <NodeCanvas />
                   )}
                 </div>
+                
+                {showExportPanel && (
+                  <ExportPanel currentMode={editorMode === EditorMode.NOTEBOOK ? 'notebook' : 'node'} />
+                )}
               </main>
             </div>
           </NodeEditorProvider>
