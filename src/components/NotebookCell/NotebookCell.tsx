@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { FaArrowUp, FaArrowDown, FaTrash, FaEdit, FaEye, FaComment, FaCheck, FaCode, FaQuoteRight, FaInfoCircle, FaTag } from 'react-icons/fa';
 import MarkdownPreview from '../MarkdownPreview/MarkdownPreview';
+import RichTextBar from '../RichTextBar/RichTextBar';
 import { CellData, CellType, FormatOptions } from '../../contexts/NotebookContext';
 import './NotebookCell.css';
 
@@ -152,6 +153,97 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateCell(cell.id, { content: e.target.value });
   };
+  
+  /**
+   * Applies rich text formatting to the selected text in the editor
+   * @param {string} formatType - The type of formatting to apply
+   * @param {string} formatValue - Optional value for the formatting (e.g., URL for links)
+   */
+  const handleFormatText = (formatType: string, formatValue?: string) => {
+    if (!cell.isEditing) return;
+    
+    const textarea = document.querySelector(`.notebook-cell[data-id="${cell.id}"] .cell-editor`) as HTMLTextAreaElement;
+    if (!textarea) return;
+    
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    
+    if (start === end && formatType !== 'unordered-list' && formatType !== 'ordered-list') {
+      // No text selected, don't apply formatting
+      return;
+    }
+    
+    let formattedText = '';
+    let newCursorPos = end;
+    
+    switch (formatType) {
+      case 'bold':
+        formattedText = `**${selectedText}**`;
+        newCursorPos = end + 4;
+        break;
+      case 'italic':
+        formattedText = `*${selectedText}*`;
+        newCursorPos = end + 2;
+        break;
+      case 'strikethrough':
+        formattedText = `~~${selectedText}~~`;
+        newCursorPos = end + 4;
+        break;
+      case 'code-inline':
+        formattedText = `\`${selectedText}\``;
+        newCursorPos = end + 2;
+        break;
+      case 'heading':
+        // Add heading level (default to h2)
+        const level = formatValue || '2';
+        const prefix = '#'.repeat(parseInt(level));
+        formattedText = `${prefix} ${selectedText}`;
+        newCursorPos = end + parseInt(level) + 1;
+        break;
+      case 'unordered-list':
+        // Add bullet points to each line
+        if (selectedText) {
+          formattedText = selectedText.split('\n').map(line => `- ${line}`).join('\n');
+          newCursorPos = start + formattedText.length;
+        } else {
+          formattedText = '- ';
+          newCursorPos = start + 2;
+        }
+        break;
+      case 'ordered-list':
+        // Add numbers to each line
+        if (selectedText) {
+          formattedText = selectedText.split('\n').map((line, i) => `${i + 1}. ${line}`).join('\n');
+          newCursorPos = start + formattedText.length;
+        } else {
+          formattedText = '1. ';
+          newCursorPos = start + 3;
+        }
+        break;
+      case 'link':
+        if (formatValue) {
+          formattedText = `[${selectedText}](${formatValue})`;
+          newCursorPos = start + formattedText.length;
+        } else {
+          formattedText = `[${selectedText}](url)`;
+          newCursorPos = start + selectedText.length + 3;
+        }
+        break;
+      default:
+        formattedText = selectedText;
+    }
+    
+    // Update the content
+    const newContent = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+    updateCell(cell.id, { content: newContent });
+    
+    // Set cursor position after the operation is complete
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  };
 
   /**
    * Toggles between edit and view mode for the cell
@@ -232,16 +324,20 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
                  ${groupingMode ? 'grouping-mode' : ''}
                  ${cell.formatting ? `formatted formatted-${cell.formatting.type}` : ''}`}
       onClick={handleCellClick}
+      data-id={cell.id}
     >
       <div className="cell-handle"></div>
       
       <div className="cell-content">
         {cell.isEditing ? (
-          <textarea 
-            value={cell.content}
-            onChange={handleContentChange}
-            className="cell-editor"
-          />
+          <>
+            <RichTextBar onFormatText={handleFormatText} />
+            <textarea 
+              value={cell.content}
+              onChange={handleContentChange}
+              className="cell-editor"
+            />
+          </>
         ) : (
           <MarkdownPreview markdown={getFormattedContent()} />
         )}

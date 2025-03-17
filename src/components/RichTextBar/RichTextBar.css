@@ -1,0 +1,70 @@
+.rich-text-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.format-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.2s ease;
+}
+
+.format-button:hover {
+  background-color: #e6f7ff;
+  border-color: #91d5ff;
+  color: #1890ff;
+}
+
+.format-button:active {
+  background-color: #bae7ff;
+}
+
+.separator {
+  width: 1px;
+  height: 24px;
+  background-color: #ddd;
+  margin: 0 5px;
+}
+
+.link-input-container {
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+}
+
+.link-input {
+  padding: 5px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  font-size: 14px;
+  width: 200px;
+}
+
+.link-insert-button {
+  padding: 5px 10px;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.link-insert-button:hover {
+  background-color: #40a9ff;
+}
