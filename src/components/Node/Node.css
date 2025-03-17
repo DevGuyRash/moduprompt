@@ -1,19 +1,23 @@
 .node {
   position: absolute;
   width: 280px;
-  background-color: #ffffff;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  user-select: none;
   transition: box-shadow 0.2s ease;
   z-index: 1;
 }
 
 .node.selected {
-  box-shadow: 0 0 0 2px #4a90e2, 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0 0 2px #007bff, 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .node.dragging {
-  z-index: 2;
+  opacity: 0.7;
+  z-index: 100;
 }
 
 .node-header {
@@ -21,38 +25,35 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  border-bottom: 1px solid #e0e0e0;
-  border-radius: 4px 4px 0 0;
-  background-color: #f8f9fa;
+  border-bottom: 1px solid #eee;
+  border-radius: 8px 8px 0 0;
 }
 
 .node-type {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 14px;
 }
 
 .node-actions {
   display: flex;
-  gap: 5px;
+  gap: 4px;
 }
 
 .node-action-button {
   background: none;
   border: none;
   cursor: pointer;
-  color: #6c757d;
+  padding: 4px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  color: #6c757d;
 }
 
 .node-action-button:hover {
-  background-color: #f0f0f0;
-  color: #4a90e2;
+  background-color: #f8f9fa;
+  color: #495057;
 }
 
 .node-action-button.delete:hover {
@@ -61,67 +62,66 @@
 
 .node-content {
   padding: 12px;
-  max-height: 300px;
+  min-height: 60px;
+  max-height: 200px;
   overflow-y: auto;
+  border-bottom: 1px solid #eee;
 }
 
 .node-editor {
   width: 100%;
-  min-height: 100px;
-  border: none;
-  resize: vertical;
+  min-height: 60px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 8px;
   font-family: inherit;
-  font-size: inherit;
-  line-height: 1.6;
-  padding: 0;
-  outline: none;
+  resize: vertical;
 }
 
 .node-inputs, .node-outputs {
-  position: absolute;
   display: flex;
-  justify-content: space-around;
-  width: 100%;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
 }
 
 .node-inputs {
-  top: -10px;
-  left: -10px;
-  flex-direction: column;
-  width: auto;
-  height: 100%;
-  justify-content: center;
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .node-outputs {
-  top: -10px;
-  right: -10px;
-  flex-direction: column;
-  width: auto;
-  height: 100%;
-  justify-content: center;
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.node-handle-container {
+  display: flex;
+  align-items: center;
+  position: relative;
 }
 
 .node-handle {
-  width: 16px;
-  height: 16px;
-  background-color: #ffffff;
-  border: 2px solid #6c757d;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   cursor: pointer;
-  z-index: 2;
   position: relative;
-  margin: 8px 0;
+  z-index: 2;
 }
 
 .input-handle {
-  border-color: #4a90e2;
-  margin-left: -8px;
+  background-color: #6c757d;
+  margin-right: 4px;
 }
 
 .output-handle {
-  border-color: #28a745;
-  margin-right: -8px;
+  background-color: #28a745;
+  margin-left: 4px;
 }
 
 .node-handle:hover {
@@ -129,45 +129,60 @@
 }
 
 .handle-label {
-  position: absolute;
   font-size: 10px;
   white-space: nowrap;
-  pointer-events: none;
+  color: #6c757d;
+  position: absolute;
+}
+
+.input-handle .handle-label {
+  left: 16px;
+}
+
+.output-handle .handle-label {
+  right: 16px;
+}
+
+.disconnect-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
 
-.input-handle .handle-label {
-  left: 20px;
-  top: 0;
-}
-
-.output-handle .handle-label {
-  right: 20px;
-  top: 0;
-}
-
-.node-handle:hover .handle-label {
+.node-handle-container:hover .disconnect-button {
   opacity: 1;
+}
+
+.disconnect-button:hover {
+  color: #dc3545;
+  background-color: #f8f9fa;
 }
 
 /* Node type specific styling */
 .prompt-node .node-header {
   background-color: #e3f2fd;
-  border-bottom-color: #bbdefb;
+  color: #0d6efd;
 }
 
 .filter-node .node-header {
-  background-color: #e8f5e9;
-  border-bottom-color: #c8e6c9;
+  background-color: #fff3cd;
+  color: #ffc107;
 }
 
 .format-node .node-header {
-  background-color: #f3e5f5;
-  border-bottom-color: #e1bee7;
+  background-color: #d1e7dd;
+  color: #198754;
 }
 
 .filter-join-node .node-header {
-  background-color: #fff3e0;
-  border-bottom-color: #ffe0b2;
+  background-color: #f8d7da;
+  color: #dc3545;
 }

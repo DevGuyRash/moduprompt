@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
-import { FaEdit, FaTrash, FaChevronUp, FaChevronDown } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaChevronUp, FaChevronDown, FaUnlink } from 'react-icons/fa';
 import { NodeData, NodeType } from '../../contexts/NodeEditorContext';
 import MarkdownPreview from '../MarkdownPreview/MarkdownPreview';
 import './Node.css';
@@ -16,6 +16,7 @@ interface NodeProps {
   onSelect?: (id: string) => void;
   onConnectionStart?: (nodeId: string, handleId: string) => void;
   onConnectionEnd?: (nodeId: string, handleId: string) => void;
+  onDisconnect?: (nodeId: string, handleId: string, isInput: boolean) => void;
 }
 
 const Node: React.FC<NodeProps> = ({
@@ -28,7 +29,8 @@ const Node: React.FC<NodeProps> = ({
   selected = false,
   onSelect,
   onConnectionStart,
-  onConnectionEnd
+  onConnectionEnd,
+  onDisconnect
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isDraggingHandle, setIsDraggingHandle] = useState(false);
@@ -41,6 +43,7 @@ const Node: React.FC<NodeProps> = ({
     },
     end: () => {
       if (onDragEnd) onDragEnd();
+      setIsDraggingHandle(false); // Reset dragging state when drag ends
     },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
@@ -52,9 +55,15 @@ const Node: React.FC<NodeProps> = ({
     updateNode(node.id, { content: e.target.value });
   };
 
-  const handleNodeClick = () => {
-    if (onSelect) {
-      onSelect(node.id);
+  const handleNodeClick = (e: React.MouseEvent) => {
+    // Only select the node if we're not clicking on a handle or button
+    if (
+      !(e.target as HTMLElement).closest('.node-handle') &&
+      !(e.target as HTMLElement).closest('button')
+    ) {
+      if (onSelect) {
+        onSelect(node.id);
+      }
     }
   };
 
@@ -75,7 +84,17 @@ const Node: React.FC<NodeProps> = ({
     if (isInput && onConnectionEnd) {
       onConnectionEnd(node.id, handleId);
     }
+    
+    // Reset dragging state regardless of whether a connection was made
     setIsDraggingHandle(false);
+  };
+  
+  const handleDisconnect = (e: React.MouseEvent, handleId: string, isInput: boolean) => {
+    e.stopPropagation();
+    
+    if (onDisconnect) {
+      onDisconnect(node.id, handleId, isInput);
+    }
   };
 
   const getNodeTypeLabel = () => {
@@ -124,6 +143,7 @@ const Node: React.FC<NodeProps> = ({
         opacity: isDragging ? 0.5 : 1 
       }}
       onClick={handleNodeClick}
+      data-node-id={node.id}
     >
       <div className="node-header">
         <div className="node-type">{getNodeTypeLabel()}</div>
@@ -170,28 +190,44 @@ const Node: React.FC<NodeProps> = ({
       
       <div className="node-inputs">
         {node.inputs.map(input => (
-          <div 
-            key={input} 
-            className="node-handle input-handle" 
-            data-handle-id={input}
-            onMouseDown={(e) => handleConnectionDragEnd(e, input, true)}
-            title={`Input: ${input}`}
-          >
-            <span className="handle-label">{input}</span>
+          <div key={input} className="node-handle-container">
+            <div 
+              className="node-handle input-handle" 
+              data-handle-id={input}
+              onMouseUp={(e) => handleConnectionDragEnd(e, input, true)}
+              title={`Input: ${input}`}
+            >
+              <span className="handle-label">{input}</span>
+            </div>
+            <button 
+              className="disconnect-button"
+              onClick={(e) => handleDisconnect(e, input, true)}
+              title="Disconnect input"
+            >
+              <FaUnlink size={10} />
+            </button>
           </div>
         ))}
       </div>
       
       <div className="node-outputs">
         {node.outputs.map(output => (
-          <div 
-            key={output} 
-            className="node-handle output-handle" 
-            data-handle-id={output}
-            onMouseDown={(e) => handleConnectionDragStart(e, output, false)}
-            title={`Output: ${output}`}
-          >
-            <span className="handle-label">{output}</span>
+          <div key={output} className="node-handle-container">
+            <div 
+              className="node-handle output-handle" 
+              data-handle-id={output}
+              onMouseDown={(e) => handleConnectionDragStart(e, output, false)}
+              title={`Output: ${output}`}
+            >
+              <span className="handle-label">{output}</span>
+            </div>
+            <button 
+              className="disconnect-button"
+              onClick={(e) => handleDisconnect(e, output, false)}
+              title="Disconnect output"
+            >
+              <FaUnlink size={10} />
+            </button>
           </div>
         ))}
       </div>

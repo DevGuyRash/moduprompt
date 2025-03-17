@@ -1,16 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
-import { NodeData, NodeConnection, NodeType, useNodeEditor } from '../../contexts/NodeEditorContext';
+import { NodeData, NodeConnection, NodeType, useNodeEditor, FormatOptions } from '../../contexts/NodeEditorContext';
 import Node from '../Node/Node';
+import FormattingOptions from '../FormattingOptions/FormattingOptions';
 import { FaPlus, FaFilter, FaObjectGroup, FaCode, FaSearchMinus, FaSearchPlus, FaHome } from 'react-icons/fa';
 import './NodeCanvas.css';
 
 interface ConnectionLineProps {
   connection: NodeConnection;
   nodes: NodeData[];
+  onDelete?: (connection: NodeConnection) => void;
 }
 
-const ConnectionLine: React.FC<ConnectionLineProps> = ({ connection, nodes }) => {
+const ConnectionLine: React.FC<ConnectionLineProps> = ({ connection, nodes, onDelete }) => {
   const sourceNode = nodes.find(node => node.id === connection.sourceId);
   const targetNode = nodes.find(node => node.id === connection.targetId);
   
@@ -29,7 +31,7 @@ const ConnectionLine: React.FC<ConnectionLineProps> = ({ connection, nodes }) =>
   // Get the positions of the handles
   const sourceRect = sourceElement.getBoundingClientRect();
   const targetRect = targetElement.getBoundingClientRect();
-  const canvasRect = document.querySelector('.node-canvas')?.getBoundingClientRect();
+  const canvasRect = document.querySelector('.canvas-content')?.getBoundingClientRect();
   
   if (!canvasRect) return null;
   
@@ -58,7 +60,8 @@ const NodeCanvas: React.FC = () => {
     moveNode,
     toggleNodeCollapse,
     addConnection,
-    deleteConnection
+    deleteConnection,
+    createFormatNode
   } = useNodeEditor();
   
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -69,7 +72,11 @@ const NodeCanvas: React.FC = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [showFormatOptions, setShowFormatOptions] = useState(false);
+  const [formatPosition, setFormatPosition] = useState({ x: 0, y: 0 });
+  
   const canvasRef = useRef<HTMLDivElement>(null);
+  const canvasContentRef = useRef<HTMLDivElement>(null);
   
   const [{ isOver }, drop] = useDrop({
     accept: 'NODE',
@@ -91,14 +98,17 @@ const NodeCanvas: React.FC = () => {
   
   const handleCanvasClick = (e: React.MouseEvent) => {
     // Only handle clicks directly on the canvas, not on nodes
-    if (e.target === canvasRef.current) {
+    if (e.target === canvasContentRef.current) {
       setSelectedNodeId(null);
+      if (showFormatOptions) {
+        setShowFormatOptions(false);
+      }
     }
   };
   
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
-    // Only start dragging if it's a middle mouse button or right click on the canvas itself
-    if ((e.button === 1 || e.button === 2) && e.target === canvasRef.current) {
+    // Start dragging with left mouse button on the canvas itself (not on nodes)
+    if (e.button === 0 && e.target === canvasContentRef.current) {
       e.preventDefault();
       setIsDraggingCanvas(true);
       setDragStart({ x: e.clientX, y: e.clientY });
@@ -119,12 +129,12 @@ const NodeCanvas: React.FC = () => {
     // Update temporary connection line if dragging a connection
     if (isDraggingConnection && connectionStart) {
       const sourceElement = document.querySelector(
-        `[data-node-id="${connectionStart.nodeId}"] [data-handle-id="${connectionStart.handleId}"]`
+        `[data-node-id="${connectionStart.nodeId}"] [data-handle-id="${connection.sourceHandle}"]`
       );
       
       if (sourceElement) {
         const sourceRect = sourceElement.getBoundingClientRect();
-        const canvasRect = canvasRef.current?.getBoundingClientRect();
+        const canvasRect = canvasContentRef.current?.getBoundingClientRect();
         
         if (canvasRect) {
           const sourceX = sourceRect.left + sourceRect.width / 2 - canvasRect.left;
@@ -142,17 +152,25 @@ const NodeCanvas: React.FC = () => {
     setIsDraggingCanvas(false);
     if (isDraggingConnection) {
       setIsDraggingConnection(false);
+      setConnectionStart(null);
       setTemporaryConnection(null);
     }
   };
   
   const handleNodeSelect = (id: string) => {
     setSelectedNodeId(id);
+    
+    // If the selected node is a format node, show formatting options
+    const node = nodes.find(n => n.id === id);
+    if (node && node.type === NodeType.FORMAT) {
+      setFormatPosition(node.position);
+      setShowFormatOptions(true);
+    }
   };
   
   const handleAddNode = (type: NodeType) => {
     // Add node at the center of the canvas
-    const canvasRect = canvasRef.current?.getBoundingClientRect();
+    const canvasRect = canvasContentRef.current?.getBoundingClientRect();
     if (canvasRect) {
       const x = (canvasRect.width / 2 - 140) / scale - position.x; // Half of node width
       const y = (canvasRect.height / 2 - 100) / scale - position.y; // Arbitrary height
@@ -180,6 +198,22 @@ const NodeCanvas: React.FC = () => {
     setTemporaryConnection(null);
   };
   
+  const handleDisconnect = (nodeId: string, handleId: string, isInput: boolean) => {
+    // Find and delete connections related to this handle
+    connections.forEach(connection => {
+      if (isInput && connection.targetId === nodeId && connection.targetHandle === handleId) {
+        deleteConnection(connection.sourceId, nodeId);
+      } else if (!isInput && connection.sourceId === nodeId && connection.sourceHandle === handleId) {
+        deleteConnection(nodeId, connection.targetId);
+      }
+    });
+  };
+  
+  const handleCreateFormat = (formatOptions: FormatOptions) => {
+    createFormatNode(formatOptions, formatPosition);
+    setShowFormatOptions(false);
+  };
+  
   const handleZoomIn = () => {
     setScale(prev => Math.min(prev + 0.1, 2));
   };
@@ -203,7 +237,7 @@ const NodeCanvas: React.FC = () => {
       }
     };
     
-    const canvasElement = canvasRef.current;
+    const canvasElement = canvasContentRef.current;
     if (canvasElement) {
       canvasElement.addEventListener('wheel', handleWheel, { passive: false });
     }
@@ -215,18 +249,19 @@ const NodeCanvas: React.FC = () => {
     };
   }, []);
   
+  // Force update connections when nodes move
+  useEffect(() => {
+    // This effect will run whenever nodes change (including position changes)
+    // It doesn't need to do anything as the component will re-render
+  }, [nodes]);
+  
   return (
     <div 
       ref={(node) => {
-        const result = drop(node);
-        return undefined;
+        drop(node);
+        canvasRef.current = node as HTMLDivElement;
       }}
       className={`node-canvas ${isOver ? 'canvas-drop-active' : ''}`}
-      onClick={handleCanvasClick}
-      onMouseDown={handleCanvasMouseDown}
-      onMouseMove={handleCanvasMouseMove}
-      onMouseUp={handleCanvasMouseUp}
-      onMouseLeave={handleCanvasMouseUp}
       onContextMenu={(e) => e.preventDefault()} // Prevent context menu on right click
     >
       <div className="canvas-toolbar">
@@ -286,14 +321,19 @@ const NodeCanvas: React.FC = () => {
       
       <div 
         className="canvas-content" 
-        ref={canvasRef}
+        ref={canvasContentRef}
         style={{
           transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
           transformOrigin: '0 0'
         }}
+        onClick={handleCanvasClick}
+        onMouseDown={handleCanvasMouseDown}
+        onMouseMove={handleCanvasMouseMove}
+        onMouseUp={handleCanvasMouseUp}
+        onMouseLeave={handleCanvasMouseUp}
       >
         {nodes.map(node => (
-          <div key={node.id} data-node-id={node.id}>
+          <div key={node.id}>
             <Node 
               node={node}
               updateNode={updateNode}
@@ -303,6 +343,7 @@ const NodeCanvas: React.FC = () => {
               onSelect={handleNodeSelect}
               onConnectionStart={handleConnectionStart}
               onConnectionEnd={handleConnectionEnd}
+              onDisconnect={handleDisconnect}
             />
           </div>
         ))}
@@ -327,6 +368,17 @@ const NodeCanvas: React.FC = () => {
           </svg>
         )}
       </div>
+      
+      {showFormatOptions && (
+        <div className="format-options-container">
+          <FormattingOptions 
+            currentMode="node"
+            position={formatPosition}
+            onClose={() => setShowFormatOptions(false)}
+            onCreateFormat={handleCreateFormat}
+          />
+        </div>
+      )}
     </div>
   );
 };
