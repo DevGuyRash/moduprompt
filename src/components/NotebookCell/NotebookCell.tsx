@@ -87,14 +87,14 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
     },
     drop(item: { index: number }, monitor) {
       if (!ref.current) {
-        return;
+        return undefined;
       }
       const dragIndex = item.index;
       const hoverIndex = index;
 
       // Don't replace items with themselves
       if (dragIndex === hoverIndex) {
-        return;
+        return undefined;
       }
 
       // Determine drop position (top or bottom half)
@@ -106,16 +106,16 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
       // Dragging downwards, drop after the hovered item
       if (dragIndex < hoverIndex && hoverClientY > hoverMiddleY) {
         reorderCells(dragIndex, hoverIndex);
-        return { moved: true };
+        return undefined;
       }
 
       // Dragging upwards, drop before the hovered item
       if (dragIndex > hoverIndex && hoverClientY < hoverMiddleY) {
         reorderCells(dragIndex, hoverIndex);
-        return { moved: true };
+        return undefined;
       }
 
-      return { moved: false };
+      return undefined;
     },
     collect: (monitor) => {
       if (!ref.current) {
