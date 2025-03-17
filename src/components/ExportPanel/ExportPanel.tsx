@@ -140,7 +140,7 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ currentMode }) => {
         const formattedContent = getFormattedContent(cell.content, cell.formatting);
         
         // Render markdown to HTML
-        const htmlContent = marked(formattedContent);
+        const htmlContent = marked(formattedContent) as string;
         // Sanitize HTML to prevent XSS
         const sanitizedHtml = DOMPurify.sanitize(htmlContent);
         
@@ -205,7 +205,7 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ currentMode }) => {
         }
         
         // Render markdown to HTML
-        const htmlContent = marked(formattedContent);
+        const htmlContent = marked(formattedContent) as string;
         // Sanitize HTML to prevent XSS
         const sanitizedHtml = DOMPurify.sanitize(htmlContent);
         

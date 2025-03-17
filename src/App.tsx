@@ -5,7 +5,7 @@ import { SnippetProvider } from './contexts/SnippetContext';
 import { NotebookProvider } from './contexts/NotebookContext';
 import { NodeEditorProvider } from './contexts/NodeEditorContext';
 import { useNotebook, CellType } from './contexts/NotebookContext';
-import { useNodeEditor, NodeType } from './contexts/NodeEditorContext';
+import { useNodeEditor, NodeType, FormatOptions } from './contexts/NodeEditorContext';
 import SnippetPanel from './components/SnippetPanel/SnippetPanel';
 import NotebookEditor from './components/NotebookEditor/NotebookEditor';
 import NodeCanvas from './components/NodeCanvas/NodeCanvas';
@@ -21,39 +21,14 @@ enum EditorMode {
 // Content converter component to handle mode switching
 const ContentSynchronizer: React.FC<{ editorMode: EditorMode }> = ({ editorMode }) => {
   const { cells, addCell, updateCell } = useNotebook();
-  const { nodes, connections, addNode, addConnection } = useNodeEditor();
+  const { nodes, connections, convertCellsToNodes, clearNodes } = useNodeEditor();
   
   // When mode changes, synchronize content
   useEffect(() => {
     // Convert from notebook to node mode
     if (editorMode === EditorMode.NODE && cells.length > 0 && nodes.length === 0) {
-      // Create separate nodes for each content cell
-      const contentCells = cells.filter(cell => cell.type === CellType.CONTENT);
-      
-      // Position nodes in a vertical layout to maintain sequence
-      let previousNodeId: string | null = null;
-      
-      contentCells.forEach((cell, index) => {
-        // Create node in a vertical layout
-        const y = 100 + (index * 250);
-        const x = 300; // Center of canvas
-        
-        // Add the node and get its ID
-        const nodeId = addNode(NodeType.PROMPT, { x, y }, cell.content);
-        
-        // Connect this node to the previous one if it exists
-        if (previousNodeId) {
-          addConnection({
-            sourceId: previousNodeId,
-            targetId: nodeId,
-            sourceHandle: 'output',
-            targetHandle: 'input'
-          });
-        }
-        
-        // Update previous node ID for next iteration
-        previousNodeId = nodeId;
-      });
+      // Convert cells to nodes with proper formatting
+      convertCellsToNodes(cells);
     }
     
     // Convert from node to notebook mode
@@ -98,18 +73,47 @@ const ContentSynchronizer: React.FC<{ editorMode: EditorMode }> = ({ editorMode 
         // Create cells in the correct order
         orderedNodeIds.forEach(nodeId => {
           const node = nodes.find(n => n.id === nodeId);
-          if (node) {
+          if (node && node.type === NodeType.PROMPT) {
+            // Find any format nodes connected to this node
+            const formatConnection = connections.find(
+              conn => conn.targetId === node.id && conn.targetHandle === 'format'
+            );
+            
+            if (formatConnection) {
+              // Get the format node
+              const formatNode = nodes.find(n => n.id === formatConnection.sourceId);
+              if (formatNode && formatNode.formatOptions) {
+                // Add cell with formatting
+                addCell(CellType.CONTENT, node.content);
+                // Get the last added cell's ID
+                const lastCellId = cells[cells.length - 1]?.id;
+                if (lastCellId) {
+                  updateCell(lastCellId, { formatting: formatNode.formatOptions });
+                }
+              } else {
+                addCell(CellType.CONTENT, node.content);
+              }
+            } else {
+              addCell(CellType.CONTENT, node.content);
+            }
+          }
+        });
+        
+        // Clear nodes after conversion
+        clearNodes();
+      } else {
+        // Fallback: if no clear sequence, just add all prompt nodes as cells
+        nodes.forEach(node => {
+          if (node.type === NodeType.PROMPT) {
             addCell(CellType.CONTENT, node.content);
           }
         });
-      } else {
-        // Fallback: if no clear sequence, just add all nodes as cells
-        nodes.forEach(node => {
-          addCell(CellType.CONTENT, node.content);
-        });
+        
+        // Clear nodes after conversion
+        clearNodes();
       }
     }
-  }, [editorMode, cells, nodes, connections, addCell, addNode, addConnection]);
+  }, [editorMode, cells, nodes, connections, addCell, updateCell, convertCellsToNodes, clearNodes]);
   
   return null; // This is just a logic component, no UI
 };
@@ -120,6 +124,7 @@ const App: React.FC = () => {
   const [showFormattingOptions, setShowFormattingOptions] = useState(false);
   const [formatPosition, setFormatPosition] = useState({ x: 0, y: 0 });
   const [selectedCellId, setSelectedCellId] = useState<string | null>(null);
+  const { createFormatNode } = useNodeEditor();
 
   // Handle format button click
   const handleFormatClick = () => {
@@ -135,6 +140,14 @@ const App: React.FC = () => {
       }
     }
     setShowFormattingOptions(!showFormattingOptions);
+  };
+
+  // Handle format creation in node mode
+  const handleCreateFormat = (formatOptions: FormatOptions) => {
+    if (editorMode === EditorMode.NODE) {
+      createFormatNode(formatOptions, formatPosition);
+      setShowFormattingOptions(false);
+    }
   };
 
   return (
@@ -175,7 +188,10 @@ const App: React.FC = () => {
                 </div>
               </header>
               <main className="app-content">
-                <SnippetPanel onSelectSnippet={() => {}} />
+                <SnippetPanel 
+                  onSelectSnippet={() => {}} 
+                  currentMode={editorMode === EditorMode.NOTEBOOK ? 'notebook' : 'node'} 
+                />
                 
                 <div className="editor-container">
                   {showFormattingOptions && (
@@ -184,6 +200,7 @@ const App: React.FC = () => {
                       position={formatPosition}
                       cellId={selectedCellId}
                       onClose={() => setShowFormattingOptions(false)}
+                      onCreateFormat={handleCreateFormat}
                     />
                   )}
                   

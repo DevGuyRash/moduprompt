@@ -1,5 +1,6 @@
 import React from 'react';
 import { SnippetType } from '../types/snippet';
+import { CellType, CellData } from './NotebookContext';
 
 export enum NodeType {
   PROMPT = 'prompt',
@@ -44,6 +45,9 @@ interface NodeEditorContextType {
   addConnection: (connection: NodeConnection) => void;
   deleteConnection: (sourceId: string, targetId: string) => void;
   insertSnippet: (snippet: SnippetType, position: { x: number, y: number }) => void;
+  createFormatNode: (formatOptions: FormatOptions, position: { x: number, y: number }) => string;
+  clearNodes: () => void;
+  convertCellsToNodes: (cells: CellData[]) => void;
 }
 
 const defaultContext: NodeEditorContextType = {
@@ -56,7 +60,10 @@ const defaultContext: NodeEditorContextType = {
   toggleNodeCollapse: () => {},
   addConnection: () => {},
   deleteConnection: () => {},
-  insertSnippet: () => {}
+  insertSnippet: () => {},
+  createFormatNode: () => '',
+  clearNodes: () => {},
+  convertCellsToNodes: () => {}
 };
 
 export const NodeEditorContext = React.createContext<NodeEditorContextType>(defaultContext);
@@ -76,13 +83,28 @@ export const NodeEditorProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       content,
       position,
       isCollapsed: false,
-      inputs: type === NodeType.FORMAT ? [] : type === NodeType.PROMPT ? ['input', 'format'] : ['input1', 'input2'],
+      inputs: getNodeInputs(type),
       outputs: ['output'],
       formatOptions
     };
 
     setNodes(prev => [...prev, newNode]);
     return newNode.id;
+  };
+
+  const getNodeInputs = (type: NodeType): string[] => {
+    switch (type) {
+      case NodeType.PROMPT:
+        return ['input', 'format'];
+      case NodeType.FILTER:
+        return ['input'];
+      case NodeType.FORMAT:
+        return ['input'];
+      case NodeType.FILTER_JOIN:
+        return ['input1', 'input2'];
+      default:
+        return ['input'];
+    }
   };
 
   const updateNode = (id: string, data: Partial<NodeData>) => {
@@ -159,6 +181,115 @@ export const NodeEditorProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     addNode(NodeType.PROMPT, position, snippet.content);
   };
 
+  const createFormatNode = (formatOptions: FormatOptions, position: { x: number, y: number }) => {
+    // Create a format node with the specified formatting options
+    const formatDescription = getFormatDescription(formatOptions);
+    return addNode(NodeType.FORMAT, position, formatDescription, formatOptions);
+  };
+
+  const getFormatDescription = (options: FormatOptions): string => {
+    if (!options.type) return 'No Formatting';
+    
+    switch (options.type) {
+      case 'code':
+        return `Code Block${options.language ? ` (${options.language})` : ''}`;
+      case 'blockquote':
+        return 'Blockquote';
+      case 'callout':
+        return `Callout (${options.calloutType || 'info'})`;
+      case 'xml':
+        return `XML <${options.xmlTag || 'div'}>`;
+      default:
+        return 'Format';
+    }
+  };
+
+  const clearNodes = () => {
+    setNodes([]);
+    setConnections([]);
+  };
+
+  const convertCellsToNodes = (cells: CellData[]) => {
+    // Clear existing nodes and connections
+    clearNodes();
+    
+    // Create nodes for each content cell
+    const newNodes: NodeData[] = [];
+    const newConnections: NodeConnection[] = [];
+    
+    // Position nodes in a vertical layout
+    let yPosition = 100;
+    let previousNodeId: string | null = null;
+    
+    cells.forEach((cell, index) => {
+      if (cell.type === CellType.CONTENT) {
+        // Create a prompt node for the content
+        const promptNodeId = generateId();
+        const promptNode: NodeData = {
+          id: promptNodeId,
+          type: NodeType.PROMPT,
+          content: cell.content,
+          position: { x: 300, y: yPosition },
+          isCollapsed: false,
+          inputs: getNodeInputs(NodeType.PROMPT),
+          outputs: ['output']
+        };
+        
+        newNodes.push(promptNode);
+        
+        // If there's formatting, create a format node
+        if (cell.formatting) {
+          // Convert NotebookContext.FormatOptions to NodeEditorContext.FormatOptions
+          const formatOptions: FormatOptions = {
+            type: cell.formatting.type || 'code', // Default to code if type is undefined
+            language: cell.formatting.language,
+            calloutType: cell.formatting.calloutType,
+            xmlTag: cell.formatting.xmlTag
+          };
+          
+          const formatNodeId = generateId();
+          const formatNode: NodeData = {
+            id: formatNodeId,
+            type: NodeType.FORMAT,
+            content: getFormatDescription(formatOptions),
+            position: { x: 100, y: yPosition },
+            isCollapsed: false,
+            inputs: getNodeInputs(NodeType.FORMAT),
+            outputs: ['output'],
+            formatOptions
+          };
+          
+          newNodes.push(formatNode);
+          
+          // Connect format node to prompt node
+          newConnections.push({
+            sourceId: formatNodeId,
+            targetId: promptNodeId,
+            sourceHandle: 'output',
+            targetHandle: 'format'
+          });
+        }
+        
+        // Connect to previous node if it exists
+        if (previousNodeId) {
+          newConnections.push({
+            sourceId: previousNodeId,
+            targetId: promptNodeId,
+            sourceHandle: 'output',
+            targetHandle: 'input'
+          });
+        }
+        
+        previousNodeId = promptNodeId;
+        yPosition += 250; // Increment Y position for next node
+      }
+    });
+    
+    // Update state with new nodes and connections
+    setNodes(newNodes);
+    setConnections(newConnections);
+  };
+
   return (
     <NodeEditorContext.Provider 
       value={{ 
@@ -171,7 +302,10 @@ export const NodeEditorProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         toggleNodeCollapse,
         addConnection,
         deleteConnection,
-        insertSnippet
+        insertSnippet,
+        createFormatNode,
+        clearNodes,
+        convertCellsToNodes
       }}
     >
       {children}

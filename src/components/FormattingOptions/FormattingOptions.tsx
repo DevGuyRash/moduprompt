@@ -10,6 +10,7 @@ import './FormattingOptions.css';
  * @property {string} currentMode - Current editing mode ('notebook' or 'node')
  * @property {Function} onClose - Function to call when closing the formatting panel
  * @property {boolean} isDocumentLevel - Whether these options apply to the entire document
+ * @property {Function} onCreateFormat - Function to call when creating a format in node mode
  */
 interface FormattingOptionsProps {
   cellId?: string | null; // For notebook mode - updated to accept null
@@ -17,6 +18,7 @@ interface FormattingOptionsProps {
   currentMode: 'notebook' | 'node';
   onClose?: () => void;
   isDocumentLevel?: boolean;
+  onCreateFormat?: (formatOptions: FormatOptions) => void;
 }
 
 /**
@@ -28,7 +30,8 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
   position, 
   currentMode,
   onClose,
-  isDocumentLevel = false
+  isDocumentLevel = false,
+  onCreateFormat
 }) => {
   const { addNode } = useNodeEditor();
   const [activeFormatters, setActiveFormatters] = React.useState<{
@@ -74,7 +77,7 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
   const createFormatNode = () => {
     if (currentMode === 'node' && position) {
       // Determine which formatters are active
-      let formatOptions: FormatOptions = {};
+      let formatOptions: FormatOptions = { type: 'code' };
       
       if (activeFormatters.code) {
         formatOptions.type = 'code';
@@ -89,13 +92,18 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
         formatOptions.calloutType = calloutType as 'info' | 'warning' | 'success' | 'error';
       }
 
-      // Create a format node at the specified position
-      addNode(
-        NodeType.FORMAT, 
-        position, 
-        getFormatDescription(formatOptions),
-        formatOptions
-      );
+      if (onCreateFormat) {
+        // Use the provided callback if available
+        onCreateFormat(formatOptions);
+      } else {
+        // Create a format node at the specified position
+        addNode(
+          NodeType.FORMAT, 
+          position, 
+          getFormatDescription(formatOptions),
+          formatOptions
+        );
+      }
 
       if (onClose) onClose();
     }

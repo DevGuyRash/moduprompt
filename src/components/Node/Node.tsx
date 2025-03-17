@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { FaEdit, FaTrash, FaChevronUp, FaChevronDown } from 'react-icons/fa';
 import { NodeData, NodeType } from '../../contexts/NodeEditorContext';
@@ -14,6 +14,8 @@ interface NodeProps {
   onDragEnd?: () => void;
   selected?: boolean;
   onSelect?: (id: string) => void;
+  onConnectionStart?: (nodeId: string, handleId: string) => void;
+  onConnectionEnd?: (nodeId: string, handleId: string) => void;
 }
 
 const Node: React.FC<NodeProps> = ({
@@ -24,9 +26,12 @@ const Node: React.FC<NodeProps> = ({
   onDragStart,
   onDragEnd,
   selected = false,
-  onSelect
+  onSelect,
+  onConnectionStart,
+  onConnectionEnd
 }) => {
-  const [isEditing, setIsEditing] = React.useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDraggingHandle, setIsDraggingHandle] = useState(false);
   
   const [{ isDragging }, drag] = useDrag({
     type: 'NODE',
@@ -40,6 +45,7 @@ const Node: React.FC<NodeProps> = ({
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
+    canDrag: () => !isDraggingHandle, // Prevent node dragging when dragging a handle
   });
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -52,12 +58,34 @@ const Node: React.FC<NodeProps> = ({
     }
   };
 
+  const handleConnectionDragStart = (e: React.MouseEvent, handleId: string, isInput: boolean) => {
+    e.stopPropagation();
+    
+    // Only allow dragging from output handles
+    if (!isInput && onConnectionStart) {
+      setIsDraggingHandle(true);
+      onConnectionStart(node.id, handleId);
+    }
+  };
+
+  const handleConnectionDragEnd = (e: React.MouseEvent, handleId: string, isInput: boolean) => {
+    e.stopPropagation();
+    
+    // Only allow connections to input handles
+    if (isInput && onConnectionEnd) {
+      onConnectionEnd(node.id, handleId);
+    }
+    setIsDraggingHandle(false);
+  };
+
   const getNodeTypeLabel = () => {
     switch (node.type) {
       case NodeType.PROMPT:
         return 'Prompt';
       case NodeType.FILTER:
         return 'Filter';
+      case NodeType.FORMAT:
+        return 'Format';
       case NodeType.FILTER_JOIN:
         return 'Filter Join';
       default:
@@ -71,12 +99,17 @@ const Node: React.FC<NodeProps> = ({
         return 'prompt-node';
       case NodeType.FILTER:
         return 'filter-node';
+      case NodeType.FORMAT:
+        return 'format-node';
       case NodeType.FILTER_JOIN:
         return 'filter-join-node';
       default:
         return '';
     }
   };
+
+  // Filter and Format nodes should not be editable
+  const isEditableNode = node.type === NodeType.PROMPT || node.type === NodeType.FILTER_JOIN;
 
   return (
     <div 
@@ -95,13 +128,15 @@ const Node: React.FC<NodeProps> = ({
       <div className="node-header">
         <div className="node-type">{getNodeTypeLabel()}</div>
         <div className="node-actions">
-          <button 
-            className="node-action-button"
-            onClick={() => setIsEditing(!isEditing)}
-            title={isEditing ? "View mode" : "Edit mode"}
-          >
-            <FaEdit />
-          </button>
+          {isEditableNode && (
+            <button 
+              className="node-action-button"
+              onClick={() => setIsEditing(!isEditing)}
+              title={isEditing ? "View mode" : "Edit mode"}
+            >
+              <FaEdit />
+            </button>
+          )}
           <button 
             className="node-action-button"
             onClick={() => toggleNodeCollapse(node.id)}
@@ -121,7 +156,7 @@ const Node: React.FC<NodeProps> = ({
       
       {!node.isCollapsed && (
         <div className="node-content">
-          {isEditing ? (
+          {isEditing && isEditableNode ? (
             <textarea 
               value={node.content}
               onChange={handleContentChange}
@@ -135,13 +170,29 @@ const Node: React.FC<NodeProps> = ({
       
       <div className="node-inputs">
         {node.inputs.map(input => (
-          <div key={input} className="node-handle input-handle" data-handle-id={input} />
+          <div 
+            key={input} 
+            className="node-handle input-handle" 
+            data-handle-id={input}
+            onMouseDown={(e) => handleConnectionDragEnd(e, input, true)}
+            title={`Input: ${input}`}
+          >
+            <span className="handle-label">{input}</span>
+          </div>
         ))}
       </div>
       
       <div className="node-outputs">
         {node.outputs.map(output => (
-          <div key={output} className="node-handle output-handle" data-handle-id={output} />
+          <div 
+            key={output} 
+            className="node-handle output-handle" 
+            data-handle-id={output}
+            onMouseDown={(e) => handleConnectionDragStart(e, output, false)}
+            title={`Output: ${output}`}
+          >
+            <span className="handle-label">{output}</span>
+          </div>
         ))}
       </div>
     </div>
