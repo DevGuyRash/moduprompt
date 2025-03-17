@@ -1,0 +1,56 @@
+.formatting-options {
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.formatting-options h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: #333;
+}
+
+.formatter-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.formatter-button {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  margin-right: 10px;
+  min-width: 120px;
+}
+
+.formatter-button:hover {
+  background-color: #f0f0f0;
+  border-color: #ccc;
+}
+
+.formatter-button svg {
+  margin-right: 8px;
+}
+
+.formatter-option {
+  padding: 7px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  flex: 1;
+  max-width: 150px;
+}
+
+.formatter-option:focus {
+  outline: none;
+  border-color: #aaa;
+}
