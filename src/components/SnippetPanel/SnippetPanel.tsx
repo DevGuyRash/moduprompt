@@ -3,7 +3,7 @@ import { FolderType, SnippetType } from '../../types/snippet';
 import { useSnippets } from '../../contexts/SnippetContext';
 import { FaFolder, FaFolderOpen, FaFile, FaPlus, FaTrash, FaEdit } from 'react-icons/fa';
 import './SnippetPanel.css';
-import { extractFolderPaths, createNewSnippet } from '../../utils/frontmatter';
+import { extractFolderPaths, createNewSnippet, generateId } from '../../utils/frontmatter';
 
 interface SnippetPanelProps {
   onSelectSnippet?: (snippet: SnippetType) => void;
@@ -61,8 +61,10 @@ const SnippetPanel: React.FC<SnippetPanelProps> = ({ onSelectSnippet, className 
                (parentPath === '' || folder.startsWith(parentPath + '/'));
       })
       .map(path => ({
-        path,
+        id: generateId(), // Generate a unique ID for each folder
         name: path.split('/').pop() || '',
+        parentId: parentPath ? parentPath : null,
+        path: path,
         isExpanded: expandedFolders[path]
       }));
   };

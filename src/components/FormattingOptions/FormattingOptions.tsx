@@ -4,7 +4,7 @@ import { FormatOptions, NodeType, useNodeEditor } from '../../contexts/NodeEdito
 import './FormattingOptions.css';
 
 interface FormattingOptionsProps {
-  cellId?: string; // For notebook mode
+  cellId?: string | null; // For notebook mode - updated to accept null
   position?: { x: number, y: number }; // For node mode
   currentMode: 'notebook' | 'node';
   onClose?: () => void;

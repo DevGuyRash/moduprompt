@@ -28,7 +28,7 @@ const NotebookEditor: React.FC<NotebookEditorProps> = ({ onSelectCell }) => {
   // Filter cells based on showComments setting
   const visibleCells = cells.filter(cell => showComments || cell.type !== CellType.COMMENT);
   
-  const toggleCellSelection = (cellId: string, multiMode: boolean) => {
+  const toggleCellSelection = (cellId: string) => {
     if (groupingMode) {
       const newSelection = new Set(selectedCells);
       if (selectedCells.has(cellId)) {
