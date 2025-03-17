@@ -2,7 +2,7 @@ import React from 'react';
 import { useNotebook, CellType } from '../../contexts/NotebookContext';
 import { useNodeEditor, NodeType } from '../../contexts/NodeEditorContext';
 import { jsPDF } from 'jspdf';
-import marked from 'marked';
+import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import './ExportPanel.css';
 

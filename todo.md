@@ -1,52 +1,41 @@
-# ModuPrompt Development Todo List
+# ModuPrompt Development Todo
 
-## Repository Setup
-- [x] Initialize git repository
-- [x] Create and update README.md
-- [x] Configure git user information
-- [x] Set up GitHub remote with PAT
-- [x] Push initial commit to GitHub
+## Immediate Tasks
+- [x] Clone repository
+- [x] Examine repository structure
+- [x] Check ISSUES.md for priority tasks
+- [x] Fix TypeScript errors
+  - [x] Update tsconfig.json to target ES2018 or later
+  - [x] Fix marked import in ExportPanel.tsx
+- [x] Run application locally to verify fixes
+- [ ] Implement missing features based on ISSUES.md
+  - [ ] Fix Notebook Mode issues
+  - [ ] Fix Node Mode issues
+  - [ ] Implement general improvements
+- [ ] Test application functionality
+- [ ] Push changes to GitHub
+- [ ] Report completion to user
 
-## Project Structure
-- [x] Create basic directory structure
-- [x] Set up frontend framework
-- [x] Configure build system
-- [x] Set up testing framework
+## Notebook Mode Issues to Fix
+1. Drag and Drop Error
+2. Formatting Not Applied in Export
+3. PDF Export Issues
+4. Formatting UI Improvements
+5. Rich Text Editing Bar
+6. Format Cell Menu Issues
+7. Snippet Functionality Issues
 
-## Development Environment
-- [x] Install necessary dependencies
-- [x] Configure development server
-- [x] Set up linting and formatting
-- [x] Create development scripts
+## Node Mode Issues to Fix
+1. Node Connection Issues
+2. Node UI Improvements
+3. Mode Switching Content Preservation
+4. Filter Consistency Between Modes
+5. Filter Node Implementation
+6. Canvas Navigation
+7. Snippet Integration in Node Mode
+8. Filter Join Clarification
 
-## Core Features Implementation
-- [x] Implement snippet management system
-- [x] Create snippet panel with folder structure
-- [x] Implement markdown rendering
-- [x] Add drag & drop functionality
-- [ ] Implement formatting options
-- [ ] Create export functionality
-
-## Notebook Mode Implementation
-- [x] Create cell-based interface
-- [x] Implement cell reordering
-- [x] Add comment cells
-- [x] Implement cell folding/grouping
-
-## Node-Based Editing Implementation
-- [x] Create node canvas
-- [x] Implement node connections
-- [x] Add filter nodes
-- [x] Implement node collapsing
-- [x] Create visual flow system
-
-## Export Functionality
-- [x] Implement markdown export
-- [x] Add PDF export with theming
-- [x] Create preview panel
-
-## Documentation and Finalization
-- [ ] Complete code documentation
-- [ ] Write user guide
-- [ ] Create example templates
-- [ ] Final testing and bug fixes
+## General Improvements
+1. Cross-Mode Consistency
+2. Documentation Updates
+3. UI/UX Enhancements
