@@ -50,8 +50,12 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   // Close format menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (showFormatMenu && ref.current && !ref.current.contains(event.target as Node)) {
-        setShowFormatMenu(false);
+      if (showFormatMenu && ref.current) {
+        // Check if the click target is within the format menu
+        const formatMenu = document.querySelector('.format-menu');
+        if (formatMenu && !formatMenu.contains(event.target as Node) && !ref.current.contains(event.target as Node)) {
+          setShowFormatMenu(false);
+        }
       }
     };
 
