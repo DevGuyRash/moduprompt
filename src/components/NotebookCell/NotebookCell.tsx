@@ -1,8 +1,8 @@
 import React from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-import { FaArrowUp, FaArrowDown, FaTrash, FaEdit, FaEye, FaComment, FaCheck } from 'react-icons/fa';
+import { FaArrowUp, FaArrowDown, FaTrash, FaEdit, FaEye, FaComment, FaCheck, FaCode, FaQuoteRight, FaInfoCircle, FaTag } from 'react-icons/fa';
 import MarkdownPreview from '../MarkdownPreview/MarkdownPreview';
-import { CellData, CellType } from '../../contexts/NotebookContext';
+import { CellData, CellType, FormatOptions } from '../../contexts/NotebookContext';
 import './NotebookCell.css';
 
 interface NotebookCellProps {
@@ -28,6 +28,7 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   onSelect,
   groupingMode = false
 }) => {
+  const [showFormatMenu, setShowFormatMenu] = React.useState(false);
   const [{ isDragging }, drag] = useDrag({
     type: 'CELL',
     item: { index },
@@ -63,6 +64,43 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
     }
   };
 
+  const applyFormatting = (type: 'code' | 'blockquote' | 'callout' | 'xml', options?: Partial<FormatOptions>) => {
+    const formatting: FormatOptions = {
+      type,
+      ...options
+    };
+    updateCell(cell.id, { formatting });
+    setShowFormatMenu(false);
+  };
+
+  const removeFormatting = () => {
+    const { formatting, ...rest } = cell;
+    updateCell(cell.id, { formatting: undefined });
+    setShowFormatMenu(false);
+  };
+
+  // Apply formatting to content for rendering
+  const getFormattedContent = () => {
+    if (!cell.formatting) return cell.content;
+
+    switch (cell.formatting.type) {
+      case 'code':
+        const language = cell.formatting.language || '';
+        return `\`\`\`${language}\n${cell.content}\n\`\`\``;
+      case 'blockquote':
+        // Add > to each line
+        return cell.content.split('\n').map(line => `> ${line}`).join('\n');
+      case 'callout':
+        const calloutType = cell.formatting.calloutType || 'info';
+        return `:::${calloutType}\n${cell.content}\n:::`;
+      case 'xml':
+        const tag = cell.formatting.xmlTag || 'div';
+        return `<${tag}>\n${cell.content}\n</${tag}>`;
+      default:
+        return cell.content;
+    }
+  };
+
   return (
     <div 
       ref={(node) => {
@@ -73,7 +111,8 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
                  ${isDragging ? 'dragging' : ''} 
                  ${isOver ? 'drop-target' : ''} 
                  ${isSelected ? 'selected' : ''} 
-                 ${groupingMode ? 'grouping-mode' : ''}`}
+                 ${groupingMode ? 'grouping-mode' : ''}
+                 ${cell.formatting ? `formatted formatted-${cell.formatting.type}` : ''}`}
       onClick={handleCellClick}
     >
       <div className="cell-handle"></div>
@@ -86,7 +125,7 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
             className="cell-editor"
           />
         ) : (
-          <MarkdownPreview markdown={cell.content} />
+          <MarkdownPreview markdown={getFormattedContent()} />
         )}
       </div>
       
@@ -97,6 +136,17 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
           title={cell.isEditing ? "View mode" : "Edit mode"}
         >
           {cell.isEditing ? <FaEye /> : <FaEdit />}
+        </button>
+        
+        <button
+          className="cell-action-button format"
+          onClick={() => setShowFormatMenu(!showFormatMenu)}
+          title="Format cell"
+        >
+          {cell.formatting?.type === 'code' ? <FaCode /> : 
+           cell.formatting?.type === 'blockquote' ? <FaQuoteRight /> :
+           cell.formatting?.type === 'callout' ? <FaInfoCircle /> :
+           cell.formatting?.type === 'xml' ? <FaTag /> : <FaCode />}
         </button>
         
         {!groupingMode && (
@@ -128,6 +178,49 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
           </>
         )}
       </div>
+      
+      {showFormatMenu && (
+        <div className="format-menu">
+          <div className="format-menu-header">
+            <h4>Format Cell</h4>
+            <button onClick={() => setShowFormatMenu(false)}>×</button>
+          </div>
+          <div className="format-menu-options">
+            <button 
+              className={`format-option ${cell.formatting?.type === 'code' ? 'active' : ''}`}
+              onClick={() => applyFormatting('code', { language: 'javascript' })}
+            >
+              <FaCode /> Code Block
+            </button>
+            <button 
+              className={`format-option ${cell.formatting?.type === 'blockquote' ? 'active' : ''}`}
+              onClick={() => applyFormatting('blockquote')}
+            >
+              <FaQuoteRight /> Blockquote
+            </button>
+            <button 
+              className={`format-option ${cell.formatting?.type === 'callout' ? 'active' : ''}`}
+              onClick={() => applyFormatting('callout', { calloutType: 'info' })}
+            >
+              <FaInfoCircle /> Callout
+            </button>
+            <button 
+              className={`format-option ${cell.formatting?.type === 'xml' ? 'active' : ''}`}
+              onClick={() => applyFormatting('xml', { xmlTag: 'div' })}
+            >
+              <FaTag /> XML Tags
+            </button>
+            {cell.formatting && (
+              <button 
+                className="format-option remove"
+                onClick={removeFormatting}
+              >
+                <FaTrash /> Remove Formatting
+              </button>
+            )}
+          </div>
+        </div>
+      )}
       
       {cell.type === CellType.COMMENT && (
         <div className="cell-type-indicator">

@@ -6,11 +6,19 @@ export enum CellType {
   COMMENT = 'comment'
 }
 
+export interface FormatOptions {
+  type?: 'code' | 'blockquote' | 'callout' | 'xml';
+  language?: string;
+  calloutType?: 'info' | 'warning' | 'success' | 'error';
+  xmlTag?: string;
+}
+
 export interface CellData {
   id: string;
   type: CellType;
   content: string;
   isEditing: boolean;
+  formatting?: FormatOptions;
 }
 
 interface NotebookContextType {
@@ -21,6 +29,8 @@ interface NotebookContextType {
   moveCell: (id: string, direction: 'up' | 'down') => void;
   reorderCells: (sourceIndex: number, targetIndex: number) => void;
   insertSnippet: (snippet: SnippetType, index?: number) => void;
+  formatCell: (id: string, formatting: FormatOptions) => void;
+  removeFormatting: (id: string) => void;
   showComments: boolean;
   toggleShowComments: () => void;
 }
@@ -33,6 +43,8 @@ const defaultContext: NotebookContextType = {
   moveCell: () => {},
   reorderCells: () => {},
   insertSnippet: () => {},
+  formatCell: () => {},
+  removeFormatting: () => {},
   showComments: true,
   toggleShowComments: () => {}
 };
@@ -117,6 +129,26 @@ export const NotebookProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     addCell(CellType.CONTENT, snippetContent, index);
   };
 
+  const formatCell = (id: string, formatting: FormatOptions) => {
+    setCells(prev => 
+      prev.map(cell => 
+        cell.id === id ? { ...cell, formatting } : cell
+      )
+    );
+  };
+
+  const removeFormatting = (id: string) => {
+    setCells(prev => 
+      prev.map(cell => {
+        if (cell.id === id) {
+          const { formatting, ...rest } = cell;
+          return rest;
+        }
+        return cell;
+      })
+    );
+  };
+
   const toggleShowComments = () => {
     setShowComments(prev => !prev);
   };
@@ -131,6 +163,8 @@ export const NotebookProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         moveCell,
         reorderCells,
         insertSnippet,
+        formatCell,
+        removeFormatting,
         showComments,
         toggleShowComments
       }}
