@@ -139,19 +139,20 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ currentMode }) => {
         // Apply formatting to content
         const formattedContent = getFormattedContent(cell.content, cell.formatting);
         
-        // Convert markdown to plain text for PDF
-        // In a more advanced implementation, we would render the markdown properly
-        const plainText = formattedContent.replace(/\*\*(.*?)\*\*/g, '$1')  // Bold
-                                         .replace(/\*(.*?)\*/g, '$1')       // Italic
-                                         .replace(/~~(.*?)~~/g, '$1')       // Strikethrough
-                                         .replace(/```(.*?)```/gs, '$1')    // Code blocks
-                                         .replace(/`(.*?)`/g, '$1')         // Inline code
-                                         .replace(/>(.*?)$/gm, '$1')        // Blockquotes
-                                         .replace(/:::(.*?)\n(.*?):::/gs, '$2') // Callouts
-                                         .replace(/<(.*?)>(.*?)<\/(.*?)>/gs, '$2'); // XML tags
+        // Render markdown to HTML
+        const htmlContent = marked(formattedContent);
+        // Sanitize HTML to prevent XSS
+        const sanitizedHtml = DOMPurify.sanitize(htmlContent);
+        
+        // Create a temporary element to hold the HTML content
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = sanitizedHtml;
+        
+        // Extract text content for PDF
+        const textContent = tempDiv.textContent || tempDiv.innerText || '';
         
         // Simple text splitting for PDF
-        const lines = doc.splitTextToSize(plainText, doc.internal.pageSize.width - 40);
+        const lines = doc.splitTextToSize(textContent, doc.internal.pageSize.width - 40);
         
         // Check if we need a new page
         if (y + lines.length * 7 > doc.internal.pageSize.height - 20) {
@@ -159,9 +160,40 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ currentMode }) => {
           y = 20;
         }
         
+        // Add formatted title for code blocks, blockquotes, etc.
+        if (cell.formatting) {
+          let formatTitle = '';
+          switch (cell.formatting.type) {
+            case 'code':
+              formatTitle = `Code Block${cell.formatting.language ? ` (${cell.formatting.language})` : ''}`;
+              doc.setFont(fontFamily, 'bold');
+              doc.text(formatTitle, 20, y);
+              y += 10;
+              break;
+            case 'blockquote':
+              doc.setFont(fontFamily, 'italic');
+              break;
+            case 'callout':
+              formatTitle = `${cell.formatting.calloutType?.toUpperCase() || 'INFO'} CALLOUT`;
+              doc.setFont(fontFamily, 'bold');
+              doc.text(formatTitle, 20, y);
+              y += 10;
+              break;
+            case 'xml':
+              formatTitle = `XML (${cell.formatting.xmlTag || 'div'})`;
+              doc.setFont(fontFamily, 'bold');
+              doc.text(formatTitle, 20, y);
+              y += 10;
+              break;
+          }
+        }
+        
+        // Reset font for content
+        doc.setFont(fontFamily, 'normal');
+        
         // Add cell content
         doc.text(lines, 20, y);
-        y += lines.length * 7 + 10;
+        y += lines.length * 7 + 15; // Add more space between cells
       });
     } else {
       // For node mode, add all node content with formatting
@@ -172,18 +204,20 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ currentMode }) => {
           formattedContent = getFormattedContent(node.content, node.formatOptions);
         }
         
-        // Convert markdown to plain text for PDF
-        const plainText = formattedContent.replace(/\*\*(.*?)\*\*/g, '$1')  // Bold
-                                         .replace(/\*(.*?)\*/g, '$1')       // Italic
-                                         .replace(/~~(.*?)~~/g, '$1')       // Strikethrough
-                                         .replace(/```(.*?)```/gs, '$1')    // Code blocks
-                                         .replace(/`(.*?)`/g, '$1')         // Inline code
-                                         .replace(/>(.*?)$/gm, '$1')        // Blockquotes
-                                         .replace(/:::(.*?)\n(.*?):::/gs, '$2') // Callouts
-                                         .replace(/<(.*?)>(.*?)<\/(.*?)>/gs, '$2'); // XML tags
+        // Render markdown to HTML
+        const htmlContent = marked(formattedContent);
+        // Sanitize HTML to prevent XSS
+        const sanitizedHtml = DOMPurify.sanitize(htmlContent);
+        
+        // Create a temporary element to hold the HTML content
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = sanitizedHtml;
+        
+        // Extract text content for PDF
+        const textContent = tempDiv.textContent || tempDiv.innerText || '';
         
         // Simple text splitting for PDF
-        const lines = doc.splitTextToSize(plainText, doc.internal.pageSize.width - 40);
+        const lines = doc.splitTextToSize(textContent, doc.internal.pageSize.width - 40);
         
         // Check if we need a new page
         if (y + lines.length * 7 > doc.internal.pageSize.height - 20) {
@@ -191,9 +225,40 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ currentMode }) => {
           y = 20;
         }
         
+        // Add formatted title for code blocks, blockquotes, etc.
+        if (node.formatOptions) {
+          let formatTitle = '';
+          switch (node.formatOptions.type) {
+            case 'code':
+              formatTitle = `Code Block${node.formatOptions.language ? ` (${node.formatOptions.language})` : ''}`;
+              doc.setFont(fontFamily, 'bold');
+              doc.text(formatTitle, 20, y);
+              y += 10;
+              break;
+            case 'blockquote':
+              doc.setFont(fontFamily, 'italic');
+              break;
+            case 'callout':
+              formatTitle = `${node.formatOptions.calloutType?.toUpperCase() || 'INFO'} CALLOUT`;
+              doc.setFont(fontFamily, 'bold');
+              doc.text(formatTitle, 20, y);
+              y += 10;
+              break;
+            case 'xml':
+              formatTitle = `XML (${node.formatOptions.xmlTag || 'div'})`;
+              doc.setFont(fontFamily, 'bold');
+              doc.text(formatTitle, 20, y);
+              y += 10;
+              break;
+          }
+        }
+        
+        // Reset font for content
+        doc.setFont(fontFamily, 'normal');
+        
         // Add node content
         doc.text(lines, 20, y);
-        y += lines.length * 7 + 10;
+        y += lines.length * 7 + 15; // Add more space between nodes
       });
     }
     
