@@ -1,5 +1,5 @@
 import React from 'react';
-import { SnippetType } from '../../types/snippet';
+import { SnippetType } from '../types/snippet';
 
 export enum CellType {
   CONTENT = 'content',

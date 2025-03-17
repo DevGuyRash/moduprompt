@@ -126,7 +126,10 @@ const NodeCanvas: React.FC = () => {
   
   return (
     <div 
-      ref={(node) => drop(node)}
+      ref={(node) => {
+        const result = drop(node);
+        return undefined;
+      }}
       className={`node-canvas ${isOver ? 'canvas-drop-active' : ''}`}
       onClick={handleCanvasClick}
     >

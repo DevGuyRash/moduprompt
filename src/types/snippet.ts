@@ -1,15 +1,14 @@
 export interface SnippetType {
   id: string;
-  title: string;
+  name: string;
   content: string;
   folder: string;
-  frontmatter?: Record<string, any>;
-  createdAt: number;
-  updatedAt: number;
+  tags?: string[];
+  metadata?: Record<string, any>;
 }
 
-export interface FolderType {
-  path: string;
+export interface SnippetFolder {
+  id: string;
   name: string;
-  isExpanded?: boolean;
+  parentId: string | null;
 }

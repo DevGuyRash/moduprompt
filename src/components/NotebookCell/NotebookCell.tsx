@@ -39,13 +39,14 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
 
   const [{ isOver }, drop] = useDrop({
     accept: 'CELL',
-    drop: (item: { index: number }) => {
+    drop: (item: { index: number }, monitor) => {
       reorderCells(item.index, index);
+      return true;
     },
     collect: (monitor) => ({
-      isOver: monitor.isOver(),
+      isOver: !!monitor.isOver(),
     }),
-    canDrop: !groupingMode, // Disable dropping in grouping mode
+    canDrop: () => !groupingMode, // Disable dropping in grouping mode
   });
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -64,7 +65,10 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
 
   return (
     <div 
-      ref={(node) => drag(drop(node))}
+      ref={(node) => {
+        const result = drag(drop(node));
+        return undefined;
+      }}
       className={`notebook-cell ${cell.type === CellType.COMMENT ? 'comment-cell' : ''} 
                  ${isDragging ? 'dragging' : ''} 
                  ${isOver ? 'drop-target' : ''} 
