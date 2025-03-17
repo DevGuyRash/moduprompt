@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { FaArrowUp, FaArrowDown, FaTrash, FaEdit, FaEye, FaComment, FaCheck, FaCode, FaQuoteRight, FaInfoCircle, FaTag } from 'react-icons/fa';
 import MarkdownPreview from '../MarkdownPreview/MarkdownPreview';
@@ -45,6 +45,21 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   groupingMode = false
 }) => {
   const [showFormatMenu, setShowFormatMenu] = React.useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  
+  // Close format menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showFormatMenu && ref.current && !ref.current.contains(event.target as Node)) {
+        setShowFormatMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showFormatMenu]);
   
   // Set up drag and drop functionality
   const [{ isDragging }, drag] = useDrag({
@@ -56,15 +71,73 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
     canDrag: !groupingMode, // Disable dragging in grouping mode
   });
 
-  const [{ isOver }, drop] = useDrop({
+  const [{ isOver, isOverTop, isOverBottom }, drop] = useDrop({
     accept: 'CELL',
-    drop: (item: { index: number }, monitor) => {
-      reorderCells(item.index, index);
-      return true;
+    hover(item: { index: number }, monitor) {
+      if (!ref.current) {
+        return;
+      }
+      const dragIndex = item.index;
+      const hoverIndex = index;
+
+      // Don't replace items with themselves
+      if (dragIndex === hoverIndex) {
+        return;
+      }
     },
-    collect: (monitor) => ({
-      isOver: !!monitor.isOver(),
-    }),
+    drop(item: { index: number }, monitor) {
+      if (!ref.current) {
+        return;
+      }
+      const dragIndex = item.index;
+      const hoverIndex = index;
+
+      // Don't replace items with themselves
+      if (dragIndex === hoverIndex) {
+        return;
+      }
+
+      // Determine drop position (top or bottom half)
+      const hoverBoundingRect = ref.current.getBoundingClientRect();
+      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const clientOffset = monitor.getClientOffset();
+      const hoverClientY = clientOffset ? clientOffset.y - hoverBoundingRect.top : 0;
+
+      // Dragging downwards, drop after the hovered item
+      if (dragIndex < hoverIndex && hoverClientY > hoverMiddleY) {
+        reorderCells(dragIndex, hoverIndex);
+        return { moved: true };
+      }
+
+      // Dragging upwards, drop before the hovered item
+      if (dragIndex > hoverIndex && hoverClientY < hoverMiddleY) {
+        reorderCells(dragIndex, hoverIndex);
+        return { moved: true };
+      }
+
+      return { moved: false };
+    },
+    collect: (monitor) => {
+      if (!ref.current) {
+        return {
+          isOver: false,
+          isOverTop: false,
+          isOverBottom: false
+        };
+      }
+
+      // Determine if hovering over top or bottom half
+      const hoverBoundingRect = ref.current.getBoundingClientRect();
+      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const clientOffset = monitor.getClientOffset();
+      const hoverClientY = clientOffset ? clientOffset.y - hoverBoundingRect.top : 0;
+      
+      return {
+        isOver: monitor.isOver(),
+        isOverTop: monitor.isOver() && hoverClientY < hoverMiddleY,
+        isOverBottom: monitor.isOver() && hoverClientY > hoverMiddleY
+      };
+    },
     canDrop: () => !groupingMode, // Disable dropping in grouping mode
   });
 
@@ -140,15 +213,17 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
     }
   };
 
+  // Initialize drag and drop refs
+  drag(drop(ref));
+
   return (
     <div 
-      ref={(node) => {
-        const result = drag(drop(node));
-        return undefined;
-      }}
+      ref={ref}
       className={`notebook-cell ${cell.type === CellType.COMMENT ? 'comment-cell' : ''} 
                  ${isDragging ? 'dragging' : ''} 
                  ${isOver ? 'drop-target' : ''} 
+                 ${isOverTop ? 'drop-target-top' : ''}
+                 ${isOverBottom ? 'drop-target-bottom' : ''}
                  ${isSelected ? 'selected' : ''} 
                  ${groupingMode ? 'grouping-mode' : ''}
                  ${cell.formatting ? `formatted formatted-${cell.formatting.type}` : ''}`}

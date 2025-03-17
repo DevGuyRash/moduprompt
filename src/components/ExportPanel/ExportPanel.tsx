@@ -2,6 +2,8 @@ import React from 'react';
 import { useNotebook, CellType } from '../../contexts/NotebookContext';
 import { useNodeEditor, NodeType } from '../../contexts/NodeEditorContext';
 import { jsPDF } from 'jspdf';
+import marked from 'marked';
+import DOMPurify from 'dompurify';
 import './ExportPanel.css';
 
 interface ExportPanelProps {
@@ -15,6 +17,33 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ currentMode }) => {
   const [pdfTheme, setPdfTheme] = React.useState('default');
   const [includeComments, setIncludeComments] = React.useState(false);
   
+  /**
+   * Applies formatting to content based on formatting options
+   * @param {string} content - The raw content
+   * @param {any} formatting - The formatting options
+   * @returns {string} The formatted content
+   */
+  const getFormattedContent = (content: string, formatting: any) => {
+    if (!formatting) return content;
+
+    switch (formatting.type) {
+      case 'code':
+        const language = formatting.language || '';
+        return `\`\`\`${language}\n${content}\n\`\`\``;
+      case 'blockquote':
+        // Add > to each line
+        return content.split('\n').map(line => `> ${line}`).join('\n');
+      case 'callout':
+        const calloutType = formatting.calloutType || 'info';
+        return `:::${calloutType}\n${content}\n:::`;
+      case 'xml':
+        const tag = formatting.xmlTag || 'div';
+        return `<${tag}>\n${content}\n</${tag}>`;
+      default:
+        return content;
+    }
+  };
+  
   const exportToMarkdown = () => {
     let markdownContent = '';
     
@@ -24,8 +53,10 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ currentMode }) => {
         ? cells 
         : cells.filter(cell => cell.type !== CellType.COMMENT);
       
-      // Combine all cell content
-      markdownContent = visibleCells.map(cell => cell.content).join('\n\n');
+      // Combine all cell content with formatting applied
+      markdownContent = visibleCells.map(cell => 
+        getFormattedContent(cell.content, cell.formatting)
+      ).join('\n\n');
     } else {
       // For node mode, we need to traverse the connections to get the right order
       // Start with nodes that have no incoming connections (source nodes)
@@ -33,9 +64,14 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ currentMode }) => {
         !connections.some(conn => conn.targetId === node.id)
       );
       
-      // Simple implementation - just concatenate all node content
-      // A more sophisticated implementation would follow the connections
-      markdownContent = nodes.map(node => node.content).join('\n\n');
+      // Simple implementation - just concatenate all node content with formatting
+      markdownContent = nodes.map(node => {
+        // Apply formatting if the node has formatting options
+        if (node.formatOptions) {
+          return getFormattedContent(node.content, node.formatOptions);
+        }
+        return node.content;
+      }).join('\n\n');
     }
     
     // Create a download link
@@ -98,10 +134,24 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ currentMode }) => {
         ? cells 
         : cells.filter(cell => cell.type !== CellType.COMMENT);
       
-      // Add each cell content
+      // Add each cell content with formatting
       visibleCells.forEach((cell, index) => {
+        // Apply formatting to content
+        const formattedContent = getFormattedContent(cell.content, cell.formatting);
+        
+        // Convert markdown to plain text for PDF
+        // In a more advanced implementation, we would render the markdown properly
+        const plainText = formattedContent.replace(/\*\*(.*?)\*\*/g, '$1')  // Bold
+                                         .replace(/\*(.*?)\*/g, '$1')       // Italic
+                                         .replace(/~~(.*?)~~/g, '$1')       // Strikethrough
+                                         .replace(/```(.*?)```/gs, '$1')    // Code blocks
+                                         .replace(/`(.*?)`/g, '$1')         // Inline code
+                                         .replace(/>(.*?)$/gm, '$1')        // Blockquotes
+                                         .replace(/:::(.*?)\n(.*?):::/gs, '$2') // Callouts
+                                         .replace(/<(.*?)>(.*?)<\/(.*?)>/gs, '$2'); // XML tags
+        
         // Simple text splitting for PDF
-        const lines = doc.splitTextToSize(cell.content, doc.internal.pageSize.width - 40);
+        const lines = doc.splitTextToSize(plainText, doc.internal.pageSize.width - 40);
         
         // Check if we need a new page
         if (y + lines.length * 7 > doc.internal.pageSize.height - 20) {
@@ -114,10 +164,26 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ currentMode }) => {
         y += lines.length * 7 + 10;
       });
     } else {
-      // For node mode, just add all node content
+      // For node mode, add all node content with formatting
       nodes.forEach((node, index) => {
+        // Apply formatting if the node has formatting options
+        let formattedContent = node.content;
+        if (node.formatOptions) {
+          formattedContent = getFormattedContent(node.content, node.formatOptions);
+        }
+        
+        // Convert markdown to plain text for PDF
+        const plainText = formattedContent.replace(/\*\*(.*?)\*\*/g, '$1')  // Bold
+                                         .replace(/\*(.*?)\*/g, '$1')       // Italic
+                                         .replace(/~~(.*?)~~/g, '$1')       // Strikethrough
+                                         .replace(/```(.*?)```/gs, '$1')    // Code blocks
+                                         .replace(/`(.*?)`/g, '$1')         // Inline code
+                                         .replace(/>(.*?)$/gm, '$1')        // Blockquotes
+                                         .replace(/:::(.*?)\n(.*?):::/gs, '$2') // Callouts
+                                         .replace(/<(.*?)>(.*?)<\/(.*?)>/gs, '$2'); // XML tags
+        
         // Simple text splitting for PDF
-        const lines = doc.splitTextToSize(node.content, doc.internal.pageSize.width - 40);
+        const lines = doc.splitTextToSize(plainText, doc.internal.pageSize.width - 40);
         
         // Check if we need a new page
         if (y + lines.length * 7 > doc.internal.pageSize.height - 20) {
