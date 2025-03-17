@@ -1,0 +1,149 @@
+.notebook-cell {
+  position: relative;
+  display: flex;
+  margin-bottom: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.notebook-cell.dragging {
+  opacity: 0.5;
+}
+
+.notebook-cell.drop-target {
+  border: 1px dashed #4a90e2;
+  background-color: rgba(74, 144, 226, 0.05);
+}
+
+.notebook-cell.selected {
+  border: 2px solid #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.notebook-cell.grouping-mode {
+  cursor: pointer;
+}
+
+.notebook-cell.grouping-mode:hover {
+  background-color: #f8f9fa;
+}
+
+.cell-handle {
+  width: 10px;
+  background-color: #f0f0f0;
+  cursor: grab;
+  border-radius: 4px 0 0 4px;
+}
+
+.cell-content {
+  flex: 1;
+  padding: 1rem;
+  min-height: 100px;
+  overflow: auto;
+}
+
+.cell-editor {
+  width: 100%;
+  height: 100%;
+  min-height: 100px;
+  border: none;
+  resize: vertical;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1.6;
+  padding: 0;
+  outline: none;
+}
+
+.cell-actions {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.notebook-cell:hover .cell-actions {
+  opacity: 1;
+}
+
+.cell-action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.cell-action-button:hover {
+  background-color: #f0f0f0;
+  color: #4a90e2;
+}
+
+.cell-action-button.delete:hover {
+  color: #dc3545;
+}
+
+.cell-action-button.toggle-mode {
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+}
+
+.cell-action-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.comment-cell {
+  background-color: #fffbea;
+  border-color: #ffe58f;
+}
+
+.cell-type-indicator {
+  position: absolute;
+  top: 5px;
+  left: 15px;
+  color: #d4b106;
+  font-size: 14px;
+}
+
+.cell-selection-indicator {
+  position: absolute;
+  top: 5px;
+  left: 15px;
+  color: #4a90e2;
+  font-size: 14px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(74, 144, 226, 0.1);
+}
+
+/* Pill button for edit/view toggle */
+.toggle-mode {
+  border-radius: 15px;
+  padding: 0 10px;
+  width: auto;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.toggle-mode svg {
+  font-size: 12px;
+}

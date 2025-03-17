@@ -1,0 +1,113 @@
+.markdown-preview {
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.markdown-preview h1 {
+  font-size: 2em;
+  margin-bottom: 0.5em;
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 0.3em;
+}
+
+.markdown-preview h2 {
+  font-size: 1.5em;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 0.3em;
+}
+
+.markdown-preview h3 {
+  font-size: 1.25em;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-preview h4 {
+  font-size: 1em;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-preview p {
+  margin-bottom: 1em;
+  line-height: 1.6;
+}
+
+.markdown-preview ul, .markdown-preview ol {
+  margin-bottom: 1em;
+  padding-left: 2em;
+}
+
+.markdown-preview li {
+  margin-bottom: 0.5em;
+}
+
+.markdown-preview blockquote {
+  padding: 0 1em;
+  color: #6a737d;
+  border-left: 0.25em solid #dfe2e5;
+  margin-bottom: 1em;
+}
+
+.markdown-preview pre {
+  background-color: #f6f8fa;
+  border-radius: 3px;
+  padding: 16px;
+  overflow: auto;
+  margin-bottom: 1em;
+}
+
+.markdown-preview code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  background-color: rgba(27, 31, 35, 0.05);
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+  font-size: 85%;
+}
+
+.markdown-preview pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.markdown-preview table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 1em;
+}
+
+.markdown-preview table th, .markdown-preview table td {
+  padding: 6px 13px;
+  border: 1px solid #dfe2e5;
+}
+
+.markdown-preview table tr {
+  background-color: #fff;
+  border-top: 1px solid #c6cbd1;
+}
+
+.markdown-preview table tr:nth-child(2n) {
+  background-color: #f6f8fa;
+}
+
+.markdown-preview img {
+  max-width: 100%;
+  box-sizing: content-box;
+  background-color: #fff;
+}
+
+.markdown-preview hr {
+  height: 0.25em;
+  padding: 0;
+  margin: 24px 0;
+  background-color: #e1e4e8;
+  border: 0;
+}

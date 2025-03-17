@@ -20,18 +20,18 @@
 - [x] Create development scripts
 
 ## Core Features Implementation
-- [ ] Implement snippet management system
-- [ ] Create snippet panel with folder structure
-- [ ] Implement markdown rendering
-- [ ] Add drag & drop functionality
+- [x] Implement snippet management system
+- [x] Create snippet panel with folder structure
+- [x] Implement markdown rendering
+- [x] Add drag & drop functionality
 - [ ] Implement formatting options
 - [ ] Create export functionality
 
 ## Notebook Mode Implementation
-- [ ] Create cell-based interface
-- [ ] Implement cell reordering
-- [ ] Add comment cells
-- [ ] Implement cell folding/grouping
+- [x] Create cell-based interface
+- [x] Implement cell reordering
+- [x] Add comment cells
+- [x] Implement cell folding/grouping
 
 ## Node-Based Editing Implementation
 - [ ] Create node canvas
