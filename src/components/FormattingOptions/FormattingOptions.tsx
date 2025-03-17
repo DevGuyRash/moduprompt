@@ -3,6 +3,13 @@ import { FaCode, FaQuoteRight, FaInfoCircle, FaTag, FaPlus } from 'react-icons/f
 import { FormatOptions, NodeType, useNodeEditor } from '../../contexts/NodeEditorContext';
 import './FormattingOptions.css';
 
+/**
+ * Props for the FormattingOptions component
+ * @property {string|null} cellId - ID of the cell to format in notebook mode
+ * @property {Object} position - Position for node mode formatting
+ * @property {string} currentMode - Current editing mode ('notebook' or 'node')
+ * @property {Function} onClose - Function to call when closing the formatting panel
+ */
 interface FormattingOptionsProps {
   cellId?: string | null; // For notebook mode - updated to accept null
   position?: { x: number, y: number }; // For node mode
@@ -10,6 +17,10 @@ interface FormattingOptionsProps {
   onClose?: () => void;
 }
 
+/**
+ * Component for selecting and applying formatting options to cells or nodes
+ * Provides options for code blocks, blockquotes, callouts, and XML tags
+ */
 const FormattingOptions: React.FC<FormattingOptionsProps> = ({ 
   cellId, 
   position, 
@@ -22,6 +33,9 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
   const [calloutType, setCalloutType] = React.useState('info');
   const [xmlTag, setXmlTag] = React.useState('');
 
+  /**
+   * Creates a format node in node mode
+   */
   const createFormatNode = () => {
     if (currentMode === 'node' && position) {
       const formatOptions: FormatOptions = {
@@ -43,6 +57,11 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
     }
   };
 
+  /**
+   * Gets a human-readable description of the formatting options
+   * @param {FormatOptions} options - The formatting options
+   * @returns {string} A description of the formatting
+   */
   const getFormatDescription = (options: FormatOptions): string => {
     switch (options.type) {
       case 'code':

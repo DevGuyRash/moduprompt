@@ -5,6 +5,18 @@ import MarkdownPreview from '../MarkdownPreview/MarkdownPreview';
 import { CellData, CellType, FormatOptions } from '../../contexts/NotebookContext';
 import './NotebookCell.css';
 
+/**
+ * Props for the NotebookCell component
+ * @property {CellData} cell - The cell data to render
+ * @property {number} index - The index of the cell in the notebook
+ * @property {function} updateCell - Function to update cell data
+ * @property {function} deleteCell - Function to delete the cell
+ * @property {function} moveCell - Function to move the cell up or down
+ * @property {function} reorderCells - Function to reorder cells via drag and drop
+ * @property {boolean} isSelected - Whether the cell is selected in grouping mode
+ * @property {function} onSelect - Function to call when the cell is selected
+ * @property {boolean} groupingMode - Whether the notebook is in grouping mode
+ */
 interface NotebookCellProps {
   cell: CellData;
   index: number;
@@ -17,6 +29,10 @@ interface NotebookCellProps {
   groupingMode?: boolean;
 }
 
+/**
+ * Component for rendering a single cell in the notebook
+ * Supports editing, formatting, dragging, and other cell operations
+ */
 const NotebookCell: React.FC<NotebookCellProps> = ({
   cell,
   index,
@@ -29,6 +45,8 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   groupingMode = false
 }) => {
   const [showFormatMenu, setShowFormatMenu] = React.useState(false);
+  
+  // Set up drag and drop functionality
   const [{ isDragging }, drag] = useDrag({
     type: 'CELL',
     item: { index },
@@ -50,20 +68,35 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
     canDrop: () => !groupingMode, // Disable dropping in grouping mode
   });
 
+  /**
+   * Handles changes to the cell content in edit mode
+   * @param {React.ChangeEvent<HTMLTextAreaElement>} e - The change event
+   */
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateCell(cell.id, { content: e.target.value });
   };
 
+  /**
+   * Toggles between edit and view mode for the cell
+   */
   const toggleEditMode = () => {
     updateCell(cell.id, { isEditing: !cell.isEditing });
   };
 
+  /**
+   * Handles cell selection in grouping mode
+   */
   const handleCellClick = () => {
     if (groupingMode && onSelect) {
       onSelect(cell.id);
     }
   };
 
+  /**
+   * Applies formatting to the cell
+   * @param {string} type - The type of formatting to apply
+   * @param {Partial<FormatOptions>} options - Additional formatting options
+   */
   const applyFormatting = (type: 'code' | 'blockquote' | 'callout' | 'xml', options?: Partial<FormatOptions>) => {
     const formatting: FormatOptions = {
       type,
@@ -73,13 +106,19 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
     setShowFormatMenu(false);
   };
 
+  /**
+   * Removes formatting from the cell
+   */
   const removeFormatting = () => {
     const { formatting, ...rest } = cell;
     updateCell(cell.id, { formatting: undefined });
     setShowFormatMenu(false);
   };
 
-  // Apply formatting to content for rendering
+  /**
+   * Applies formatting to content for rendering
+   * @returns {string} The formatted content
+   */
   const getFormattedContent = () => {
     if (!cell.formatting) return cell.content;
 
