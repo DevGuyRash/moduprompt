@@ -5,6 +5,11 @@
   margin-bottom: 15px;
 }
 
+.formatting-options.document-level {
+  background-color: #f0f7ff;
+  border: 1px solid #d0e8ff;
+}
+
 .formatting-options h3 {
   margin-top: 0;
   margin-bottom: 15px;
@@ -12,14 +17,14 @@
   color: #333;
 }
 
-.format-type-selector {
+.format-toggles {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 15px;
 }
 
-.format-type-option {
+.format-toggle {
   display: flex;
   align-items: center;
   padding: 8px 12px;
@@ -31,18 +36,29 @@
   transition: all 0.2s ease;
 }
 
-.format-type-option:hover {
+.format-toggle:hover {
   background-color: #f0f0f0;
   border-color: #ccc;
 }
 
-.format-type-option.selected {
+.format-toggle.active {
   background-color: #e6f7ff;
   border-color: #91d5ff;
-  color: #1890ff;
 }
 
-.format-type-option svg {
+.toggle-icon {
+  color: #1890ff;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-label svg {
   margin-right: 8px;
 }
 

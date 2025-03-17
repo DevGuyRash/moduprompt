@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaCode, FaQuoteRight, FaInfoCircle, FaTag, FaPlus } from 'react-icons/fa';
+import { FaCode, FaQuoteRight, FaInfoCircle, FaTag, FaPlus, FaToggleOn, FaToggleOff } from 'react-icons/fa';
 import { FormatOptions, NodeType, useNodeEditor } from '../../contexts/NodeEditorContext';
 import './FormattingOptions.css';
 
@@ -9,12 +9,14 @@ import './FormattingOptions.css';
  * @property {Object} position - Position for node mode formatting
  * @property {string} currentMode - Current editing mode ('notebook' or 'node')
  * @property {Function} onClose - Function to call when closing the formatting panel
+ * @property {boolean} isDocumentLevel - Whether these options apply to the entire document
  */
 interface FormattingOptionsProps {
   cellId?: string | null; // For notebook mode - updated to accept null
   position?: { x: number, y: number }; // For node mode
   currentMode: 'notebook' | 'node';
   onClose?: () => void;
+  isDocumentLevel?: boolean;
 }
 
 /**
@@ -25,25 +27,67 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
   cellId, 
   position, 
   currentMode,
-  onClose 
+  onClose,
+  isDocumentLevel = false
 }) => {
   const { addNode } = useNodeEditor();
-  const [formatType, setFormatType] = React.useState<'code' | 'blockquote' | 'callout' | 'xml'>('code');
+  const [activeFormatters, setActiveFormatters] = React.useState<{
+    code: boolean;
+    blockquote: boolean;
+    callout: boolean;
+    xml: boolean;
+  }>({
+    code: false,
+    blockquote: false,
+    callout: false,
+    xml: false
+  });
   const [codeLanguage, setCodeLanguage] = React.useState('');
   const [calloutType, setCalloutType] = React.useState('info');
-  const [xmlTag, setXmlTag] = React.useState('');
+  const [xmlTag, setXmlTag] = React.useState('div');
+  const [calloutName, setCalloutName] = React.useState('');
+
+  /**
+   * Toggles a formatter on or off
+   * @param {string} formatter - The formatter to toggle
+   */
+  const toggleFormatter = (formatter: 'code' | 'blockquote' | 'callout' | 'xml') => {
+    // If toggling on XML or code, turn off the other (they're mutually exclusive wrappers)
+    if ((formatter === 'xml' || formatter === 'code') && !activeFormatters[formatter]) {
+      setActiveFormatters(prev => ({
+        ...prev,
+        code: formatter === 'code' ? true : false,
+        xml: formatter === 'xml' ? true : false,
+        [formatter]: !prev[formatter]
+      }));
+    } else {
+      setActiveFormatters(prev => ({
+        ...prev,
+        [formatter]: !prev[formatter]
+      }));
+    }
+  };
 
   /**
    * Creates a format node in node mode
    */
   const createFormatNode = () => {
     if (currentMode === 'node' && position) {
-      const formatOptions: FormatOptions = {
-        type: formatType,
-        language: formatType === 'code' ? codeLanguage : undefined,
-        calloutType: formatType === 'callout' ? calloutType as 'info' | 'warning' | 'success' | 'error' : undefined,
-        xmlTag: formatType === 'xml' ? xmlTag : undefined
-      };
+      // Determine which formatters are active
+      let formatOptions: FormatOptions = {};
+      
+      if (activeFormatters.code) {
+        formatOptions.type = 'code';
+        formatOptions.language = codeLanguage;
+      } else if (activeFormatters.xml) {
+        formatOptions.type = 'xml';
+        formatOptions.xmlTag = xmlTag;
+      } else if (activeFormatters.blockquote) {
+        formatOptions.type = 'blockquote';
+      } else if (activeFormatters.callout) {
+        formatOptions.type = 'callout';
+        formatOptions.calloutType = calloutType as 'info' | 'warning' | 'success' | 'error';
+      }
 
       // Create a format node at the specified position
       addNode(
@@ -63,53 +107,78 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
    * @returns {string} A description of the formatting
    */
   const getFormatDescription = (options: FormatOptions): string => {
+    if (!options.type) return 'No Formatting';
+    
     switch (options.type) {
       case 'code':
         return `Code Block${options.language ? ` (${options.language})` : ''}`;
       case 'blockquote':
         return 'Blockquote';
       case 'callout':
-        return `Callout (${options.calloutType})`;
+        return `Callout (${options.calloutType})${calloutName ? `: ${calloutName}` : ''}`;
       case 'xml':
-        return `XML <${options.xmlTag}>`;
+        return `XML <${options.xmlTag || 'div'}>`;
       default:
         return 'Format';
     }
   };
 
   return (
-    <div className="formatting-options">
-      <h3>Formatting Options</h3>
+    <div className={`formatting-options ${isDocumentLevel ? 'document-level' : ''}`}>
+      <h3>{isDocumentLevel ? 'Document Formatting' : 'Cell Formatting'}</h3>
       
-      <div className="format-type-selector">
+      <div className="format-toggles">
         <div 
-          className={`format-type-option ${formatType === 'code' ? 'selected' : ''}`}
-          onClick={() => setFormatType('code')}
+          className={`format-toggle ${activeFormatters.code ? 'active' : ''}`}
+          onClick={() => toggleFormatter('code')}
         >
-          <FaCode /> Code
+          <div className="toggle-icon">
+            {activeFormatters.code ? <FaToggleOn /> : <FaToggleOff />}
+          </div>
+          <div className="toggle-label">
+            <FaCode /> Code Block
+          </div>
         </div>
+        
         <div 
-          className={`format-type-option ${formatType === 'blockquote' ? 'selected' : ''}`}
-          onClick={() => setFormatType('blockquote')}
+          className={`format-toggle ${activeFormatters.blockquote ? 'active' : ''}`}
+          onClick={() => toggleFormatter('blockquote')}
         >
-          <FaQuoteRight /> Quote
+          <div className="toggle-icon">
+            {activeFormatters.blockquote ? <FaToggleOn /> : <FaToggleOff />}
+          </div>
+          <div className="toggle-label">
+            <FaQuoteRight /> Blockquote
+          </div>
         </div>
+        
         <div 
-          className={`format-type-option ${formatType === 'callout' ? 'selected' : ''}`}
-          onClick={() => setFormatType('callout')}
+          className={`format-toggle ${activeFormatters.callout ? 'active' : ''}`}
+          onClick={() => toggleFormatter('callout')}
         >
-          <FaInfoCircle /> Callout
+          <div className="toggle-icon">
+            {activeFormatters.callout ? <FaToggleOn /> : <FaToggleOff />}
+          </div>
+          <div className="toggle-label">
+            <FaInfoCircle /> Callout
+          </div>
         </div>
+        
         <div 
-          className={`format-type-option ${formatType === 'xml' ? 'selected' : ''}`}
-          onClick={() => setFormatType('xml')}
+          className={`format-toggle ${activeFormatters.xml ? 'active' : ''}`}
+          onClick={() => toggleFormatter('xml')}
         >
-          <FaTag /> XML
+          <div className="toggle-icon">
+            {activeFormatters.xml ? <FaToggleOn /> : <FaToggleOff />}
+          </div>
+          <div className="toggle-label">
+            <FaTag /> XML Tags
+          </div>
         </div>
       </div>
       
       <div className="format-options-container">
-        {formatType === 'code' && (
+        {activeFormatters.code && (
           <div className="formatter-group">
             <label>Language:</label>
             <select 
@@ -129,23 +198,35 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
           </div>
         )}
         
-        {formatType === 'callout' && (
-          <div className="formatter-group">
-            <label>Callout Type:</label>
-            <select 
-              value={calloutType}
-              onChange={(e) => setCalloutType(e.target.value)}
-              className="formatter-option"
-            >
-              <option value="info">Info</option>
-              <option value="warning">Warning</option>
-              <option value="success">Success</option>
-              <option value="error">Error</option>
-            </select>
-          </div>
+        {activeFormatters.callout && (
+          <>
+            <div className="formatter-group">
+              <label>Callout Type:</label>
+              <select 
+                value={calloutType}
+                onChange={(e) => setCalloutType(e.target.value)}
+                className="formatter-option"
+              >
+                <option value="info">Info</option>
+                <option value="warning">Warning</option>
+                <option value="success">Success</option>
+                <option value="error">Error</option>
+              </select>
+            </div>
+            <div className="formatter-group">
+              <label>Callout Name:</label>
+              <input 
+                type="text"
+                value={calloutName}
+                onChange={(e) => setCalloutName(e.target.value)}
+                placeholder="Optional title"
+                className="formatter-option"
+              />
+            </div>
+          </>
         )}
         
-        {formatType === 'xml' && (
+        {activeFormatters.xml && (
           <div className="formatter-group">
             <label>Tag Name:</label>
             <input 
@@ -163,7 +244,9 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
         <button 
           className="create-format-button"
           onClick={createFormatNode}
-          disabled={formatType === 'xml' && !xmlTag}
+          disabled={(activeFormatters.xml && !xmlTag) || 
+                   (!activeFormatters.code && !activeFormatters.blockquote && 
+                    !activeFormatters.callout && !activeFormatters.xml)}
         >
           <FaPlus /> Create Format Node
         </button>
