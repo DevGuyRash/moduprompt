@@ -1,23 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FolderType, SnippetType } from '../../types/snippet';
 import { useSnippets } from '../../contexts/SnippetContext';
-import { FaFolder, FaFolderOpen, FaFile, FaPlus, FaTrash, FaEdit } from 'react-icons/fa';
+import { FaFolder, FaFolderOpen, FaFile, FaPlus, FaTrash, FaEdit, FaSearch, FaTag, FaSync } from 'react-icons/fa';
 import './SnippetPanel.css';
-import { extractFolderPaths, createNewSnippet, generateId } from '../../utils/frontmatter';
+import { extractFolderPaths, createNewSnippet, generateId, parseFrontmatter } from '../../utils/frontmatter';
 
 interface SnippetPanelProps {
   onSelectSnippet?: (snippet: SnippetType) => void;
   className?: string;
+  currentMode: 'notebook' | 'node';
 }
 
-const SnippetPanel: React.FC<SnippetPanelProps> = ({ onSelectSnippet, className }) => {
-  const { snippets, folders, addSnippet, deleteSnippet, addFolder, deleteFolder } = useSnippets();
+const SnippetPanel: React.FC<SnippetPanelProps> = ({ onSelectSnippet, className, currentMode }) => {
+  const { snippets, folders, addSnippet, updateSnippet, deleteSnippet, addFolder, deleteFolder } = useSnippets();
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
   const [newFolderName, setNewFolderName] = useState('');
   const [newSnippetName, setNewSnippetName] = useState('');
   const [currentFolder, setCurrentFolder] = useState('');
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [isCreatingSnippet, setIsCreatingSnippet] = useState(false);
+  const [editingSnippet, setEditingSnippet] = useState<SnippetType | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SnippetType[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [editingSnippetContent, setEditingSnippetContent] = useState('');
 
   // Organize snippets by folder
   const folderStructure = React.useMemo(() => {
@@ -101,7 +107,7 @@ const SnippetPanel: React.FC<SnippetPanelProps> = ({ onSelectSnippet, className 
     
     const newSnippet = createNewSnippet(
       newSnippetName.trim(),
-      '---\ntitle: ' + newSnippetName.trim() + '\n---\n\n',
+      '---\ntitle: ' + newSnippetName.trim() + '\ntags: []\n---\n\n',
       currentFolder
     );
     
@@ -116,6 +122,59 @@ const SnippetPanel: React.FC<SnippetPanelProps> = ({ onSelectSnippet, className 
         [currentFolder]: true
       }));
     }
+  };
+
+  const handleEditSnippet = (snippet: SnippetType) => {
+    setEditingSnippet(snippet);
+    setEditingSnippetContent(snippet.content);
+  };
+
+  const handleSaveSnippet = () => {
+    if (!editingSnippet) return;
+    
+    updateSnippet(editingSnippet.id, {
+      content: editingSnippetContent
+    });
+    
+    setEditingSnippet(null);
+    setEditingSnippetContent('');
+  };
+
+  const handleSearch = () => {
+    if (!searchQuery.trim()) {
+      setIsSearching(false);
+      setSearchResults([]);
+      return;
+    }
+    
+    const query = searchQuery.toLowerCase();
+    const results = snippets.filter(snippet => {
+      // Search in title
+      if (snippet.title.toLowerCase().includes(query)) return true;
+      
+      // Search in content
+      if (snippet.content.toLowerCase().includes(query)) return true;
+      
+      // Search in tags
+      if (snippet.tags && snippet.tags.some(tag => tag.toLowerCase().includes(query))) return true;
+      
+      // Search in frontmatter
+      const { frontmatter } = parseFrontmatter(snippet.content);
+      for (const key in frontmatter) {
+        const value = frontmatter[key];
+        if (typeof value === 'string' && value.toLowerCase().includes(query)) return true;
+      }
+      
+      return false;
+    });
+    
+    setSearchResults(results);
+    setIsSearching(true);
+  };
+
+  const handleDragStart = (e: React.DragEvent, snippet: SnippetType) => {
+    e.dataTransfer.setData('application/json', JSON.stringify(snippet));
+    e.dataTransfer.effectAllowed = 'copy';
   };
 
   const renderFolder = (folder: FolderType) => {
@@ -142,18 +201,31 @@ const SnippetPanel: React.FC<SnippetPanelProps> = ({ onSelectSnippet, className 
                 key={snippet.id} 
                 className="snippet-item"
                 onClick={() => onSelectSnippet && onSelectSnippet(snippet)}
+                draggable
+                onDragStart={(e) => handleDragStart(e, snippet)}
               >
                 <FaFile />
                 <span className="snippet-title">{snippet.title}</span>
-                <button 
-                  className="delete-button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deleteSnippet(snippet.id);
-                  }}
-                >
-                  <FaTrash />
-                </button>
+                <div className="snippet-actions">
+                  <button 
+                    className="action-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditSnippet(snippet);
+                    }}
+                  >
+                    <FaEdit />
+                  </button>
+                  <button 
+                    className="action-button delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteSnippet(snippet.id);
+                    }}
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
               </div>
             ))}
             
@@ -209,6 +281,7 @@ const SnippetPanel: React.FC<SnippetPanelProps> = ({ onSelectSnippet, className 
               setIsCreatingFolder(true);
               setIsCreatingSnippet(false);
             }}
+            title="Create Folder"
           >
             <FaFolder /> <FaPlus />
           </button>
@@ -218,36 +291,116 @@ const SnippetPanel: React.FC<SnippetPanelProps> = ({ onSelectSnippet, className 
               setIsCreatingSnippet(true);
               setIsCreatingFolder(false);
             }}
+            title="Create Snippet"
           >
             <FaFile /> <FaPlus />
+          </button>
+          <button 
+            onClick={() => setIsSearching(!isSearching)}
+            title="Search Snippets"
+            className={isSearching ? 'active' : ''}
+          >
+            <FaSearch />
+          </button>
+          <button 
+            onClick={() => {
+              setIsSearching(false);
+              setSearchQuery('');
+              setSearchResults([]);
+            }}
+            title="Reset"
+          >
+            <FaSync />
           </button>
         </div>
       </div>
       
+      {isSearching && (
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search snippets..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+          />
+          <button onClick={handleSearch}>
+            <FaSearch />
+          </button>
+        </div>
+      )}
+      
       <div className="panel-content">
-        {/* Root level snippets */}
-        {(folderStructure[''] || []).map(snippet => (
-          <div 
-            key={snippet.id} 
-            className="snippet-item"
-            onClick={() => onSelectSnippet && onSelectSnippet(snippet)}
-          >
-            <FaFile />
-            <span className="snippet-title">{snippet.title}</span>
-            <button 
-              className="delete-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                deleteSnippet(snippet.id);
-              }}
-            >
-              <FaTrash />
-            </button>
+        {isSearching && searchResults.length > 0 ? (
+          <div className="search-results">
+            <h4>Search Results</h4>
+            {searchResults.map(snippet => (
+              <div 
+                key={snippet.id} 
+                className="snippet-item"
+                onClick={() => onSelectSnippet && onSelectSnippet(snippet)}
+                draggable
+                onDragStart={(e) => handleDragStart(e, snippet)}
+              >
+                <FaFile />
+                <span className="snippet-title">{snippet.title}</span>
+                <span className="snippet-folder">{snippet.folder}</span>
+                <div className="snippet-actions">
+                  <button 
+                    className="action-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditSnippet(snippet);
+                    }}
+                  >
+                    <FaEdit />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-        
-        {/* Root level folders */}
-        {getSubfolders('').map(folder => renderFolder(folder))}
+        ) : !isSearching ? (
+          <>
+            {/* Root level snippets */}
+            {(folderStructure[''] || []).map(snippet => (
+              <div 
+                key={snippet.id} 
+                className="snippet-item"
+                onClick={() => onSelectSnippet && onSelectSnippet(snippet)}
+                draggable
+                onDragStart={(e) => handleDragStart(e, snippet)}
+              >
+                <FaFile />
+                <span className="snippet-title">{snippet.title}</span>
+                <div className="snippet-actions">
+                  <button 
+                    className="action-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditSnippet(snippet);
+                    }}
+                  >
+                    <FaEdit />
+                  </button>
+                  <button 
+                    className="action-button delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteSnippet(snippet.id);
+                    }}
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              </div>
+            ))}
+            
+            {/* Root level folders */}
+            {getSubfolders('').map(folder => renderFolder(folder))}
+          </>
+        ) : (
+          <div className="no-results">No results found</div>
+        )}
         
         {/* Create new folder form */}
         {isCreatingFolder && (
@@ -279,6 +432,29 @@ const SnippetPanel: React.FC<SnippetPanelProps> = ({ onSelectSnippet, className 
           </div>
         )}
       </div>
+      
+      {/* Edit snippet modal */}
+      {editingSnippet && (
+        <div className="snippet-edit-modal">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Edit Snippet: {editingSnippet.title}</h3>
+              <button onClick={() => setEditingSnippet(null)}>×</button>
+            </div>
+            <div className="modal-body">
+              <textarea
+                value={editingSnippetContent}
+                onChange={(e) => setEditingSnippetContent(e.target.value)}
+                rows={15}
+              />
+            </div>
+            <div className="modal-footer">
+              <button onClick={handleSaveSnippet}>Save</button>
+              <button onClick={() => setEditingSnippet(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
