@@ -5,7 +5,11 @@ import CellGroup from '../CellGroup/CellGroup';
 import { FaPlus, FaComment, FaEye, FaEyeSlash, FaObjectGroup } from 'react-icons/fa';
 import './NotebookEditor.css';
 
-const NotebookEditor: React.FC = () => {
+interface NotebookEditorProps {
+  onSelectCell?: (cellId: string | null) => void;
+}
+
+const NotebookEditor: React.FC<NotebookEditorProps> = ({ onSelectCell }) => {
   const { 
     cells, 
     addCell, 
@@ -19,13 +23,12 @@ const NotebookEditor: React.FC = () => {
   
   const [groupingMode, setGroupingMode] = useState(false);
   const [selectedCells, setSelectedCells] = useState<Set<string>>(new Set());
-  const [cellGroups, setCellGroups] = useState<{start: number, end: number}[]>([]);
-
-  const visibleCells = showComments 
-    ? cells 
-    : cells.filter(cell => cell.type !== CellType.COMMENT);
-
-  const toggleCellSelection = (cellId: string) => {
+  const [cellGroups, setCellGroups] = useState<Array<{start: number, end: number}>>([]);
+  
+  // Filter cells based on showComments setting
+  const visibleCells = cells.filter(cell => showComments || cell.type !== CellType.COMMENT);
+  
+  const toggleCellSelection = (cellId: string, multiMode: boolean) => {
     if (groupingMode) {
       const newSelection = new Set(selectedCells);
       if (selectedCells.has(cellId)) {
@@ -34,6 +37,11 @@ const NotebookEditor: React.FC = () => {
         newSelection.add(cellId);
       }
       setSelectedCells(newSelection);
+    }
+    
+    // Notify parent about cell selection
+    if (onSelectCell) {
+      onSelectCell(cellId);
     }
   };
 
@@ -150,7 +158,6 @@ const NotebookEditor: React.FC = () => {
           </button>
         </div>
       </div>
-
       <div className={`notebook-cells ${groupingMode ? 'grouping-mode' : ''}`}>
         {visibleCells.length === 0 ? (
           <div className="empty-notebook">
@@ -176,7 +183,6 @@ const NotebookEditor: React.FC = () => {
           )
         )}
       </div>
-
       {visibleCells.length > 0 && (
         <div className="add-cell-bottom">
           <button 

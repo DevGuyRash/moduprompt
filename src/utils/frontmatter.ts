@@ -61,20 +61,18 @@ export const generateId = (): string => {
  * Creates a new snippet with default values
  */
 export const createNewSnippet = (
-  title: string, 
+  name: string, 
   content: string = '', 
   folder: string = ''
 ): SnippetType => {
-  const now = Date.now();
-  
   return {
     id: generateId(),
-    title,
+    name,
+    title: name, // Use name as title
     content,
     folder,
-    frontmatter: {},
-    createdAt: now,
-    updatedAt: now
+    tags: [],
+    metadata: {}
   };
 };
 
