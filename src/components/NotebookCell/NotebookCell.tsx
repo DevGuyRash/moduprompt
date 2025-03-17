@@ -52,9 +52,13 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (showFormatMenu && ref.current) {
-        // Check if the click target is within the format menu
+        // Check if the click target is within the format menu or the format button
         const formatMenu = document.querySelector('.format-menu');
-        if (formatMenu && !formatMenu.contains(event.target as Node) && !ref.current.contains(event.target as Node)) {
+        const formatButton = document.querySelector(`.notebook-cell[data-id="${cell.id}"] .format-button`);
+        
+        if (formatMenu && 
+            !formatMenu.contains(event.target as Node) && 
+            !formatButton?.contains(event.target as Node)) {
           setShowFormatMenu(false);
         }
       }
@@ -64,7 +68,7 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showFormatMenu]);
+  }, [showFormatMenu, cell.id]);
   
   // Set up drag and drop functionality
   const [{ isDragging }, drag] = useDrag({
@@ -73,7 +77,35 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
-    canDrag: !groupingMode, // Disable dragging in grouping mode
+    canDrag: (monitor) => {
+      if (groupingMode) return false;
+      
+      // Only allow dragging from the cell handle, not the entire cell
+      const draggedDOM = ref.current;
+      if (!draggedDOM) return false;
+      
+      const cellHandles = draggedDOM.querySelectorAll('.cell-handle');
+      if (cellHandles.length === 0) return false;
+      
+      // Check if mouse is over the cell handle
+      const mousePosition = monitor.getClientOffset();
+      if (!mousePosition) return false;
+      
+      for (let i = 0; i < cellHandles.length; i++) {
+        const handle = cellHandles[i];
+        const rect = handle.getBoundingClientRect();
+        if (
+          mousePosition.x >= rect.left &&
+          mousePosition.x <= rect.right &&
+          mousePosition.y >= rect.top &&
+          mousePosition.y <= rect.bottom
+        ) {
+          return true;
+        }
+      }
+      
+      return false;
+    },
   });
 
   const [{ isOver, isOverTop, isOverBottom }, drop] = useDrop({
@@ -267,11 +299,41 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
    * @param {Partial<FormatOptions>} options - Additional formatting options
    */
   const applyFormatting = (type: 'code' | 'blockquote' | 'callout' | 'xml', options?: Partial<FormatOptions>) => {
-    const formatting: FormatOptions = {
+    // Get current formatting
+    const currentFormatting = cell.formatting || { type: '' };
+    
+    // If the same type is already applied, toggle it off
+    if (currentFormatting.type === type) {
+      removeFormatting();
+      return;
+    }
+    
+    // Handle exclusive formatting types
+    let newFormatting: FormatOptions = {
       type,
       ...options
     };
-    updateCell(cell.id, { formatting });
+    
+    // Code and XML are exclusive to each other
+    if ((type === 'code' && currentFormatting.type === 'xml') || 
+        (type === 'xml' && currentFormatting.type === 'code')) {
+      // Replace completely
+    } 
+    // Blockquote and callout are exclusive to each other
+    else if ((type === 'blockquote' && currentFormatting.type === 'callout') || 
+             (type === 'callout' && currentFormatting.type === 'blockquote')) {
+      // Replace completely
+    }
+    // Otherwise, preserve other formatting properties
+    else if (currentFormatting.type) {
+      newFormatting = {
+        ...currentFormatting,
+        type,
+        ...options
+      };
+    }
+    
+    updateCell(cell.id, { formatting: newFormatting });
     setShowFormatMenu(false);
   };
 

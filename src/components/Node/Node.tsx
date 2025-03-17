@@ -69,6 +69,7 @@ const Node: React.FC<NodeProps> = ({
 
   const handleConnectionDragStart = (e: React.MouseEvent, handleId: string, isInput: boolean) => {
     e.stopPropagation();
+    e.preventDefault();
     
     // Only allow dragging from output handles
     if (!isInput && onConnectionStart) {
@@ -79,6 +80,7 @@ const Node: React.FC<NodeProps> = ({
 
   const handleConnectionDragEnd = (e: React.MouseEvent, handleId: string, isInput: boolean) => {
     e.stopPropagation();
+    e.preventDefault();
     
     // Only allow connections to input handles
     if (isInput && onConnectionEnd) {
@@ -91,6 +93,7 @@ const Node: React.FC<NodeProps> = ({
   
   const handleDisconnect = (e: React.MouseEvent, handleId: string, isInput: boolean) => {
     e.stopPropagation();
+    e.preventDefault();
     
     if (onDisconnect) {
       onDisconnect(node.id, handleId, isInput);

@@ -44,7 +44,7 @@ const ConnectionLine: React.FC<ConnectionLineProps> = ({ connection, nodes, onDe
   const path = `M ${sourceX},${sourceY} C ${sourceX + 50},${sourceY} ${targetX - 50},${targetY} ${targetX},${targetY}`;
   
   return (
-    <svg className="connection-line" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+    <svg className="connection-line" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5 }}>
       <path d={path} stroke="#6c757d" strokeWidth="2" fill="none" />
     </svg>
   );
@@ -108,7 +108,7 @@ const NodeCanvas: React.FC = () => {
   
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
     // Start dragging with left mouse button on the canvas itself (not on nodes)
-    if (e.button === 0 && e.target === canvasContentRef.current) {
+    if (e.button === 0 && (e.target === canvasContentRef.current || e.currentTarget === canvasContentRef.current)) {
       e.preventDefault();
       setIsDraggingCanvas(true);
       setDragStart({ x: e.clientX, y: e.clientY });
@@ -129,7 +129,7 @@ const NodeCanvas: React.FC = () => {
     // Update temporary connection line if dragging a connection
     if (isDraggingConnection && connectionStart) {
       const sourceElement = document.querySelector(
-        `[data-node-id="${connectionStart.nodeId}"] [data-handle-id="${connection.sourceHandle}"]`
+        `[data-node-id="${connectionStart.nodeId}"] [data-handle-id="${connectionStart.handleId}"]`
       );
       
       if (sourceElement) {
@@ -252,8 +252,10 @@ const NodeCanvas: React.FC = () => {
   // Force update connections when nodes move
   useEffect(() => {
     // This effect will run whenever nodes change (including position changes)
-    // It doesn't need to do anything as the component will re-render
-  }, [nodes]);
+    // Force a re-render to update connection positions
+    const forceUpdate = () => {};
+    forceUpdate();
+  }, [nodes, connections]);
   
   return (
     <div 

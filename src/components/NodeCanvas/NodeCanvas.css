@@ -70,7 +70,7 @@
 
 .connection-line {
   pointer-events: none;
-  z-index: 0;
+  z-index: 5;
 }
 
 .canvas-drop-active {
