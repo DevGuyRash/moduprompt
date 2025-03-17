@@ -12,13 +12,14 @@
   color: #333;
 }
 
-.formatter-group {
+.format-type-selector {
   display: flex;
-  align-items: center;
-  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
 }
 
-.formatter-button {
+.format-type-option {
   display: flex;
   align-items: center;
   padding: 8px 12px;
@@ -28,17 +29,37 @@
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s ease;
-  margin-right: 10px;
-  min-width: 120px;
 }
 
-.formatter-button:hover {
+.format-type-option:hover {
   background-color: #f0f0f0;
   border-color: #ccc;
 }
 
-.formatter-button svg {
+.format-type-option.selected {
+  background-color: #e6f7ff;
+  border-color: #91d5ff;
+  color: #1890ff;
+}
+
+.format-type-option svg {
   margin-right: 8px;
+}
+
+.format-options-container {
+  margin-bottom: 15px;
+}
+
+.formatter-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.formatter-group label {
+  min-width: 100px;
+  font-size: 14px;
+  color: #555;
 }
 
 .formatter-option {
@@ -47,10 +68,38 @@
   border-radius: 4px;
   font-size: 14px;
   flex: 1;
-  max-width: 150px;
+  max-width: 200px;
 }
 
 .formatter-option:focus {
   outline: none;
   border-color: #aaa;
+}
+
+.create-format-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.create-format-button:hover:not(:disabled) {
+  background-color: #40a9ff;
+}
+
+.create-format-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.create-format-button svg {
+  margin-right: 8px;
 }

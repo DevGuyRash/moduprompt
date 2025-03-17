@@ -21,7 +21,7 @@ enum EditorMode {
 // Content converter component to handle mode switching
 const ContentSynchronizer: React.FC<{ editorMode: EditorMode }> = ({ editorMode }) => {
   const { cells, addCell, updateCell } = useNotebook();
-  const { nodes, addNode } = useNodeEditor();
+  const { nodes, connections, addNode, addConnection } = useNodeEditor();
   
   // When mode changes, synchronize content
   useEffect(() => {
@@ -30,25 +30,86 @@ const ContentSynchronizer: React.FC<{ editorMode: EditorMode }> = ({ editorMode 
       // Create separate nodes for each content cell
       const contentCells = cells.filter(cell => cell.type === CellType.CONTENT);
       
-      // Position nodes in a grid-like layout
+      // Position nodes in a vertical layout to maintain sequence
+      let previousNodeId: string | null = null;
+      
       contentCells.forEach((cell, index) => {
-        const row = Math.floor(index / 2);
-        const col = index % 2;
-        const x = 100 + (col * 400);
-        const y = 100 + (row * 300);
+        // Create node in a vertical layout
+        const y = 100 + (index * 250);
+        const x = 300; // Center of canvas
         
-        addNode(NodeType.PROMPT, { x, y }, cell.content);
+        // Add the node and get its ID
+        const nodeId = addNode(NodeType.PROMPT, { x, y }, cell.content);
+        
+        // Connect this node to the previous one if it exists
+        if (previousNodeId) {
+          addConnection({
+            sourceId: previousNodeId,
+            targetId: nodeId,
+            sourceHandle: 'output',
+            targetHandle: 'input'
+          });
+        }
+        
+        // Update previous node ID for next iteration
+        previousNodeId = nodeId;
       });
     }
     
     // Convert from node to notebook mode
     if (editorMode === EditorMode.NOTEBOOK && nodes.length > 0 && cells.length === 0) {
-      // For each node, create a cell
-      nodes.forEach(node => {
-        addCell(CellType.CONTENT, node.content);
-      });
+      // Sort nodes based on connections to maintain sequence
+      const sortedNodes = [...nodes];
+      
+      // Find starting nodes (no incoming connections)
+      const startNodeIds = nodes
+        .filter(node => !connections.some(conn => conn.targetId === node.id))
+        .map(node => node.id);
+      
+      // If we have a clear starting point
+      if (startNodeIds.length > 0) {
+        const orderedNodeIds: string[] = [];
+        
+        // For each starting node, follow connections to build ordered list
+        const processNode = (nodeId: string) => {
+          if (!orderedNodeIds.includes(nodeId)) {
+            orderedNodeIds.push(nodeId);
+            
+            // Find outgoing connections
+            const outgoingConnections = connections.filter(conn => conn.sourceId === nodeId);
+            
+            // Process connected nodes
+            outgoingConnections.forEach(conn => {
+              processNode(conn.targetId);
+            });
+          }
+        };
+        
+        // Process all starting nodes
+        startNodeIds.forEach(nodeId => processNode(nodeId));
+        
+        // Add any remaining nodes that weren't connected
+        nodes.forEach(node => {
+          if (!orderedNodeIds.includes(node.id)) {
+            orderedNodeIds.push(node.id);
+          }
+        });
+        
+        // Create cells in the correct order
+        orderedNodeIds.forEach(nodeId => {
+          const node = nodes.find(n => n.id === nodeId);
+          if (node) {
+            addCell(CellType.CONTENT, node.content);
+          }
+        });
+      } else {
+        // Fallback: if no clear sequence, just add all nodes as cells
+        nodes.forEach(node => {
+          addCell(CellType.CONTENT, node.content);
+        });
+      }
     }
-  }, [editorMode, cells, nodes, addCell, addNode]);
+  }, [editorMode, cells, nodes, connections, addCell, addNode, addConnection]);
   
   return null; // This is just a logic component, no UI
 };
@@ -57,11 +118,23 @@ const App: React.FC = () => {
   const [editorMode, setEditorMode] = useState<EditorMode>(EditorMode.NOTEBOOK);
   const [showExportPanel, setShowExportPanel] = useState(false);
   const [showFormattingOptions, setShowFormattingOptions] = useState(false);
+  const [formatPosition, setFormatPosition] = useState({ x: 0, y: 0 });
+  const [selectedCellId, setSelectedCellId] = useState<string | null>(null);
 
-  const handleApplyFormatting = (formatterType: string, options?: any) => {
-    // This will be implemented to apply formatting to the selected content
-    console.log('Applying formatting:', formatterType, options);
-    // The actual implementation will depend on which editor is active
+  // Handle format button click
+  const handleFormatClick = () => {
+    // If in node mode, set the format position to the center of the canvas
+    if (editorMode === EditorMode.NODE) {
+      const canvasElement = document.querySelector('.node-canvas');
+      if (canvasElement) {
+        const rect = canvasElement.getBoundingClientRect();
+        setFormatPosition({
+          x: rect.width / 2 - 100,
+          y: rect.height / 2 - 100
+        });
+      }
+    }
+    setShowFormattingOptions(!showFormattingOptions);
   };
 
   return (
@@ -89,7 +162,7 @@ const App: React.FC = () => {
                   </div>
                   <button 
                     className={`format-toggle ${showFormattingOptions ? 'active' : ''}`}
-                    onClick={() => setShowFormattingOptions(!showFormattingOptions)}
+                    onClick={handleFormatClick}
                   >
                     Format
                   </button>
@@ -106,11 +179,16 @@ const App: React.FC = () => {
                 
                 <div className="editor-container">
                   {showFormattingOptions && (
-                    <FormattingOptions onApplyFormatting={handleApplyFormatting} />
+                    <FormattingOptions 
+                      currentMode={editorMode === EditorMode.NOTEBOOK ? 'notebook' : 'node'}
+                      position={formatPosition}
+                      cellId={selectedCellId}
+                      onClose={() => setShowFormattingOptions(false)}
+                    />
                   )}
                   
                   {editorMode === EditorMode.NOTEBOOK ? (
-                    <NotebookEditor />
+                    <NotebookEditor onSelectCell={setSelectedCellId} />
                   ) : (
                     <NodeCanvas />
                   )}

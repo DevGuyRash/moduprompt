@@ -1,10 +1,11 @@
 import React from 'react';
-import { SnippetType } from '../../types/snippet';
+import { SnippetType } from '../types/snippet';
 
 export enum NodeType {
   PROMPT = 'prompt',
   FILTER = 'filter',
-  FILTER_JOIN = 'filter_join'
+  FILTER_JOIN = 'filter_join',
+  FORMAT = 'format'
 }
 
 export interface NodeConnection {
@@ -12,6 +13,13 @@ export interface NodeConnection {
   targetId: string;
   sourceHandle: string;
   targetHandle: string;
+}
+
+export interface FormatOptions {
+  type: 'code' | 'blockquote' | 'callout' | 'xml';
+  language?: string;
+  calloutType?: 'info' | 'warning' | 'success' | 'error';
+  xmlTag?: string;
 }
 
 export interface NodeData {
@@ -22,12 +30,13 @@ export interface NodeData {
   isCollapsed: boolean;
   inputs: string[];
   outputs: string[];
+  formatOptions?: FormatOptions;
 }
 
 interface NodeEditorContextType {
   nodes: NodeData[];
   connections: NodeConnection[];
-  addNode: (type: NodeType, position: { x: number, y: number }, content?: string) => void;
+  addNode: (type: NodeType, position: { x: number, y: number }, content?: string, formatOptions?: FormatOptions) => string;
   updateNode: (id: string, data: Partial<NodeData>) => void;
   deleteNode: (id: string) => void;
   moveNode: (id: string, position: { x: number, y: number }) => void;
@@ -40,7 +49,7 @@ interface NodeEditorContextType {
 const defaultContext: NodeEditorContextType = {
   nodes: [],
   connections: [],
-  addNode: () => {},
+  addNode: () => '',
   updateNode: () => {},
   deleteNode: () => {},
   moveNode: () => {},
@@ -60,15 +69,16 @@ export const NodeEditorProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     return Math.random().toString(36).substring(2, 15);
   };
 
-  const addNode = (type: NodeType, position: { x: number, y: number }, content: string = '') => {
+  const addNode = (type: NodeType, position: { x: number, y: number }, content: string = '', formatOptions?: FormatOptions) => {
     const newNode: NodeData = {
       id: generateId(),
       type,
       content,
       position,
       isCollapsed: false,
-      inputs: type === NodeType.PROMPT ? ['input'] : ['input1', 'input2'],
-      outputs: ['output']
+      inputs: type === NodeType.FORMAT ? [] : type === NodeType.PROMPT ? ['input', 'format'] : ['input1', 'input2'],
+      outputs: ['output'],
+      formatOptions
     };
 
     setNodes(prev => [...prev, newNode]);
@@ -115,8 +125,24 @@ export const NodeEditorProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         conn.targetHandle === connection.targetHandle
     );
 
-    if (!exists) {
-      setConnections(prev => [...prev, connection]);
+    // Check if we're connecting to the right input type
+    const sourceNode = nodes.find(node => node.id === connection.sourceId);
+    const targetNode = nodes.find(node => node.id === connection.targetId);
+    
+    if (sourceNode && targetNode) {
+      // Format nodes can only connect to format inputs
+      if (sourceNode.type === NodeType.FORMAT && connection.targetHandle !== 'format') {
+        return; // Don't allow connection
+      }
+      
+      // Only allow one connection to each input
+      const inputAlreadyConnected = connections.some(
+        conn => conn.targetId === connection.targetId && conn.targetHandle === connection.targetHandle
+      );
+      
+      if (!exists && !inputAlreadyConnected) {
+        setConnections(prev => [...prev, connection]);
+      }
     }
   };
 
