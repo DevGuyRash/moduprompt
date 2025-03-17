@@ -1,0 +1,131 @@
+.node {
+  position: absolute;
+  width: 280px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.2s ease;
+  z-index: 1;
+}
+
+.node.selected {
+  box-shadow: 0 0 0 2px #4a90e2, 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.node.dragging {
+  z-index: 2;
+}
+
+.node-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e0e0e0;
+  border-radius: 4px 4px 0 0;
+  background-color: #f8f9fa;
+}
+
+.node-type {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.node-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.node-action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.node-action-button:hover {
+  background-color: #f0f0f0;
+  color: #4a90e2;
+}
+
+.node-action-button.delete:hover {
+  color: #dc3545;
+}
+
+.node-content {
+  padding: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.node-editor {
+  width: 100%;
+  min-height: 100px;
+  border: none;
+  resize: vertical;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1.6;
+  padding: 0;
+  outline: none;
+}
+
+.node-inputs, .node-outputs {
+  position: absolute;
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.node-inputs {
+  top: -10px;
+}
+
+.node-outputs {
+  bottom: -10px;
+}
+
+.node-handle {
+  width: 16px;
+  height: 16px;
+  background-color: #ffffff;
+  border: 2px solid #6c757d;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.input-handle {
+  border-color: #4a90e2;
+}
+
+.output-handle {
+  border-color: #28a745;
+}
+
+.node-handle:hover {
+  transform: scale(1.2);
+}
+
+/* Node type specific styling */
+.prompt-node .node-header {
+  background-color: #e3f2fd;
+  border-bottom-color: #bbdefb;
+}
+
+.filter-node .node-header {
+  background-color: #e8f5e9;
+  border-bottom-color: #c8e6c9;
+}
+
+.filter-join-node .node-header {
+  background-color: #fff3e0;
+  border-bottom-color: #ffe0b2;
+}

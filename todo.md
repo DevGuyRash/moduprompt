@@ -34,11 +34,11 @@
 - [x] Implement cell folding/grouping
 
 ## Node-Based Editing Implementation
-- [ ] Create node canvas
-- [ ] Implement node connections
-- [ ] Add filter nodes
-- [ ] Implement node collapsing
-- [ ] Create visual flow system
+- [x] Create node canvas
+- [x] Implement node connections
+- [x] Add filter nodes
+- [x] Implement node collapsing
+- [x] Create visual flow system
 
 ## Export Functionality
 - [ ] Implement markdown export
