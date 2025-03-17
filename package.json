@@ -1,0 +1,42 @@
+{
+  "name": "moduprompt",
+  "version": "1.0.0",
+  "description": "A web-based application for creating and organizing text prompts with two different editing modes",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack serve --mode development",
+    "build": "webpack --mode production",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+    "lint:fix": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
+    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md}'",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevGuyRash/moduprompt.git"
+  },
+  "keywords": [
+    "prompt",
+    "editor",
+    "markdown",
+    "notebook",
+    "node-based"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DevGuyRash/moduprompt/issues"
+  },
+  "homepage": "https://github.com/DevGuyRash/moduprompt#readme",
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@types/jest": "^29.5.14",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "ts-jest": "^29.2.6"
+  }
+}
