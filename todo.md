@@ -23,5 +23,5 @@
 
 ## General Tasks
 - [x] Test all fixes thoroughly
-- [ ] Commit and push changes
-- [ ] Prepare progress report
+- [x] Commit and push changes
+- [x] Prepare progress report
