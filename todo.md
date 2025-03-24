@@ -1,27 +1,47 @@
 # ModuPrompt Fixes Todo List
 
 ## Node Mode Issues
-- [x] Fix node connection issues
-  - [x] Fix ref handling in Node.tsx drag function
-  - [x] Fix connection appearance and persistence
-  - [x] Fix disconnection functionality
-- [x] Implement canvas navigation
-  - [x] Fix panning functionality
-  - [x] Ensure zoom controls work properly
+- [ ] Fix node selection issues
+  - [ ] Prevent all nodes from being selected when clicking a single node
+  - [ ] Fix persistent dragging state after releasing mouse button
+- [ ] Fix node connection issues
+  - [ ] Enable dragging from outputs/inputs to create connections
+  - [ ] Fix connection persistence when moving connected nodes
+  - [ ] Implement ability to disconnect nodes
+- [ ] Implement canvas navigation
+  - [ ] Fix panning functionality
+  - [ ] Add visual feedback during panning
+  - [ ] Ensure zoom controls work properly
 - [ ] Fix format node functionality
   - [ ] Implement proper formatting options
   - [ ] Ensure connections work with format nodes
 
 ## Notebook Mode Issues
-- [x] Fix notebook mode selection
-  - [x] Ensure text selection works properly
-  - [x] Fix cell movement to only trigger when hovering over cell handle
-- [x] Implement formatting toggles
-  - [x] Make code block and XML tags mutually exclusive
-  - [x] Make blockquote and callout mutually exclusive
-  - [x] Allow other combinations to be valid
+- [ ] Fix cell selection and movement
+  - [ ] Ensure text selection works properly without triggering cell movement
+  - [ ] Restrict cell movement to only trigger when hovering over cell handle
+- [ ] Fix formatting toolbar functionality
+  - [ ] Ensure formatting buttons apply expected formatting consistently
+- [ ] Implement formatting toggles
+  - [ ] Make code block and XML tags mutually exclusive
+  - [ ] Make blockquote and callout mutually exclusive
+  - [ ] Allow other combinations to be valid
+
+## Mode Synchronization Issues
+- [ ] Fix formatting synchronization between modes
+  - [ ] Ensure formatting changes in one mode are reflected in the other mode
+  - [ ] Fix XML formatting synchronization specifically
+- [ ] Verify content synchronization
+  - [ ] Ensure content changes in one mode are properly reflected in the other mode
 
 ## General Tasks
-- [x] Test all fixes thoroughly
-- [x] Commit and push changes
-- [x] Prepare progress report
+- [x] Create comprehensive testing checklist
+- [x] Test all modes thoroughly
+- [x] Document all identified issues
+- [ ] Implement fixes for highest priority issues first
+  - [ ] Node selection and dragging
+  - [ ] Connection creation and management
+  - [ ] Mode synchronization
+- [ ] Test all implemented fixes
+- [ ] Commit and push changes
+- [ ] Prepare final progress report
