@@ -1,225 +1,67 @@
-# Modular Prompt Builder Testing Checklist
+# ModuPrompt Testing Checklist
 
-This document provides a comprehensive testing checklist for the Modular Prompt Builder application. These tests should be performed after any significant changes to ensure all features continue to work correctly.
+## Node Mode Testing
 
-## Core Functionality Tests
-
-### Application Startup
-- [ ] Application loads without errors
-- [ ] Initial UI renders correctly
-- [ ] Default mode (Notebook or Node) loads properly
-- [ ] Sidebar panels are visible and properly sized
-
-### Mode Switching
-- [ ] Switch from Notebook to Node mode
-- [ ] Switch from Node to Notebook mode
-- [ ] Verify content is preserved when switching modes
-- [ ] Verify UI elements update appropriately for each mode
-
-## Notebook Mode Tests
-
-### Cell Management
-- [ ] Create a new cell
-- [ ] Delete an existing cell
-- [ ] Edit cell content
-- [ ] Toggle between edit and view modes
-- [ ] Verify markdown rendering in view mode
-
-### Cell Drag and Drop
-- [ ] Drag a cell up in the list
-- [ ] Drag a cell down in the list
-- [ ] Verify cell order updates correctly
-- [ ] Verify no errors occur during drag operations
-
-### Rich Text Editing
-- [ ] Test bold formatting
-- [ ] Test italic formatting
-- [ ] Test strikethrough formatting
-- [ ] Test inline code formatting
-- [ ] Test heading formatting
-- [ ] Test unordered list formatting
-- [ ] Test ordered list formatting
-- [ ] Test link insertion
-
-### Cell Formatting
-- [ ] Apply code block formatting
-- [ ] Apply blockquote formatting
-- [ ] Apply callout formatting
-- [ ] Apply XML tag formatting
-- [ ] Verify formatting is visible in view mode
-- [ ] Verify formatting is preserved when switching to edit mode
-- [ ] Test combining multiple formatting options
-- [ ] Test removing formatting
-
-### Format Cell Menu
-- [ ] Open format menu
-- [ ] Select different formatting options
-- [ ] Verify menu closes when clicking outside
-- [ ] Verify menu closes when selecting an option
-
-## Node Mode Tests
-
-### Node Creation
-- [ ] Create a content node
-- [ ] Create a format node
-- [ ] Create a filter node
-- [ ] Create a filter join node
+### Node Selection and Dragging
+- [ ] Test selecting a single node (should only select that node)
+- [ ] Test dragging a node (should stop dragging when mouse is released)
+- [ ] Test clicking on a node's content vs. its header
+- [ ] Test selecting multiple nodes (if supported)
+- [ ] Test node selection persistence when switching between modes
 
 ### Node Connections
-- [ ] Connect a content node to a format node
-- [ ] Connect a format node to another format node
-- [ ] Connect multiple nodes in a chain
-- [ ] Verify connections are visually represented correctly
+- [ ] Test connecting an output to an input
+- [ ] Test dragging from an output (should create a connection, not move the node)
+- [ ] Test dragging from an input (should create a connection, not move the node)
+- [ ] Test disconnecting a connection
+- [ ] Test connection persistence when nodes are moved
+- [ ] Test connection appearance (should be visible and properly positioned)
 
-### Node Editing
-- [ ] Edit content in a content node
-- [ ] Edit properties of a format node
-- [ ] Verify changes are reflected in the node display
-- [ ] Test node deletion and connection cleanup
+### Format Nodes
+- [ ] Test creating a format node
+- [ ] Test connecting a prompt node to a format node
+- [ ] Test applying different formatting options
+- [ ] Test format node functionality (should properly format the content)
 
 ### Canvas Navigation
-- [ ] Pan the canvas
-- [ ] Zoom in/out
-- [ ] Reset view
-- [ ] Verify nodes remain properly positioned
+- [ ] Test panning the canvas (drag with mouse)
+- [ ] Test zooming in and out (Ctrl+wheel)
+- [ ] Test horizontal panning (Shift+wheel)
+- [ ] Test vertical panning (wheel)
+- [ ] Test canvas reset view button
 
-## Snippet Functionality Tests
+## Notebook Mode Testing
 
-### Snippet Management
-- [ ] Create a new snippet
-- [ ] Edit an existing snippet
-- [ ] Delete a snippet
-- [ ] Verify snippet content is saved correctly
+### Cell Selection and Editing
+- [ ] Test selecting text within a cell (should not trigger cell movement)
+- [ ] Test moving a cell using the cell handle
+- [ ] Test editing cell content
+- [ ] Test rich text formatting options
 
-### Folder Management
-- [ ] Create a new folder
-- [ ] Create a nested folder
-- [ ] Delete a folder
-- [ ] Verify folder structure is maintained
+### Cell Formatting
+- [ ] Test applying code block formatting
+- [ ] Test applying blockquote formatting
+- [ ] Test applying callout formatting
+- [ ] Test applying XML tags formatting
+- [ ] Test mutually exclusive formatting options (code block vs XML tags)
+- [ ] Test mutually exclusive formatting options (blockquote vs callout)
+- [ ] Test removing formatting
 
-### Snippet Search
-- [ ] Search for a snippet by title
-- [ ] Search for a snippet by content
-- [ ] Search for a snippet by tag
-- [ ] Verify search results are accurate
+## Mode Switching and Synchronization
 
-### Snippet Drag and Drop
-- [ ] Drag a snippet to a notebook cell
-- [ ] Drag a snippet to a node in node mode
-- [ ] Verify snippet content is inserted correctly
-- [ ] Verify frontmatter is properly handled (not included in insertion)
+### Notebook to Node Mode
+- [ ] Test creating cells in notebook mode and switching to node mode
+- [ ] Test applying formatting in notebook mode and checking if it appears in node mode
+- [ ] Test removing formatting in notebook mode and checking if it's removed in node mode
 
-## Export Functionality Tests
+### Node to Notebook Mode
+- [ ] Test creating nodes in node mode and switching to notebook mode
+- [ ] Test connecting nodes in node mode and switching to notebook mode
+- [ ] Test applying formatting in node mode and checking if it appears in notebook mode
+- [ ] Test removing formatting in node mode and checking if it's removed in notebook mode
 
-### Markdown Export
-- [ ] Export notebook content to markdown
-- [ ] Export node content to markdown
-- [ ] Verify formatting is preserved in exported markdown
-- [ ] Verify cell order is maintained in exported content
-
-### PDF Export
-- [ ] Export notebook content to PDF
-- [ ] Export node content to PDF
-- [ ] Verify formatting is properly rendered in PDF
-- [ ] Verify images and diagrams are included in PDF
-
-## Integration Tests
-
-### Formatting and Rich Text Integration
-- [ ] Apply rich text formatting to a cell with existing cell formatting
-- [ ] Verify both formatting types are preserved
-- [ ] Test interactions between different formatting options
-
-### Snippet and Cell Integration
-- [ ] Insert a snippet into a formatted cell
-- [ ] Apply formatting to a cell containing a snippet
-- [ ] Verify content and formatting are preserved
-
-### Mode Switching with Content
-- [ ] Create content in notebook mode
-- [ ] Switch to node mode and verify content is preserved
-- [ ] Make changes in node mode
-- [ ] Switch back to notebook mode and verify changes are preserved
-
-## Performance Tests
-
-### Large Document Handling
-- [ ] Create a notebook with 50+ cells
-- [ ] Test scrolling performance
-- [ ] Test editing performance
-- [ ] Test export performance with large documents
-
-### Complex Node Graph
-- [ ] Create a complex node graph with 20+ nodes
-- [ ] Test connection performance
-- [ ] Test canvas navigation with many nodes
-- [ ] Test export with complex node structures
-
-## Browser Compatibility Tests
-
-### Cross-Browser Testing
-- [ ] Test in Chrome
-- [ ] Test in Firefox
-- [ ] Test in Safari
-- [ ] Test in Edge
-
-### Responsive Design
-- [ ] Test at different window sizes
-- [ ] Test on tablet-sized screens
-- [ ] Verify UI elements adapt appropriately
-
-## Error Handling Tests
-
-### Input Validation
-- [ ] Test with invalid input in text fields
-- [ ] Test with extremely long content
-- [ ] Test with special characters
-- [ ] Verify appropriate error messages are displayed
-
-### Recovery Scenarios
-- [ ] Test application behavior after a browser refresh
-- [ ] Test recovery from an unexpected error
-- [ ] Verify no data loss occurs during error conditions
-
-## Accessibility Tests
-
-### Keyboard Navigation
-- [ ] Navigate through all UI elements using keyboard
-- [ ] Verify all actions can be performed with keyboard
-- [ ] Test keyboard shortcuts
-
-### Screen Reader Compatibility
-- [ ] Verify all UI elements have appropriate ARIA labels
-- [ ] Test navigation with a screen reader
-- [ ] Verify important state changes are announced
-
-## Security Tests
-
-### Input Sanitization
-- [ ] Test with potentially malicious input (script tags, etc.)
-- [ ] Verify input is properly sanitized
-- [ ] Test with unusual character encodings
-
-### Data Handling
-- [ ] Verify sensitive data is not exposed in the UI
-- [ ] Test data persistence mechanisms
-- [ ] Verify proper error handling for data operations
-
-## Regression Testing
-
-After completing the above tests, repeat the following for any areas that were modified:
-
-1. Verify that fixed issues remain fixed
-2. Ensure no new issues were introduced
-3. Test edge cases specific to the modified components
-4. Verify integration with other components still works correctly
-
-## Test Reporting
-
-For each test:
-1. Document the test result (Pass/Fail)
-2. If failed, document the specific issue observed
-3. Include screenshots or recordings of any issues
-4. Note the environment details (browser, OS, screen size)
-
-This checklist should be used as a baseline for testing and expanded as new features are added to the application.
+## General Functionality
+- [ ] Test snippet panel functionality
+- [ ] Test export functionality
+- [ ] Test preview functionality
+- [ ] Test error handling and edge cases
