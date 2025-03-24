@@ -41,9 +41,17 @@ const Node: React.FC<NodeProps> = ({
       if (onDragStart) onDragStart();
       return { id: node.id };
     },
-    end: () => {
+    end: (item, monitor) => {
       if (onDragEnd) onDragEnd();
       setIsDraggingHandle(false); // Reset dragging state when drag ends
+      
+      // Fix for persistent dragging state
+      if (!monitor.didDrop()) {
+        // If the drag ended without a drop, ensure we reset any state
+        if (onSelect) {
+          onSelect(node.id);
+        }
+      }
     },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
@@ -61,6 +69,7 @@ const Node: React.FC<NodeProps> = ({
       !(e.target as HTMLElement).closest('.node-handle') &&
       !(e.target as HTMLElement).closest('button')
     ) {
+      e.stopPropagation(); // Stop event from bubbling up to canvas
       if (onSelect) {
         onSelect(node.id);
       }

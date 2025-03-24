@@ -168,6 +168,7 @@ const NodeCanvas: React.FC = () => {
   };
   
   const handleNodeSelect = (id: string) => {
+    // Only select the node that was clicked, not all nodes
     setSelectedNodeId(id);
     
     // If the selected node is a format node, show formatting options
