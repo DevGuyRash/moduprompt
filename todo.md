@@ -8,7 +8,7 @@
   - [x] Ensure connections persist when nodes are moved
 
 - [ ] **Mode Synchronization**
-  - [ ] Ensure formatting changes in one mode are reflected in the other
+  - [x] Ensure formatting changes in one mode are reflected in the other
   - [ ] Fix XML formatting synchronization between modes
 
 ## Medium Priority Issues

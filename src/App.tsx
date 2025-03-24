@@ -4,8 +4,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { SnippetProvider } from './contexts/SnippetContext';
 import { NotebookProvider } from './contexts/NotebookContext';
 import { NodeEditorProvider } from './contexts/NodeEditorContext';
-import { useNotebook, CellType } from './contexts/NotebookContext';
-import { useNodeEditor, NodeType, FormatOptions } from './contexts/NodeEditorContext';
+import { useNotebook, CellType, FormatOptions as NotebookFormatOptions } from './contexts/NotebookContext';
+import { useNodeEditor, NodeType, FormatOptions as NodeFormatOptions } from './contexts/NodeEditorContext';
 import SnippetPanel from './components/SnippetPanel/SnippetPanel';
 import NotebookEditor from './components/NotebookEditor/NotebookEditor';
 import NodeCanvas from './components/NodeCanvas/NodeCanvas';
@@ -20,7 +20,7 @@ enum EditorMode {
 
 // Content converter component to handle mode switching
 const ContentSynchronizer: React.FC<{ editorMode: EditorMode }> = ({ editorMode }) => {
-  const { cells, addCell, updateCell } = useNotebook();
+  const { cells, addCell, updateCell, formatCell } = useNotebook();
   const { nodes, connections, convertCellsToNodes, clearNodes } = useNodeEditor();
   
   // When mode changes, synchronize content
@@ -79,22 +79,31 @@ const ContentSynchronizer: React.FC<{ editorMode: EditorMode }> = ({ editorMode 
               conn => conn.targetId === node.id && conn.targetHandle === 'format'
             );
             
-            if (formatConnection) {
+            let cellId = '';
+            
+            // Add the cell first
+            addCell(CellType.CONTENT, node.content);
+            
+            // Get the last added cell's ID
+            const lastCellId = cells[cells.length - 1]?.id;
+            if (lastCellId) {
+              cellId = lastCellId;
+            }
+            
+            if (formatConnection && cellId) {
               // Get the format node
               const formatNode = nodes.find(n => n.id === formatConnection.sourceId);
               if (formatNode && formatNode.formatOptions) {
-                // Add cell with formatting
-                addCell(CellType.CONTENT, node.content);
-                // Get the last added cell's ID
-                const lastCellId = cells[cells.length - 1]?.id;
-                if (lastCellId) {
-                  updateCell(lastCellId, { formatting: formatNode.formatOptions });
-                }
-              } else {
-                addCell(CellType.CONTENT, node.content);
+                // Apply formatting to the cell
+                const notebookFormatOptions: NotebookFormatOptions = {
+                  type: formatNode.formatOptions.type,
+                  language: formatNode.formatOptions.language,
+                  calloutType: formatNode.formatOptions.calloutType,
+                  xmlTag: formatNode.formatOptions.xmlTag
+                };
+                
+                formatCell(cellId, notebookFormatOptions);
               }
-            } else {
-              addCell(CellType.CONTENT, node.content);
             }
           }
         });
@@ -113,7 +122,7 @@ const ContentSynchronizer: React.FC<{ editorMode: EditorMode }> = ({ editorMode 
         clearNodes();
       }
     }
-  }, [editorMode, cells, nodes, connections, addCell, updateCell, convertCellsToNodes, clearNodes]);
+  }, [editorMode, cells, nodes, connections, addCell, updateCell, formatCell, convertCellsToNodes, clearNodes]);
   
   return null; // This is just a logic component, no UI
 };
@@ -143,10 +152,26 @@ const App: React.FC = () => {
   };
 
   // Handle format creation in node mode
-  const handleCreateFormat = (formatOptions: FormatOptions) => {
+  const handleCreateFormat = (formatOptions: NodeFormatOptions) => {
     if (editorMode === EditorMode.NODE) {
       createFormatNode(formatOptions, formatPosition);
       setShowFormattingOptions(false);
+    }
+  };
+
+  // Handle mode switching
+  const handleModeSwitch = (mode: EditorMode) => {
+    // Only switch if the mode is different
+    if (mode !== editorMode) {
+      setEditorMode(mode);
+      
+      // Reset selected cell when switching modes
+      setSelectedCellId(null);
+      
+      // Close formatting options panel when switching modes
+      if (showFormattingOptions) {
+        setShowFormattingOptions(false);
+      }
     }
   };
 
@@ -162,13 +187,13 @@ const App: React.FC = () => {
                   <div className="mode-toggle">
                     <button 
                       className={editorMode === EditorMode.NOTEBOOK ? 'active' : ''}
-                      onClick={() => setEditorMode(EditorMode.NOTEBOOK)}
+                      onClick={() => handleModeSwitch(EditorMode.NOTEBOOK)}
                     >
                       Notebook Mode
                     </button>
                     <button 
                       className={editorMode === EditorMode.NODE ? 'active' : ''}
-                      onClick={() => setEditorMode(EditorMode.NODE)}
+                      onClick={() => handleModeSwitch(EditorMode.NODE)}
                     >
                       Node Mode
                     </button>

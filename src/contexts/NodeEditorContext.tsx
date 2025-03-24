@@ -1,6 +1,7 @@
 import React from 'react';
 import { SnippetType } from '../types/snippet';
-import { CellType, CellData } from './NotebookContext';
+import { CellType, CellData, FormatOptions as NotebookFormatOptions } from './NotebookContext';
+import { FormatOptions as NodeFormatOptions } from './NodeEditorContext';
 
 export enum NodeType {
   PROMPT = 'prompt',
@@ -209,6 +210,18 @@ export const NodeEditorProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setConnections([]);
   };
 
+  // Convert notebook format options to node format options
+  const convertFormatOptions = (notebookFormatting?: NotebookFormatOptions): FormatOptions | undefined => {
+    if (!notebookFormatting || !notebookFormatting.type) return undefined;
+    
+    return {
+      type: notebookFormatting.type,
+      language: notebookFormatting.language,
+      calloutType: notebookFormatting.calloutType,
+      xmlTag: notebookFormatting.xmlTag
+    };
+  };
+
   const convertCellsToNodes = (cells: CellData[]) => {
     // Clear existing nodes and connections
     clearNodes();
@@ -240,34 +253,31 @@ export const NodeEditorProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         // If there's formatting, create a format node
         if (cell.formatting) {
           // Convert NotebookContext.FormatOptions to NodeEditorContext.FormatOptions
-          const formatOptions: FormatOptions = {
-            type: cell.formatting.type || 'code', // Default to code if type is undefined
-            language: cell.formatting.language,
-            calloutType: cell.formatting.calloutType,
-            xmlTag: cell.formatting.xmlTag
-          };
+          const formatOptions = convertFormatOptions(cell.formatting);
           
-          const formatNodeId = generateId();
-          const formatNode: NodeData = {
-            id: formatNodeId,
-            type: NodeType.FORMAT,
-            content: getFormatDescription(formatOptions),
-            position: { x: 100, y: yPosition },
-            isCollapsed: false,
-            inputs: getNodeInputs(NodeType.FORMAT),
-            outputs: ['output'],
-            formatOptions
-          };
-          
-          newNodes.push(formatNode);
-          
-          // Connect format node to prompt node
-          newConnections.push({
-            sourceId: formatNodeId,
-            targetId: promptNodeId,
-            sourceHandle: 'output',
-            targetHandle: 'format'
-          });
+          if (formatOptions) {
+            const formatNodeId = generateId();
+            const formatNode: NodeData = {
+              id: formatNodeId,
+              type: NodeType.FORMAT,
+              content: getFormatDescription(formatOptions),
+              position: { x: 100, y: yPosition },
+              isCollapsed: false,
+              inputs: getNodeInputs(NodeType.FORMAT),
+              outputs: ['output'],
+              formatOptions
+            };
+            
+            newNodes.push(formatNode);
+            
+            // Connect format node to prompt node
+            newConnections.push({
+              sourceId: formatNodeId,
+              targetId: promptNodeId,
+              sourceHandle: 'output',
+              targetHandle: 'format'
+            });
+          }
         }
         
         // Connect to previous node if it exists
