@@ -1,47 +1,38 @@
-# ModuPrompt Fixes Todo List
+# ModuPrompt Implementation Todo List
 
-## Node Mode Issues
-- [ ] Fix node selection issues
-  - [ ] Prevent all nodes from being selected when clicking a single node
-  - [ ] Fix persistent dragging state after releasing mouse button
-- [ ] Fix node connection issues
-  - [ ] Enable dragging from outputs/inputs to create connections
-  - [ ] Fix connection persistence when moving connected nodes
-  - [ ] Implement ability to disconnect nodes
-- [ ] Implement canvas navigation
-  - [ ] Fix panning functionality
-  - [ ] Add visual feedback during panning
-  - [ ] Ensure zoom controls work properly
-- [ ] Fix format node functionality
-  - [ ] Implement proper formatting options
-  - [ ] Ensure connections work with format nodes
+## High Priority Issues
 
-## Notebook Mode Issues
-- [ ] Fix cell selection and movement
-  - [ ] Ensure text selection works properly without triggering cell movement
-  - [ ] Restrict cell movement to only trigger when hovering over cell handle
-- [ ] Fix formatting toolbar functionality
-  - [ ] Ensure formatting buttons apply expected formatting consistently
-- [ ] Implement formatting toggles
-  - [ ] Make code block and XML tags mutually exclusive
-  - [ ] Make blockquote and callout mutually exclusive
-  - [ ] Allow other combinations to be valid
+- [x] **Node Connection Creation**
+  - [x] Fix drag from outputs to inputs for connection creation
+  - [x] Implement visual feedback during connection dragging
+  - [x] Ensure connections persist when nodes are moved
 
-## Mode Synchronization Issues
-- [ ] Fix formatting synchronization between modes
-  - [ ] Ensure formatting changes in one mode are reflected in the other mode
-  - [ ] Fix XML formatting synchronization specifically
-- [ ] Verify content synchronization
-  - [ ] Ensure content changes in one mode are properly reflected in the other mode
+- [ ] **Mode Synchronization**
+  - [ ] Ensure formatting changes in one mode are reflected in the other
+  - [ ] Fix XML formatting synchronization between modes
 
-## General Tasks
-- [x] Create comprehensive testing checklist
-- [x] Test all modes thoroughly
-- [x] Document all identified issues
-- [ ] Implement fixes for highest priority issues first
-  - [ ] Node selection and dragging
-  - [ ] Connection creation and management
-  - [ ] Mode synchronization
-- [ ] Test all implemented fixes
-- [ ] Commit and push changes
-- [ ] Prepare final progress report
+## Medium Priority Issues
+
+- [ ] **Notebook Mode Issues**
+  - [ ] Fix drag and drop error between cells
+  - [ ] Implement formatting in exports
+  - [ ] Fix PDF export to render markdown properly
+
+- [ ] **Node Mode UI Improvements**
+  - [ ] Add input and output labels to nodes
+  - [ ] Improve canvas navigation with better user feedback
+
+## Low Priority Issues
+
+- [ ] **Snippet Functionality**
+  - [ ] Implement saving prompt cells to snippets
+  - [ ] Improve snippet drag and drop functionality
+
+- [ ] **Filter Node Implementation**
+  - [ ] Make filter nodes non-editable
+  - [ ] Use same filter options as notebook mode
+  - [ ] Create separate filter nodes as inputs per prompt node when switching modes
+
+- [ ] **Documentation Updates**
+  - [ ] Update user guide with improved functionality
+  - [ ] Add examples of proper usage for both modes

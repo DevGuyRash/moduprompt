@@ -76,3 +76,22 @@
 .canvas-drop-active {
   background-color: #e9ecef;
 }
+
+/* Add visual feedback for connection dragging */
+.connection-in-progress {
+  stroke-dasharray: 5,5;
+  animation: dash 1s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: 10;
+  }
+}
+
+/* Highlight valid connection targets */
+.input-handle.connection-target {
+  transform: scale(1.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 0 4px rgba(13, 110, 253, 0.5);
+  background-color: #0d6efd;
+}

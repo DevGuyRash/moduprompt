@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import { FaEdit, FaTrash, FaChevronUp, FaChevronDown, FaUnlink } from 'react-icons/fa';
 import { NodeData, NodeType } from '../../contexts/NodeEditorContext';
@@ -34,6 +34,7 @@ const Node: React.FC<NodeProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isDraggingHandle, setIsDraggingHandle] = useState(false);
+  const nodeRef = useRef<HTMLDivElement>(null);
   
   const [{ isDragging }, drag] = useDrag({
     type: 'NODE',
@@ -59,6 +60,9 @@ const Node: React.FC<NodeProps> = ({
     canDrag: () => !isDraggingHandle, // Prevent node dragging when dragging a handle
   });
 
+  // Connect the drag ref to our node ref
+  drag(nodeRef);
+
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateNode(node.id, { content: e.target.value });
   };
@@ -80,8 +84,8 @@ const Node: React.FC<NodeProps> = ({
     e.stopPropagation();
     e.preventDefault();
     
-    // Only allow dragging from output handles
-    if (!isInput && onConnectionStart) {
+    // Only allow dragging from output handles or to input handles
+    if (onConnectionStart) {
       setIsDraggingHandle(true);
       onConnectionStart(node.id, handleId);
       
@@ -174,10 +178,7 @@ const Node: React.FC<NodeProps> = ({
 
   return (
     <div 
-      ref={(node) => {
-        drag(node);
-        return;
-      }}
+      ref={nodeRef}
       className={`node ${getNodeTypeClass()} ${isDragging ? 'dragging' : ''} ${selected ? 'selected' : ''}`}
       style={{ 
         left: node.position.x, 
@@ -236,6 +237,7 @@ const Node: React.FC<NodeProps> = ({
             <div 
               className="node-handle input-handle" 
               data-handle-id={input}
+              onMouseDown={(e) => handleConnectionDragStart(e, input, true)}
               onMouseUp={(e) => handleConnectionDragEnd(e, input, true)}
               title={`Input: ${input}`}
             >

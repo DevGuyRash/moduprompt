@@ -74,6 +74,7 @@ const NodeCanvas: React.FC = () => {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [showFormatOptions, setShowFormatOptions] = useState(false);
   const [formatPosition, setFormatPosition] = useState({ x: 0, y: 0 });
+  const [potentialTarget, setPotentialTarget] = useState<string | null>(null);
   
   const canvasRef = useRef<HTMLDivElement>(null);
   const canvasContentRef = useRef<HTMLDivElement>(null);
@@ -148,6 +149,31 @@ const NodeCanvas: React.FC = () => {
           const targetY = e.clientY - canvasRect.top;
           
           setTemporaryConnection({ sourceX, sourceY, targetX, targetY });
+          
+          // Check if we're over a potential input handle
+          const element = document.elementFromPoint(e.clientX, e.clientY);
+          const inputHandle = element?.closest('.input-handle');
+          
+          // Remove previous potential target highlight
+          if (potentialTarget) {
+            const prevTarget = document.querySelector(`[data-handle-id="${potentialTarget}"].input-handle`);
+            prevTarget?.classList.remove('connection-target');
+          }
+          
+          if (inputHandle) {
+            const handleId = inputHandle.getAttribute('data-handle-id');
+            const nodeId = inputHandle.closest('[data-node-id]')?.getAttribute('data-node-id');
+            
+            // Don't highlight if trying to connect to the same node
+            if (handleId && nodeId && nodeId !== connectionStart.nodeId) {
+              inputHandle.classList.add('connection-target');
+              setPotentialTarget(handleId);
+            } else {
+              setPotentialTarget(null);
+            }
+          } else {
+            setPotentialTarget(null);
+          }
         }
       }
     }
@@ -173,6 +199,13 @@ const NodeCanvas: React.FC = () => {
             targetHandle: handleId
           });
         }
+      }
+      
+      // Remove any potential target highlights
+      if (potentialTarget) {
+        const prevTarget = document.querySelector(`[data-handle-id="${potentialTarget}"].input-handle`);
+        prevTarget?.classList.remove('connection-target');
+        setPotentialTarget(null);
       }
       
       setIsDraggingConnection(false);
@@ -234,6 +267,13 @@ const NodeCanvas: React.FC = () => {
     document.querySelectorAll('.node-handle.connection-active').forEach(handle => {
       handle.classList.remove('connection-active');
     });
+    
+    // Remove any potential target highlights
+    if (potentialTarget) {
+      const prevTarget = document.querySelector(`[data-handle-id="${potentialTarget}"].input-handle`);
+      prevTarget?.classList.remove('connection-target');
+      setPotentialTarget(null);
+    }
     
     setConnectionStart(null);
     setIsDraggingConnection(false);
@@ -472,6 +512,7 @@ const NodeCanvas: React.FC = () => {
               strokeWidth="2" 
               strokeDasharray="5,5"
               fill="none" 
+              className="connection-in-progress"
             />
           </svg>
         )}
