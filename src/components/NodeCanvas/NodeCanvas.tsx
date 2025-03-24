@@ -153,9 +153,28 @@ const NodeCanvas: React.FC = () => {
     }
   };
   
-  const handleCanvasMouseUp = () => {
+  const handleCanvasMouseUp = (e: React.MouseEvent) => {
     setIsDraggingCanvas(false);
     if (isDraggingConnection) {
+      // Check if we're over an input handle
+      const element = document.elementFromPoint(e.clientX, e.clientY);
+      const inputHandle = element?.closest('.input-handle');
+      
+      if (inputHandle && connectionStart) {
+        const nodeId = inputHandle.closest('[data-node-id]')?.getAttribute('data-node-id');
+        const handleId = inputHandle.getAttribute('data-handle-id');
+        
+        if (nodeId && handleId && connectionStart.nodeId !== nodeId) {
+          // Create a new connection
+          addConnection({
+            sourceId: connectionStart.nodeId,
+            targetId: nodeId,
+            sourceHandle: connectionStart.handleId,
+            targetHandle: handleId
+          });
+        }
+      }
+      
       setIsDraggingConnection(false);
       setConnectionStart(null);
       setTemporaryConnection(null);
@@ -192,6 +211,12 @@ const NodeCanvas: React.FC = () => {
   const handleConnectionStart = (nodeId: string, handleId: string) => {
     setConnectionStart({ nodeId, handleId });
     setIsDraggingConnection(true);
+    
+    // Add connection-active class to the source handle
+    const sourceHandle = document.querySelector(
+      `[data-node-id="${nodeId}"] [data-handle-id="${handleId}"]`
+    );
+    sourceHandle?.classList.add('connection-active');
   };
   
   const handleConnectionEnd = (nodeId: string, handleId: string) => {
@@ -204,6 +229,12 @@ const NodeCanvas: React.FC = () => {
         targetHandle: handleId
       });
     }
+    
+    // Remove connection-active class from all handles
+    document.querySelectorAll('.node-handle.connection-active').forEach(handle => {
+      handle.classList.remove('connection-active');
+    });
+    
     setConnectionStart(null);
     setIsDraggingConnection(false);
     setTemporaryConnection(null);

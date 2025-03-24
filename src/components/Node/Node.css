@@ -129,6 +129,11 @@
   transform: scale(1.2);
 }
 
+.node-handle.connection-active {
+  transform: scale(1.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 0 4px rgba(40, 167, 69, 0.5);
+}
+
 .handle-label {
   font-size: 10px;
   white-space: nowrap;

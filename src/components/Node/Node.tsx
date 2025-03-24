@@ -84,6 +84,36 @@ const Node: React.FC<NodeProps> = ({
     if (!isInput && onConnectionStart) {
       setIsDraggingHandle(true);
       onConnectionStart(node.id, handleId);
+      
+      // Add global mouse move and mouse up event listeners
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+  };
+  
+  const handleMouseMove = (e: MouseEvent) => {
+    // This is handled by the NodeCanvas component
+  };
+  
+  const handleMouseUp = (e: MouseEvent) => {
+    // Clean up event listeners
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    
+    // Reset dragging state
+    setIsDraggingHandle(false);
+    
+    // Find if we're over an input handle
+    const element = document.elementFromPoint(e.clientX, e.clientY);
+    const inputHandle = element?.closest('.input-handle');
+    
+    if (inputHandle) {
+      const nodeId = inputHandle.closest('[data-node-id]')?.getAttribute('data-node-id');
+      const handleId = inputHandle.getAttribute('data-handle-id');
+      
+      if (nodeId && handleId && onConnectionEnd) {
+        onConnectionEnd(nodeId, handleId);
+      }
     }
   };
 
