@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaCode, FaQuoteRight, FaInfoCircle, FaTag, FaPlus, FaToggleOn, FaToggleOff } from 'react-icons/fa';
 import { FormatOptions, NodeType, useNodeEditor } from '../../contexts/NodeEditorContext';
+import { useNotebook } from '../../contexts/NotebookContext';
 import './FormattingOptions.css';
 
 /**
@@ -34,6 +35,7 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
   onCreateFormat
 }) => {
   const { addNode } = useNodeEditor();
+  const { cells, formatCell, removeFormatting } = useNotebook();
   const [activeFormatters, setActiveFormatters] = React.useState<{
     code: boolean;
     blockquote: boolean;
@@ -49,6 +51,43 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
   const [calloutType, setCalloutType] = React.useState('info');
   const [xmlTag, setXmlTag] = React.useState('div');
   const [calloutName, setCalloutName] = React.useState('');
+
+  // Load existing formatting when component mounts or cellId changes
+  useEffect(() => {
+    if (currentMode === 'notebook' && cellId) {
+      const cell = cells.find(c => c.id === cellId);
+      if (cell && cell.formatting) {
+        // Reset all formatters first
+        setActiveFormatters({
+          code: false,
+          blockquote: false,
+          callout: false,
+          xml: false
+        });
+
+        // Set the active formatter based on the cell's formatting
+        if (cell.formatting.type) {
+          setActiveFormatters(prev => ({
+            ...prev,
+            [cell.formatting?.type || 'code']: true
+          }));
+
+          // Set additional options based on the formatter type
+          switch (cell.formatting.type) {
+            case 'code':
+              setCodeLanguage(cell.formatting.language || '');
+              break;
+            case 'callout':
+              setCalloutType(cell.formatting.calloutType || 'info');
+              break;
+            case 'xml':
+              setXmlTag(cell.formatting.xmlTag || 'div');
+              break;
+          }
+        }
+      }
+    }
+  }, [cellId, cells, currentMode]);
 
   /**
    * Toggles a formatter on or off
@@ -78,6 +117,43 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
         ...prev,
         [formatter]: !prev[formatter]
       }));
+    }
+
+    // Apply formatting to the cell in notebook mode
+    if (currentMode === 'notebook' && cellId) {
+      // If turning off the formatter, remove formatting
+      if (activeFormatters[formatter]) {
+        removeFormatting(cellId);
+      } else {
+        // Apply the new formatting
+        applyFormatting();
+      }
+    }
+  };
+
+  /**
+   * Applies the current formatting options to the selected cell
+   */
+  const applyFormatting = () => {
+    if (currentMode === 'notebook' && cellId) {
+      // Determine which formatters are active
+      let formatOptions: FormatOptions = { type: 'code' };
+      
+      if (activeFormatters.code) {
+        formatOptions.type = 'code';
+        formatOptions.language = codeLanguage;
+      } else if (activeFormatters.xml) {
+        formatOptions.type = 'xml';
+        formatOptions.xmlTag = xmlTag;
+      } else if (activeFormatters.blockquote) {
+        formatOptions.type = 'blockquote';
+      } else if (activeFormatters.callout) {
+        formatOptions.type = 'callout';
+        formatOptions.calloutType = calloutType as 'info' | 'warning' | 'success' | 'error';
+      }
+
+      // Apply formatting to the cell
+      formatCell(cellId, formatOptions);
     }
   };
 
@@ -140,6 +216,14 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
         return 'Format';
     }
   };
+
+  // Handle changes to formatting options
+  useEffect(() => {
+    if (currentMode === 'notebook' && cellId) {
+      // Apply formatting when options change
+      applyFormatting();
+    }
+  }, [codeLanguage, calloutType, xmlTag, calloutName]);
 
   return (
     <div className={`formatting-options ${isDocumentLevel ? 'document-level' : ''}`}>

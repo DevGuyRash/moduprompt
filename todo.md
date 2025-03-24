@@ -9,7 +9,7 @@
 
 - [ ] **Mode Synchronization**
   - [x] Ensure formatting changes in one mode are reflected in the other
-  - [ ] Fix XML formatting synchronization between modes
+  - [x] Fix XML formatting synchronization between modes
 
 ## Medium Priority Issues
 
