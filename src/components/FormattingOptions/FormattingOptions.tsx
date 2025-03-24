@@ -63,7 +63,17 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
         xml: formatter === 'xml' ? true : false,
         [formatter]: !prev[formatter]
       }));
-    } else {
+    } 
+    // If toggling on blockquote or callout, turn off the other (they're mutually exclusive containers)
+    else if ((formatter === 'blockquote' || formatter === 'callout') && !activeFormatters[formatter]) {
+      setActiveFormatters(prev => ({
+        ...prev,
+        blockquote: formatter === 'blockquote' ? true : false,
+        callout: formatter === 'callout' ? true : false,
+        [formatter]: !prev[formatter]
+      }));
+    }
+    else {
       setActiveFormatters(prev => ({
         ...prev,
         [formatter]: !prev[formatter]

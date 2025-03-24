@@ -287,9 +287,19 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   /**
    * Handles cell selection in grouping mode
    */
-  const handleCellClick = () => {
+  const handleCellClick = (e: React.MouseEvent) => {
+    // Only handle selection in grouping mode
     if (groupingMode && onSelect) {
       onSelect(cell.id);
+    }
+    
+    // Don't trigger selection if clicking on buttons or handles
+    if (
+      (e.target as HTMLElement).closest('.cell-action-button') ||
+      (e.target as HTMLElement).closest('.cell-handle') ||
+      (e.target as HTMLElement).closest('.format-button')
+    ) {
+      e.stopPropagation();
     }
   };
 
@@ -376,7 +386,10 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
 
   return (
     <div 
-      ref={ref}
+      ref={(node) => {
+        ref.current = node;
+        drag(node);
+      }}
       className={`notebook-cell ${cell.type === CellType.COMMENT ? 'comment-cell' : ''} 
                  ${isDragging ? 'dragging' : ''} 
                  ${isOver ? 'drop-target' : ''} 

@@ -136,8 +136,8 @@ const Node: React.FC<NodeProps> = ({
   return (
     <div 
       ref={(node) => {
-        const result = drag(node);
-        return undefined;
+        drag(node);
+        return;
       }}
       className={`node ${getNodeTypeClass()} ${isDragging ? 'dragging' : ''} ${selected ? 'selected' : ''}`}
       style={{ 

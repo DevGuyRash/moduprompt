@@ -112,11 +112,16 @@ const NodeCanvas: React.FC = () => {
       e.preventDefault();
       setIsDraggingCanvas(true);
       setDragStart({ x: e.clientX, y: e.clientY });
+      
+      // Set cursor to grabbing
+      if (canvasContentRef.current) {
+        canvasContentRef.current.style.cursor = 'grabbing';
+      }
     }
   };
   
   const handleCanvasMouseMove = (e: React.MouseEvent) => {
-    if (isDraggingCanvas) {
+    if (isDraggingCanvas && !isDraggingConnection) {
       const dx = e.clientX - dragStart.x;
       const dy = e.clientY - dragStart.y;
       setPosition({
@@ -154,6 +159,11 @@ const NodeCanvas: React.FC = () => {
       setIsDraggingConnection(false);
       setConnectionStart(null);
       setTemporaryConnection(null);
+    }
+    
+    // Reset cursor to grab
+    if (canvasContentRef.current) {
+      canvasContentRef.current.style.cursor = 'grab';
     }
   };
   
@@ -227,13 +237,33 @@ const NodeCanvas: React.FC = () => {
     setPosition({ x: 0, y: 0 });
   };
   
-  // Handle mouse wheel for zooming
+  // Handle mouse wheel for zooming and panning
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
+      // Zoom with Ctrl + wheel
       if (e.ctrlKey) {
         e.preventDefault();
         const delta = e.deltaY > 0 ? -0.05 : 0.05;
         setScale(prev => Math.max(0.5, Math.min(prev + delta, 2)));
+      } 
+      // Pan with Shift + wheel (horizontal) or just wheel (vertical)
+      else {
+        e.preventDefault();
+        if (e.shiftKey) {
+          // Horizontal pan with shift+wheel
+          const dx = e.deltaY * 0.5;
+          setPosition(prev => ({
+            x: prev.x - dx,
+            y: prev.y
+          }));
+        } else {
+          // Vertical pan with just wheel
+          const dy = e.deltaY * 0.5;
+          setPosition(prev => ({
+            x: prev.x,
+            y: prev.y - dy
+          }));
+        }
       }
     };
     
@@ -253,9 +283,32 @@ const NodeCanvas: React.FC = () => {
   useEffect(() => {
     // This effect will run whenever nodes change (including position changes)
     // Force a re-render to update connection positions
-    const forceUpdate = () => {};
+    const forceUpdate = () => {
+      if (connectionStart) {
+        // Update temporary connection line if dragging a connection
+        const sourceElement = document.querySelector(
+          `[data-node-id="${connectionStart.nodeId}"] [data-handle-id="${connectionStart.handleId}"]`
+        );
+        
+        if (sourceElement) {
+          const sourceRect = sourceElement.getBoundingClientRect();
+          const canvasRect = canvasContentRef.current?.getBoundingClientRect();
+          
+          if (canvasRect) {
+            const sourceX = sourceRect.left + sourceRect.width / 2 - canvasRect.left;
+            const sourceY = sourceRect.top + sourceRect.height / 2 - canvasRect.top;
+            
+            // Use current mouse position or last known position
+            const targetX = sourceX + 100; // Default offset if no mouse position
+            const targetY = sourceY;
+            
+            setTemporaryConnection({ sourceX, sourceY, targetX, targetY });
+          }
+        }
+      }
+    };
     forceUpdate();
-  }, [nodes, connections]);
+  }, [nodes, connections, connectionStart]);
   
   return (
     <div 

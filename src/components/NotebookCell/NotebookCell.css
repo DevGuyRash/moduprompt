@@ -6,6 +6,7 @@
   border-radius: 4px;
   background-color: #fff;
   transition: all 0.2s ease;
+  cursor: text;
 }
 
 .notebook-cell.dragging {
@@ -48,10 +49,18 @@
   top: 50%;
   transform: translateY(-50%);
   width: 10px;
-  height: 20px;
+  height: 40px; /* Increased height for easier targeting */
   background-color: #ddd;
   border-radius: 3px;
   cursor: grab;
+  z-index: 10;
+  opacity: 0.7;
+}
+
+.cell-handle:hover {
+  opacity: 1;
+  background-color: #aaa;
+  width: 12px; /* Slightly wider on hover for better feedback */
 }
 
 .cell-content {
