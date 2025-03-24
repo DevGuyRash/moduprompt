@@ -285,6 +285,7 @@ const NodeCanvas: React.FC = () => {
     // This effect will run whenever nodes change (including position changes)
     // Force a re-render to update connection positions
     const forceUpdate = () => {
+      // Handle temporary connection during dragging
       if (connectionStart) {
         // Update temporary connection line if dragging a connection
         const sourceElement = document.querySelector(
@@ -307,8 +308,28 @@ const NodeCanvas: React.FC = () => {
           }
         }
       }
+      
+      // Force re-render of all established connections
+      // This ensures connection lines update their positions when nodes move
+      const connectionElements = document.querySelectorAll('.connection-line');
+      connectionElements.forEach(element => {
+        if (element instanceof SVGElement) {
+          // Trigger a DOM update by toggling a class or attribute
+          element.classList.toggle('connection-update');
+          element.classList.toggle('connection-update');
+        }
+      });
     };
+    
+    // Execute the update
     forceUpdate();
+    
+    // Add a small delay to ensure DOM has updated with new node positions
+    const timeoutId = setTimeout(() => {
+      forceUpdate();
+    }, 50);
+    
+    return () => clearTimeout(timeoutId);
   }, [nodes, connections, connectionStart]);
   
   return (

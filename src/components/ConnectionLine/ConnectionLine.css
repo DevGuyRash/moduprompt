@@ -1,0 +1,8 @@
+.connection-line {
+  pointer-events: none;
+  z-index: 5;
+}
+
+.connection-update {
+  /* This class is used for toggling to force DOM updates */
+}
