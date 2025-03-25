@@ -7,14 +7,14 @@
   - [x] Implement visual feedback during connection dragging
   - [x] Ensure connections persist when nodes are moved
 
-- [ ] **Mode Synchronization**
+- [x] **Mode Synchronization**
   - [x] Ensure formatting changes in one mode are reflected in the other
   - [x] Fix XML formatting synchronization between modes
 
 ## Medium Priority Issues
 
 - [ ] **Notebook Mode Issues**
-  - [ ] Fix drag and drop error between cells
+  - [x] Fix drag and drop error between cells
   - [ ] Implement formatting in exports
   - [ ] Fix PDF export to render markdown properly
 

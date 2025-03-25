@@ -73,7 +73,7 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   // Set up drag and drop functionality
   const [{ isDragging }, drag] = useDrag({
     type: 'CELL',
-    item: { index },
+    item: () => ({ index }),
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -276,77 +276,33 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
       textarea.setSelectionRange(newCursorPos, newCursorPos);
     }, 0);
   };
-
+  
   /**
-   * Toggles between edit and view mode for the cell
+   * Toggles the cell between edit and view modes
    */
   const toggleEditMode = () => {
     updateCell(cell.id, { isEditing: !cell.isEditing });
   };
-
+  
   /**
-   * Handles cell selection in grouping mode
+   * Handles clicking on the cell
+   * In grouping mode, selects the cell
    */
-  const handleCellClick = (e: React.MouseEvent) => {
-    // Only handle selection in grouping mode
+  const handleCellClick = () => {
     if (groupingMode && onSelect) {
       onSelect(cell.id);
     }
-    
-    // Don't trigger selection if clicking on buttons or handles
-    if (
-      (e.target as HTMLElement).closest('.cell-action-button') ||
-      (e.target as HTMLElement).closest('.cell-handle') ||
-      (e.target as HTMLElement).closest('.format-button')
-    ) {
-      e.stopPropagation();
-    }
   };
-
+  
   /**
-   * Applies formatting to the cell
-   * @param {string} type - The type of formatting to apply
-   * @param {Partial<FormatOptions>} options - Additional formatting options
+   * Applies cell formatting based on the selected format type
+   * @param {FormatOptions} formatting - The formatting options to apply
    */
-  const applyFormatting = (type: 'code' | 'blockquote' | 'callout' | 'xml', options?: Partial<FormatOptions>) => {
-    // Get current formatting
-    const currentFormatting = cell.formatting || { type: '' };
-    
-    // If the same type is already applied, toggle it off
-    if (currentFormatting.type === type) {
-      removeFormatting();
-      return;
-    }
-    
-    // Handle exclusive formatting types
-    let newFormatting: FormatOptions = {
-      type,
-      ...options
-    };
-    
-    // Code and XML are exclusive to each other
-    if ((type === 'code' && currentFormatting.type === 'xml') || 
-        (type === 'xml' && currentFormatting.type === 'code')) {
-      // Replace completely
-    } 
-    // Blockquote and callout are exclusive to each other
-    else if ((type === 'blockquote' && currentFormatting.type === 'callout') || 
-             (type === 'callout' && currentFormatting.type === 'blockquote')) {
-      // Replace completely
-    }
-    // Otherwise, preserve other formatting properties
-    else if (currentFormatting.type) {
-      newFormatting = {
-        ...currentFormatting,
-        type,
-        ...options
-      };
-    }
-    
-    updateCell(cell.id, { formatting: newFormatting });
+  const applyFormatting = (formatting: FormatOptions) => {
+    updateCell(cell.id, { formatting });
     setShowFormatMenu(false);
   };
-
+  
   /**
    * Removes formatting from the cell
    */
@@ -355,20 +311,19 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
     updateCell(cell.id, { formatting: undefined });
     setShowFormatMenu(false);
   };
-
+  
   /**
-   * Applies formatting to content for rendering
+   * Gets the formatted content based on the cell's formatting options
    * @returns {string} The formatted content
    */
-  const getFormattedContent = () => {
+  const getFormattedContent = (): string => {
     if (!cell.formatting) return cell.content;
-
+    
     switch (cell.formatting.type) {
       case 'code':
         const language = cell.formatting.language || '';
         return `\`\`\`${language}\n${cell.content}\n\`\`\``;
       case 'blockquote':
-        // Add > to each line
         return cell.content.split('\n').map(line => `> ${line}`).join('\n');
       case 'callout':
         const calloutType = cell.formatting.calloutType || 'info';
@@ -382,14 +337,15 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   };
 
   // Initialize drag and drop refs
-  drag(drop(ref));
+  // Fix: Use separate refs for drag and drop to avoid conflicts
+  const dragDropRef = useRef(null);
+  
+  // Connect the drag and drop refs
+  drag(drop(dragDropRef));
 
   return (
     <div 
-      ref={(node) => {
-        ref.current = node;
-        drag(node);
-      }}
+      ref={ref}
       className={`notebook-cell ${cell.type === CellType.COMMENT ? 'comment-cell' : ''} 
                  ${isDragging ? 'dragging' : ''} 
                  ${isOver ? 'drop-target' : ''} 
@@ -401,7 +357,7 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
       onClick={handleCellClick}
       data-id={cell.id}
     >
-      <div className="cell-handle"></div>
+      <div className="cell-handle" ref={dragDropRef}></div>
       
       <div className="cell-content">
         {cell.isEditing ? (
@@ -428,7 +384,7 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
         </button>
         
         <button
-          className="cell-action-button format"
+          className="cell-action-button format-button"
           onClick={() => setShowFormatMenu(!showFormatMenu)}
           title="Format cell"
         >
@@ -448,7 +404,6 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
             >
               <FaArrowUp />
             </button>
-            
             <button 
               className="cell-action-button move-down"
               onClick={() => moveCell(cell.id, 'down')}
@@ -456,7 +411,6 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
             >
               <FaArrowDown />
             </button>
-            
             <button 
               className="cell-action-button delete"
               onClick={() => deleteCell(cell.id)}
@@ -472,54 +426,94 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
         <div className="format-menu">
           <div className="format-menu-header">
             <h4>Format Cell</h4>
-            <button onClick={() => setShowFormatMenu(false)}>×</button>
+            <button 
+              className="close-format-menu"
+              onClick={() => setShowFormatMenu(false)}
+            >
+              &times;
+            </button>
           </div>
-          <div className="format-menu-options">
+          <div className="format-options">
             <button 
               className={`format-option ${cell.formatting?.type === 'code' ? 'active' : ''}`}
-              onClick={() => applyFormatting('code', { language: 'javascript' })}
+              onClick={() => applyFormatting({ type: 'code', language: cell.formatting?.language || '' })}
             >
               <FaCode /> Code Block
             </button>
             <button 
               className={`format-option ${cell.formatting?.type === 'blockquote' ? 'active' : ''}`}
-              onClick={() => applyFormatting('blockquote')}
+              onClick={() => applyFormatting({ type: 'blockquote' })}
             >
               <FaQuoteRight /> Blockquote
             </button>
             <button 
               className={`format-option ${cell.formatting?.type === 'callout' ? 'active' : ''}`}
-              onClick={() => applyFormatting('callout', { calloutType: 'info' })}
+              onClick={() => applyFormatting({ type: 'callout', calloutType: cell.formatting?.calloutType || 'info' })}
             >
               <FaInfoCircle /> Callout
             </button>
             <button 
               className={`format-option ${cell.formatting?.type === 'xml' ? 'active' : ''}`}
-              onClick={() => applyFormatting('xml', { xmlTag: 'div' })}
+              onClick={() => applyFormatting({ type: 'xml', xmlTag: cell.formatting?.xmlTag || 'div' })}
             >
               <FaTag /> XML Tags
             </button>
+            
             {cell.formatting && (
               <button 
-                className="format-option remove"
+                className="format-option remove-format"
                 onClick={removeFormatting}
               >
-                <FaTrash /> Remove Formatting
+                Remove Formatting
               </button>
             )}
           </div>
-        </div>
-      )}
-      
-      {cell.type === CellType.COMMENT && (
-        <div className="cell-type-indicator">
-          <FaComment />
-        </div>
-      )}
-
-      {groupingMode && (
-        <div className="cell-selection-indicator">
-          {isSelected ? <FaCheck /> : null}
+          
+          {cell.formatting?.type === 'code' && (
+            <div className="format-suboptions">
+              <label>Language:</label>
+              <select 
+                value={cell.formatting.language || ''}
+                onChange={(e) => applyFormatting({ ...cell.formatting!, language: e.target.value })}
+              >
+                <option value="">Plain</option>
+                <option value="javascript">JavaScript</option>
+                <option value="typescript">TypeScript</option>
+                <option value="python">Python</option>
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="json">JSON</option>
+                <option value="markdown">Markdown</option>
+              </select>
+            </div>
+          )}
+          
+          {cell.formatting?.type === 'callout' && (
+            <div className="format-suboptions">
+              <label>Type:</label>
+              <select 
+                value={cell.formatting.calloutType || 'info'}
+                onChange={(e) => applyFormatting({ ...cell.formatting!, calloutType: e.target.value as 'info' | 'warning' | 'success' | 'error' })}
+              >
+                <option value="info">Info</option>
+                <option value="warning">Warning</option>
+                <option value="success">Success</option>
+                <option value="error">Error</option>
+              </select>
+            </div>
+          )}
+          
+          {cell.formatting?.type === 'xml' && (
+            <div className="format-suboptions">
+              <label>Tag:</label>
+              <input 
+                type="text"
+                value={cell.formatting.xmlTag || 'div'}
+                onChange={(e) => applyFormatting({ ...cell.formatting!, xmlTag: e.target.value })}
+                placeholder="div"
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
