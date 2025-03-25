@@ -15,8 +15,8 @@
 
 - [ ] **Notebook Mode Issues**
   - [x] Fix drag and drop error between cells
-  - [ ] Implement formatting in exports
-  - [ ] Fix PDF export to render markdown properly
+  - [x] Implement formatting in exports
+  - [x] Fix PDF export to render markdown properly
 
 - [ ] **Node Mode UI Improvements**
   - [ ] Add input and output labels to nodes
