@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useDrag } from 'react-dnd';
-import { FaEdit, FaTrash, FaChevronUp, FaChevronDown, FaUnlink } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaChevronUp, FaChevronDown, FaUnlink, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { NodeData, NodeType } from '../../contexts/NodeEditorContext';
 import MarkdownPreview from '../MarkdownPreview/MarkdownPreview';
 import './Node.css';
@@ -231,6 +231,12 @@ const Node: React.FC<NodeProps> = ({
         </div>
       )}
       
+      {node.inputs.length > 0 && (
+        <div className="node-io-section-label node-inputs-label">
+          <FaArrowRight /> Inputs
+        </div>
+      )}
+      
       <div className="node-inputs">
         {node.inputs.map(input => (
           <div key={input} className="node-handle-container">
@@ -253,6 +259,12 @@ const Node: React.FC<NodeProps> = ({
           </div>
         ))}
       </div>
+      
+      {node.outputs.length > 0 && (
+        <div className="node-io-section-label node-outputs-label">
+          Outputs <FaArrowLeft />
+        </div>
+      )}
       
       <div className="node-outputs">
         {node.outputs.map(output => (

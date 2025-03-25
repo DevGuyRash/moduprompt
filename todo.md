@@ -19,8 +19,8 @@
   - [x] Fix PDF export to render markdown properly
 
 - [ ] **Node Mode UI Improvements**
-  - [ ] Add input and output labels to nodes
-  - [ ] Improve canvas navigation with better user feedback
+  - [x] Add input and output labels to nodes
+  - [x] Improve canvas navigation with better user feedback
 
 ## Low Priority Issues
 

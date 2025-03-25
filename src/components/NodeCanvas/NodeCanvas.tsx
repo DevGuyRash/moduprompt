@@ -3,7 +3,7 @@ import { useDrop } from 'react-dnd';
 import { NodeData, NodeConnection, NodeType, useNodeEditor, FormatOptions } from '../../contexts/NodeEditorContext';
 import Node from '../Node/Node';
 import FormattingOptions from '../FormattingOptions/FormattingOptions';
-import { FaPlus, FaFilter, FaObjectGroup, FaCode, FaSearchMinus, FaSearchPlus, FaHome } from 'react-icons/fa';
+import { FaPlus, FaFilter, FaObjectGroup, FaCode, FaSearchMinus, FaSearchPlus, FaHome, FaInfoCircle } from 'react-icons/fa';
 import './NodeCanvas.css';
 
 interface ConnectionLineProps {
@@ -75,6 +75,9 @@ const NodeCanvas: React.FC = () => {
   const [showFormatOptions, setShowFormatOptions] = useState(false);
   const [formatPosition, setFormatPosition] = useState({ x: 0, y: 0 });
   const [potentialTarget, setPotentialTarget] = useState<string | null>(null);
+  const [showNavigationHint, setShowNavigationHint] = useState(false);
+  const [navigationHint, setNavigationHint] = useState('');
+  const navigationHintTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const canvasRef = useRef<HTMLDivElement>(null);
   const canvasContentRef = useRef<HTMLDivElement>(null);
@@ -97,6 +100,31 @@ const NodeCanvas: React.FC = () => {
     }),
   });
   
+  // Show navigation hint
+  const showHint = (message: string) => {
+    setNavigationHint(message);
+    setShowNavigationHint(true);
+    
+    // Clear any existing timeout
+    if (navigationHintTimeoutRef.current) {
+      clearTimeout(navigationHintTimeoutRef.current);
+    }
+    
+    // Hide hint after 3 seconds
+    navigationHintTimeoutRef.current = setTimeout(() => {
+      setShowNavigationHint(false);
+    }, 3000);
+  };
+  
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (navigationHintTimeoutRef.current) {
+        clearTimeout(navigationHintTimeoutRef.current);
+      }
+    };
+  }, []);
+  
   const handleCanvasClick = (e: React.MouseEvent) => {
     // Only handle clicks directly on the canvas, not on nodes
     if (e.target === canvasContentRef.current) {
@@ -118,6 +146,9 @@ const NodeCanvas: React.FC = () => {
       if (canvasContentRef.current) {
         canvasContentRef.current.style.cursor = 'grabbing';
       }
+      
+      // Show navigation hint
+      showHint('Drag to pan canvas');
     }
   };
   
@@ -198,6 +229,9 @@ const NodeCanvas: React.FC = () => {
             sourceHandle: connectionStart.handleId,
             targetHandle: handleId
           });
+          
+          // Show connection created hint
+          showHint('Connection created');
         }
       }
       
@@ -229,6 +263,9 @@ const NodeCanvas: React.FC = () => {
       setFormatPosition(node.position);
       setShowFormatOptions(true);
     }
+    
+    // Show node selected hint
+    showHint('Node selected');
   };
   
   const handleAddNode = (type: NodeType) => {
@@ -238,6 +275,9 @@ const NodeCanvas: React.FC = () => {
       const x = (canvasRect.width / 2 - 140) / scale - position.x; // Half of node width
       const y = (canvasRect.height / 2 - 100) / scale - position.y; // Arbitrary height
       addNode(type, { x, y });
+      
+      // Show node added hint
+      showHint(`${type} node added`);
     }
   };
   
@@ -250,10 +290,13 @@ const NodeCanvas: React.FC = () => {
       `[data-node-id="${nodeId}"] [data-handle-id="${handleId}"]`
     );
     sourceHandle?.classList.add('connection-active');
+    
+    // Show connection hint
+    showHint('Drag to connect to an input');
   };
   
   const handleConnectionEnd = (nodeId: string, handleId: string) => {
-    if (connectionStart && connectionStart.nodeId !== nodeId) {
+    if (connectionStart) {
       // Create a new connection
       addConnection({
         sourceId: connectionStart.nodeId,
@@ -261,273 +304,230 @@ const NodeCanvas: React.FC = () => {
         sourceHandle: connectionStart.handleId,
         targetHandle: handleId
       });
+      
+      // Show connection created hint
+      showHint('Connection created');
     }
     
-    // Remove connection-active class from all handles
-    document.querySelectorAll('.node-handle.connection-active').forEach(handle => {
-      handle.classList.remove('connection-active');
-    });
-    
-    // Remove any potential target highlights
-    if (potentialTarget) {
-      const prevTarget = document.querySelector(`[data-handle-id="${potentialTarget}"].input-handle`);
-      prevTarget?.classList.remove('connection-target');
-      setPotentialTarget(null);
+    // Remove connection-active class from the source handle
+    if (connectionStart) {
+      const sourceHandle = document.querySelector(
+        `[data-node-id="${connectionStart.nodeId}"] [data-handle-id="${connectionStart.handleId}"]`
+      );
+      sourceHandle?.classList.remove('connection-active');
     }
     
-    setConnectionStart(null);
     setIsDraggingConnection(false);
+    setConnectionStart(null);
     setTemporaryConnection(null);
   };
   
   const handleDisconnect = (nodeId: string, handleId: string, isInput: boolean) => {
-    // Find and delete connections related to this handle
-    connections.forEach(connection => {
-      if (isInput && connection.targetId === nodeId && connection.targetHandle === handleId) {
-        deleteConnection(connection.sourceId, nodeId);
-      } else if (!isInput && connection.sourceId === nodeId && connection.sourceHandle === handleId) {
-        deleteConnection(nodeId, connection.targetId);
-      }
-    });
-  };
-  
-  const handleCreateFormat = (formatOptions: FormatOptions) => {
-    createFormatNode(formatOptions, formatPosition);
-    setShowFormatOptions(false);
+    // Find and delete the connection
+    const connection = connections.find(conn => 
+      isInput 
+        ? conn.targetId === nodeId && conn.targetHandle === handleId
+        : conn.sourceId === nodeId && conn.sourceHandle === handleId
+    );
+    
+    if (connection) {
+      deleteConnection(connection);
+      
+      // Show disconnection hint
+      showHint('Connection removed');
+    }
   };
   
   const handleZoomIn = () => {
-    setScale(prev => Math.min(prev + 0.1, 2));
+    setScale(prevScale => Math.min(prevScale * 1.2, 2));
+    showHint('Zoomed in');
   };
   
   const handleZoomOut = () => {
-    setScale(prev => Math.max(prev - 0.1, 0.5));
+    setScale(prevScale => Math.max(prevScale / 1.2, 0.5));
+    showHint('Zoomed out');
   };
   
   const handleResetView = () => {
     setScale(1);
     setPosition({ x: 0, y: 0 });
+    showHint('View reset');
   };
   
-  // Handle mouse wheel for zooming and panning
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      // Zoom with Ctrl + wheel
-      if (e.ctrlKey) {
-        e.preventDefault();
-        const delta = e.deltaY > 0 ? -0.05 : 0.05;
-        setScale(prev => Math.max(0.5, Math.min(prev + delta, 2)));
-      } 
-      // Pan with Shift + wheel (horizontal) or just wheel (vertical)
-      else {
-        e.preventDefault();
-        if (e.shiftKey) {
-          // Horizontal pan with shift+wheel
-          const dx = e.deltaY * 0.5;
-          setPosition(prev => ({
-            x: prev.x - dx,
-            y: prev.y
-          }));
-        } else {
-          // Vertical pan with just wheel
-          const dy = e.deltaY * 0.5;
-          setPosition(prev => ({
-            x: prev.x,
-            y: prev.y - dy
-          }));
-        }
-      }
-    };
-    
-    const canvasElement = canvasContentRef.current;
-    if (canvasElement) {
-      canvasElement.addEventListener('wheel', handleWheel, { passive: false });
+  const handleFormatChange = (formatOptions: FormatOptions) => {
+    if (selectedNodeId) {
+      updateNode(selectedNodeId, { formatOptions });
     }
-    
-    return () => {
-      if (canvasElement) {
-        canvasElement.removeEventListener('wheel', handleWheel);
-      }
-    };
-  }, []);
+  };
   
-  // Force update connections when nodes move
-  useEffect(() => {
-    // This effect will run whenever nodes change (including position changes)
-    // Force a re-render to update connection positions
-    const forceUpdate = () => {
-      // Handle temporary connection during dragging
-      if (connectionStart) {
-        // Update temporary connection line if dragging a connection
-        const sourceElement = document.querySelector(
-          `[data-node-id="${connectionStart.nodeId}"] [data-handle-id="${connectionStart.handleId}"]`
-        );
-        
-        if (sourceElement) {
-          const sourceRect = sourceElement.getBoundingClientRect();
-          const canvasRect = canvasContentRef.current?.getBoundingClientRect();
-          
-          if (canvasRect) {
-            const sourceX = sourceRect.left + sourceRect.width / 2 - canvasRect.left;
-            const sourceY = sourceRect.top + sourceRect.height / 2 - canvasRect.top;
-            
-            // Use current mouse position or last known position
-            const targetX = sourceX + 100; // Default offset if no mouse position
-            const targetY = sourceY;
-            
-            setTemporaryConnection({ sourceX, sourceY, targetX, targetY });
-          }
-        }
-      }
+  // Handle wheel events for zooming
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY;
       
-      // Force re-render of all established connections
-      // This ensures connection lines update their positions when nodes move
-      const connectionElements = document.querySelectorAll('.connection-line');
-      connectionElements.forEach(element => {
-        if (element instanceof SVGElement) {
-          // Trigger a DOM update by toggling a class or attribute
-          element.classList.toggle('connection-update');
-          element.classList.toggle('connection-update');
-        }
-      });
-    };
-    
-    // Execute the update
-    forceUpdate();
-    
-    // Add a small delay to ensure DOM has updated with new node positions
-    const timeoutId = setTimeout(() => {
-      forceUpdate();
-    }, 50);
-    
-    return () => clearTimeout(timeoutId);
-  }, [nodes, connections, connectionStart]);
+      if (delta > 0) {
+        // Zoom out
+        setScale(prevScale => Math.max(prevScale / 1.1, 0.5));
+        showHint('Zoomed out');
+      } else {
+        // Zoom in
+        setScale(prevScale => Math.min(prevScale * 1.1, 2));
+        showHint('Zoomed in');
+      }
+    }
+  };
+  
+  // Connect the drop ref to our canvas ref
+  drop(canvasRef);
   
   return (
     <div 
-      ref={(node) => {
-        drop(node);
-        canvasRef.current = node as HTMLDivElement;
-      }}
-      className={`node-canvas ${isOver ? 'canvas-drop-active' : ''}`}
-      onContextMenu={(e) => e.preventDefault()} // Prevent context menu on right click
+      ref={canvasRef}
+      className="node-canvas"
+      onWheel={handleWheel}
     >
       <div className="canvas-toolbar">
-        <button 
-          className="toolbar-button"
-          onClick={() => handleAddNode(NodeType.PROMPT)}
-          title="Add prompt node"
-        >
-          <FaPlus /> Prompt
-        </button>
-        <button 
-          className="toolbar-button"
-          onClick={() => handleAddNode(NodeType.FILTER)}
-          title="Add filter node"
-        >
-          <FaFilter /> Filter
-        </button>
-        <button 
-          className="toolbar-button"
-          onClick={() => handleAddNode(NodeType.FORMAT)}
-          title="Add format node"
-        >
-          <FaCode /> Format
-        </button>
-        <button 
-          className="toolbar-button"
-          onClick={() => handleAddNode(NodeType.FILTER_JOIN)}
-          title="Add filter join node"
-        >
-          <FaObjectGroup /> Filter Join
-        </button>
-      </div>
-      
-      <div className="canvas-navigation">
-        <button 
-          className="nav-button"
-          onClick={handleZoomIn}
-          title="Zoom in"
-        >
-          <FaSearchPlus />
-        </button>
-        <button 
-          className="nav-button"
-          onClick={handleZoomOut}
-          title="Zoom out"
-        >
-          <FaSearchMinus />
-        </button>
-        <button 
-          className="nav-button"
-          onClick={handleResetView}
-          title="Reset view"
-        >
-          <FaHome />
-        </button>
+        <div className="toolbar-section">
+          <button 
+            className="toolbar-button"
+            onClick={() => handleAddNode(NodeType.PROMPT)}
+            title="Add prompt node"
+          >
+            <FaPlus /> Prompt
+          </button>
+          <button 
+            className="toolbar-button"
+            onClick={() => handleAddNode(NodeType.FILTER)}
+            title="Add filter node"
+          >
+            <FaFilter /> Filter
+          </button>
+          <button 
+            className="toolbar-button"
+            onClick={() => handleAddNode(NodeType.FILTER_JOIN)}
+            title="Add filter join node"
+          >
+            <FaObjectGroup /> Join
+          </button>
+          <button 
+            className="toolbar-button"
+            onClick={() => handleAddNode(NodeType.FORMAT)}
+            title="Add format node"
+          >
+            <FaCode /> Format
+          </button>
+        </div>
+        
+        <div className="toolbar-section">
+          <button 
+            className="toolbar-button"
+            onClick={handleZoomIn}
+            title="Zoom in"
+          >
+            <FaSearchPlus />
+          </button>
+          <button 
+            className="toolbar-button"
+            onClick={handleZoomOut}
+            title="Zoom out"
+          >
+            <FaSearchMinus />
+          </button>
+          <button 
+            className="toolbar-button"
+            onClick={handleResetView}
+            title="Reset view"
+          >
+            <FaHome />
+          </button>
+          <button 
+            className="toolbar-button"
+            onClick={() => showHint('Drag canvas to pan, Ctrl+Wheel to zoom, Click nodes to select')}
+            title="Show help"
+          >
+            <FaInfoCircle />
+          </button>
+        </div>
       </div>
       
       <div 
-        className="canvas-content" 
         ref={canvasContentRef}
-        style={{
+        className="canvas-content"
+        style={{ 
           transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
-          transformOrigin: '0 0'
+          cursor: isDraggingCanvas ? 'grabbing' : 'grab'
         }}
         onClick={handleCanvasClick}
         onMouseDown={handleCanvasMouseDown}
         onMouseMove={handleCanvasMouseMove}
         onMouseUp={handleCanvasMouseUp}
-        onMouseLeave={handleCanvasMouseUp}
       >
+        {/* Render all nodes */}
         {nodes.map(node => (
-          <div key={node.id}>
-            <Node 
-              node={node}
-              updateNode={updateNode}
-              deleteNode={deleteNode}
-              toggleNodeCollapse={toggleNodeCollapse}
-              selected={selectedNodeId === node.id}
-              onSelect={handleNodeSelect}
-              onConnectionStart={handleConnectionStart}
-              onConnectionEnd={handleConnectionEnd}
-              onDisconnect={handleDisconnect}
-            />
-          </div>
+          <Node 
+            key={node.id}
+            node={node}
+            updateNode={updateNode}
+            deleteNode={deleteNode}
+            toggleNodeCollapse={toggleNodeCollapse}
+            onDragStart={() => {}}
+            onDragEnd={() => {}}
+            selected={selectedNodeId === node.id}
+            onSelect={handleNodeSelect}
+            onConnectionStart={handleConnectionStart}
+            onConnectionEnd={handleConnectionEnd}
+            onDisconnect={handleDisconnect}
+          />
         ))}
         
+        {/* Render all connections */}
         {connections.map(connection => (
           <ConnectionLine 
-            key={`${connection.sourceId}-${connection.targetId}-${connection.sourceHandle}-${connection.targetHandle}`}
+            key={`${connection.sourceId}-${connection.sourceHandle}-${connection.targetId}-${connection.targetHandle}`}
             connection={connection}
             nodes={nodes}
           />
         ))}
         
+        {/* Render temporary connection line when dragging */}
         {temporaryConnection && (
-          <svg className="connection-line" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+          <svg className="connection-line" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5 }}>
             <path 
               d={`M ${temporaryConnection.sourceX},${temporaryConnection.sourceY} C ${temporaryConnection.sourceX + 50},${temporaryConnection.sourceY} ${temporaryConnection.targetX - 50},${temporaryConnection.targetY} ${temporaryConnection.targetX},${temporaryConnection.targetY}`} 
               stroke="#6c757d" 
               strokeWidth="2" 
               strokeDasharray="5,5"
               fill="none" 
-              className="connection-in-progress"
             />
           </svg>
         )}
+        
+        {/* Render formatting options panel if a format node is selected */}
+        {showFormatOptions && selectedNodeId && (
+          <div 
+            className="format-options-panel"
+            style={{ 
+              position: 'absolute',
+              left: formatPosition.x + 300, // Position to the right of the node
+              top: formatPosition.y,
+              transform: 'scale(1)',
+              transformOrigin: 'top left'
+            }}
+          >
+            <FormattingOptions 
+              cellId={selectedNodeId}
+              onFormatChange={handleFormatChange}
+              initialFormat={nodes.find(n => n.id === selectedNodeId)?.formatOptions}
+            />
+          </div>
+        )}
       </div>
       
-      {showFormatOptions && (
-        <div className="format-options-container">
-          <FormattingOptions 
-            currentMode="node"
-            position={formatPosition}
-            onClose={() => setShowFormatOptions(false)}
-            onCreateFormat={handleCreateFormat}
-          />
-        </div>
-      )}
+      {/* Navigation hint */}
+      <div className={`canvas-navigation-hint ${showNavigationHint ? 'visible' : ''}`}>
+        {navigationHint}
+      </div>
     </div>
   );
 };

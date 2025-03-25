@@ -139,6 +139,13 @@
   white-space: nowrap;
   color: #6c757d;
   position: absolute;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2px 4px;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 .input-handle .handle-label {
@@ -191,4 +198,64 @@
 .filter-join-node .node-header {
   background-color: #f8d7da;
   color: #dc3545;
+}
+
+/* Input/Output section labels */
+.node-io-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 4px;
+  text-align: center;
+  background-color: rgba(248, 249, 250, 0.8);
+  border-radius: 3px;
+  padding: 2px 4px;
+}
+
+.node-inputs-label {
+  position: absolute;
+  left: -40px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center right;
+}
+
+.node-outputs-label {
+  position: absolute;
+  right: -40px;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  transform-origin: center left;
+}
+
+/* Improved handle visibility */
+.node-handle-container {
+  background-color: rgba(248, 249, 250, 0.6);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.node-handle-container:hover {
+  background-color: rgba(248, 249, 250, 0.9);
+}
+
+/* Canvas navigation feedback */
+.canvas-navigation-hint {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.canvas-navigation-hint.visible {
+  opacity: 1;
 }
