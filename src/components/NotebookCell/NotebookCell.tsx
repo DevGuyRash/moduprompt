@@ -357,7 +357,11 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   };
   
   // Combine drag and drop refs
-  const dragDropRef = drag(drop(ref));
+  const dragDropRef = (el: HTMLDivElement | null) => {
+    // Apply the refs in sequence
+    drag(drop(el));
+    ref.current = el;
+  };
   
   return (
     <div 
@@ -371,7 +375,7 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
       <div className="cell-content">
         {cell.isEditing ? (
           <>
-            <RichTextBar onFormat={handleFormatText} />
+            <RichTextBar onFormatText={handleFormatText} />
             <textarea 
               className="cell-editor"
               value={cell.content}
