@@ -36,3 +36,13 @@
 - [ ] **Documentation Updates**
   - [ ] Update user guide with improved functionality
   - [ ] Add examples of proper usage for both modes
+
+## TypeScript Errors to Fix
+
+- [ ] **ExportPanel.tsx**
+  - [ ] Fix type error with marked() function returning Promise<string> instead of string|Node (lines 180, 260)
+  - [ ] Ensure proper type handling for markdown rendering
+
+- [ ] **NodeCanvas.tsx**
+  - [ ] Fix missing 'currentMode' prop in FormattingOptions component (line 520)
+  - [ ] Fix function call with incorrect number of arguments (line 334)

@@ -106,6 +106,11 @@
   color: #ff4d4f;
 }
 
+.cell-action-button.save-snippet:hover {
+  background-color: #f6ffed;
+  color: #52c41a;
+}
+
 .cell-action-button[disabled] {
   opacity: 0.5;
   cursor: not-allowed;
@@ -221,4 +226,97 @@
 
 .notebook-cell.formatted-xml::before {
   background-color: #fa8c16;
+}
+
+/* Snippet Dialog Styles */
+.snippet-dialog {
+  position: absolute;
+  right: 40px;
+  top: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  width: 300px;
+}
+
+.snippet-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.snippet-dialog-header h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.snippet-dialog-header button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.snippet-dialog-content {
+  padding: 12px;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.snippet-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.snippet-dialog-actions button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.snippet-dialog-actions .cancel-button {
+  background-color: #f5f5f5;
+  border: 1px solid #d9d9d9;
+}
+
+.snippet-dialog-actions .save-button {
+  background-color: #1890ff;
+  border: 1px solid #1890ff;
+  color: white;
+}
+
+.snippet-dialog-actions .save-button:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.snippet-dialog-actions .save-button[disabled] {
+  background-color: #f5f5f5;
+  border-color: #d9d9d9;
+  color: rgba(0, 0, 0, 0.25);
+  cursor: not-allowed;
 }

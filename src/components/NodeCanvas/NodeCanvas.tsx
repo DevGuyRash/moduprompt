@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import { NodeData, NodeConnection, NodeType, useNodeEditor, FormatOptions } from '../../contexts/NodeEditorContext';
 import Node from '../Node/Node';
+import PromptNode from './PromptNode';
+import FilterNode from './FilterNode';
+import FilterJoinNode from './FilterJoinNode';
 import FormattingOptions from '../FormattingOptions/FormattingOptions';
 import { FaPlus, FaFilter, FaObjectGroup, FaCode, FaSearchMinus, FaSearchPlus, FaHome, FaInfoCircle } from 'react-icons/fa';
 import './NodeCanvas.css';
@@ -77,6 +80,7 @@ const NodeCanvas: React.FC = () => {
   const [potentialTarget, setPotentialTarget] = useState<string | null>(null);
   const [showNavigationHint, setShowNavigationHint] = useState(false);
   const [navigationHint, setNavigationHint] = useState('');
+  const [nodeEditingStates, setNodeEditingStates] = useState<Record<string, boolean>>({});
   const navigationHintTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -253,46 +257,31 @@ const NodeCanvas: React.FC = () => {
     }
   };
   
-  const handleNodeSelect = (id: string) => {
-    // Only select the node that was clicked, not all nodes
-    setSelectedNodeId(id);
+  const handleCanvasMouseLeave = () => {
+    setIsDraggingCanvas(false);
     
-    // If the selected node is a format node, show formatting options
-    const node = nodes.find(n => n.id === id);
-    if (node && node.type === NodeType.FORMAT) {
-      setFormatPosition(node.position);
-      setShowFormatOptions(true);
+    // Reset cursor
+    if (canvasContentRef.current) {
+      canvasContentRef.current.style.cursor = 'grab';
     }
-    
-    // Show node selected hint
-    showHint('Node selected');
   };
   
-  const handleAddNode = (type: NodeType) => {
-    // Add node at the center of the canvas
-    const canvasRect = canvasContentRef.current?.getBoundingClientRect();
-    if (canvasRect) {
-      const x = (canvasRect.width / 2 - 140) / scale - position.x; // Half of node width
-      const y = (canvasRect.height / 2 - 100) / scale - position.y; // Arbitrary height
-      addNode(type, { x, y });
-      
-      // Show node added hint
-      showHint(`${type} node added`);
+  const handleNodeSelect = (id: string) => {
+    setSelectedNodeId(id);
+    
+    // Get node position for format options panel
+    const node = nodes.find(n => n.id === id);
+    if (node) {
+      setFormatPosition(node.position);
     }
   };
   
   const handleConnectionStart = (nodeId: string, handleId: string) => {
-    setConnectionStart({ nodeId, handleId });
     setIsDraggingConnection(true);
+    setConnectionStart({ nodeId, handleId });
     
-    // Add connection-active class to the source handle
-    const sourceHandle = document.querySelector(
-      `[data-node-id="${nodeId}"] [data-handle-id="${handleId}"]`
-    );
-    sourceHandle?.classList.add('connection-active');
-    
-    // Show connection hint
-    showHint('Drag to connect to an input');
+    // Show hint
+    showHint('Drag to connect nodes');
   };
   
   const handleConnectionEnd = (nodeId: string, handleId: string) => {
@@ -309,43 +298,63 @@ const NodeCanvas: React.FC = () => {
       showHint('Connection created');
     }
     
-    // Remove connection-active class from the source handle
-    if (connectionStart) {
-      const sourceHandle = document.querySelector(
-        `[data-node-id="${connectionStart.nodeId}"] [data-handle-id="${connectionStart.handleId}"]`
-      );
-      sourceHandle?.classList.remove('connection-active');
-    }
-    
     setIsDraggingConnection(false);
     setConnectionStart(null);
     setTemporaryConnection(null);
   };
   
   const handleDisconnect = (nodeId: string, handleId: string, isInput: boolean) => {
-    // Find and delete the connection
-    const connection = connections.find(conn => 
-      isInput 
-        ? conn.targetId === nodeId && conn.targetHandle === handleId
-        : conn.sourceId === nodeId && conn.sourceHandle === handleId
-    );
+    // Find the connection to delete
+    const connectionToDelete = connections.find(conn => {
+      if (isInput) {
+        return conn.targetId === nodeId && conn.targetHandle === handleId;
+      } else {
+        return conn.sourceId === nodeId && conn.sourceHandle === handleId;
+      }
+    });
     
-    if (connection) {
-      deleteConnection(connection);
+    if (connectionToDelete) {
+      deleteConnection(connectionToDelete.sourceId, connectionToDelete.targetId);
       
-      // Show disconnection hint
-      showHint('Connection removed');
+      // Show hint
+      showHint('Connection deleted');
     }
   };
   
-  const handleZoomIn = () => {
-    setScale(prevScale => Math.min(prevScale * 1.2, 2));
-    showHint('Zoomed in');
+  const handleAddNode = (type: NodeType) => {
+    // Calculate position in the center of the visible canvas
+    const canvasRect = canvasContentRef.current?.getBoundingClientRect();
+    if (!canvasRect) return;
+    
+    const centerX = (canvasRect.width / 2 - position.x) / scale;
+    const centerY = (canvasRect.height / 2 - position.y) / scale;
+    
+    // Add the node
+    const nodeId = addNode(type, { x: centerX, y: centerY });
+    
+    // Select the new node
+    setSelectedNodeId(nodeId);
+    
+    // Show hint
+    showHint(`${type} node added`);
+    
+    // Set editing state for prompt and filter join nodes
+    if (type === NodeType.PROMPT || type === NodeType.FILTER_JOIN) {
+      setNodeEditingStates(prev => ({
+        ...prev,
+        [nodeId]: true
+      }));
+    }
   };
   
-  const handleZoomOut = () => {
-    setScale(prevScale => Math.max(prevScale / 1.2, 0.5));
-    showHint('Zoomed out');
+  const handleZoom = (direction: 'in' | 'out') => {
+    if (direction === 'in' && scale < 2) {
+      setScale(prev => prev + 0.1);
+      showHint('Zoomed in');
+    } else if (direction === 'out' && scale > 0.5) {
+      setScale(prev => prev - 0.1);
+      showHint('Zoomed out');
+    }
   };
   
   const handleResetView = () => {
@@ -356,26 +365,42 @@ const NodeCanvas: React.FC = () => {
   
   const handleFormatChange = (formatOptions: FormatOptions) => {
     if (selectedNodeId) {
-      updateNode(selectedNodeId, { formatOptions });
+      // Create a format node
+      const node = nodes.find(n => n.id === selectedNodeId);
+      if (node) {
+        const formatNodeId = createFormatNode(
+          formatOptions, 
+          { x: node.position.x - 200, y: node.position.y }
+        );
+        
+        // Connect format node to selected node
+        addConnection({
+          sourceId: formatNodeId,
+          targetId: selectedNodeId,
+          sourceHandle: 'output',
+          targetHandle: 'format'
+        });
+        
+        showHint('Format node created');
+      }
+      
+      setShowFormatOptions(false);
     }
   };
   
-  // Handle wheel events for zooming
-  const handleWheel = (e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const delta = e.deltaY;
-      
-      if (delta > 0) {
-        // Zoom out
-        setScale(prevScale => Math.max(prevScale / 1.1, 0.5));
-        showHint('Zoomed out');
-      } else {
-        // Zoom in
-        setScale(prevScale => Math.min(prevScale * 1.1, 2));
-        showHint('Zoomed in');
-      }
-    }
+  const handleNodeContentChange = (id: string, content: string) => {
+    updateNode(id, { content });
+  };
+  
+  const handleNodeFormatChange = (id: string, formatOptions: FormatOptions) => {
+    updateNode(id, { formatOptions });
+  };
+  
+  const handleToggleNodeEdit = (id: string) => {
+    setNodeEditingStates(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
   };
   
   // Connect the drop ref to our canvas ref
@@ -384,67 +409,62 @@ const NodeCanvas: React.FC = () => {
   return (
     <div 
       ref={canvasRef}
-      className="node-canvas"
-      onWheel={handleWheel}
+      className="canvas-container"
     >
       <div className="canvas-toolbar">
         <div className="toolbar-section">
           <button 
             className="toolbar-button"
             onClick={() => handleAddNode(NodeType.PROMPT)}
-            title="Add prompt node"
+            title="Add Prompt Node"
           >
             <FaPlus /> Prompt
           </button>
           <button 
             className="toolbar-button"
             onClick={() => handleAddNode(NodeType.FILTER)}
-            title="Add filter node"
+            title="Add Filter Node"
           >
             <FaFilter /> Filter
           </button>
           <button 
             className="toolbar-button"
             onClick={() => handleAddNode(NodeType.FILTER_JOIN)}
-            title="Add filter join node"
+            title="Add Filter Join Node"
           >
             <FaObjectGroup /> Join
-          </button>
-          <button 
-            className="toolbar-button"
-            onClick={() => handleAddNode(NodeType.FORMAT)}
-            title="Add format node"
-          >
-            <FaCode /> Format
           </button>
         </div>
         
         <div className="toolbar-section">
           <button 
             className="toolbar-button"
-            onClick={handleZoomIn}
-            title="Zoom in"
+            onClick={() => handleZoom('in')}
+            title="Zoom In"
           >
             <FaSearchPlus />
           </button>
           <button 
             className="toolbar-button"
-            onClick={handleZoomOut}
-            title="Zoom out"
+            onClick={() => handleZoom('out')}
+            title="Zoom Out"
           >
             <FaSearchMinus />
           </button>
           <button 
             className="toolbar-button"
             onClick={handleResetView}
-            title="Reset view"
+            title="Reset View"
           >
             <FaHome />
           </button>
+        </div>
+        
+        <div className="toolbar-section">
           <button 
-            className="toolbar-button"
-            onClick={() => showHint('Drag canvas to pan, Ctrl+Wheel to zoom, Click nodes to select')}
-            title="Show help"
+            className="toolbar-button help-button"
+            onClick={() => showHint('Drag nodes to move, drag from outputs to inputs to connect')}
+            title="Show Help"
           >
             <FaInfoCircle />
           </button>
@@ -455,38 +475,78 @@ const NodeCanvas: React.FC = () => {
         ref={canvasContentRef}
         className="canvas-content"
         style={{ 
-          transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
+          transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
           cursor: isDraggingCanvas ? 'grabbing' : 'grab'
         }}
         onClick={handleCanvasClick}
         onMouseDown={handleCanvasMouseDown}
         onMouseMove={handleCanvasMouseMove}
         onMouseUp={handleCanvasMouseUp}
+        onMouseLeave={handleCanvasMouseLeave}
       >
-        {/* Render all nodes */}
-        {nodes.map(node => (
-          <Node 
-            key={node.id}
-            node={node}
-            updateNode={updateNode}
-            deleteNode={deleteNode}
-            toggleNodeCollapse={toggleNodeCollapse}
-            onDragStart={() => {}}
-            onDragEnd={() => {}}
-            selected={selectedNodeId === node.id}
-            onSelect={handleNodeSelect}
-            onConnectionStart={handleConnectionStart}
-            onConnectionEnd={handleConnectionEnd}
-            onDisconnect={handleDisconnect}
-          />
-        ))}
+        {/* Render nodes */}
+        {nodes.map(node => {
+          const isEditing = nodeEditingStates[node.id] || false;
+          
+          if (node.type === NodeType.PROMPT) {
+            return (
+              <PromptNode
+                key={node.id}
+                id={node.id}
+                content={node.content}
+                isEditing={isEditing}
+                formatOptions={node.formatOptions}
+                onContentChange={handleNodeContentChange}
+                onFormatChange={handleNodeFormatChange}
+                onToggleEdit={() => handleToggleNodeEdit(node.id)}
+              />
+            );
+          } else if (node.type === NodeType.FILTER) {
+            return (
+              <FilterNode
+                key={node.id}
+                id={node.id}
+                content={node.content}
+                formatOptions={node.formatOptions}
+                onFormatChange={handleNodeFormatChange}
+              />
+            );
+          } else if (node.type === NodeType.FILTER_JOIN) {
+            return (
+              <FilterJoinNode
+                key={node.id}
+                id={node.id}
+                content={node.content}
+                isEditing={isEditing}
+                onContentChange={handleNodeContentChange}
+                onToggleEdit={() => handleToggleNodeEdit(node.id)}
+              />
+            );
+          } else {
+            return (
+              <Node
+                key={node.id}
+                node={node}
+                updateNode={updateNode}
+                deleteNode={deleteNode}
+                toggleNodeCollapse={toggleNodeCollapse}
+                selected={selectedNodeId === node.id}
+                onSelect={handleNodeSelect}
+                onConnectionStart={handleConnectionStart}
+                onConnectionEnd={handleConnectionEnd}
+                onDisconnect={handleDisconnect}
+              />
+            );
+          }
+        })}
         
-        {/* Render all connections */}
-        {connections.map(connection => (
+        {/* Render connections */}
+        {connections.map((connection, index) => (
           <ConnectionLine 
-            key={`${connection.sourceId}-${connection.sourceHandle}-${connection.targetId}-${connection.targetHandle}`}
+            key={`${connection.sourceId}-${connection.targetId}-${index}`}
             connection={connection}
             nodes={nodes}
+            onDelete={() => deleteConnection(connection.sourceId, connection.targetId)}
           />
         ))}
         
@@ -517,8 +577,8 @@ const NodeCanvas: React.FC = () => {
           >
             <FormattingOptions 
               cellId={selectedNodeId}
-              onFormatChange={handleFormatChange}
-              initialFormat={nodes.find(n => n.id === selectedNodeId)?.formatOptions}
+              currentMode="node"
+              onCreateFormat={handleFormatChange}
             />
           </div>
         )}

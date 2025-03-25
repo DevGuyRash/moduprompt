@@ -19,10 +19,13 @@ A web-based application that provides two different editing modes for creating a
 - Comment cells for annotations (not included in exports)
 - Cell reordering via drag and drop
 - Cell folding/grouping
+- Save cells as reusable snippets
 
 ### Node Mode
 - Visual node canvas with connectable nodes
-- Filter nodes for transforming content
+- Filter nodes for transforming content with formatting options
+- Prompt nodes for editable content
+- Filter Join nodes for combining multiple filters
 - Node collapsing for managing large content
 - Visual flow system for connecting nodes
 
@@ -64,6 +67,20 @@ npm start
 3. Choose a formatting option (code block, blockquote, callout, or XML tags)
 4. Configure any additional options (like code language or callout type)
 5. Apply the formatting
+
+### Saving and Using Snippets
+1. In Notebook mode, click the "Save as Snippet" button in the cell toolbar
+2. Enter a name for the snippet and select a folder
+3. Click "Save" to add the snippet to your library
+4. Access your snippets from the Snippet Panel
+5. Drag and drop snippets into your notebook or node canvas
+
+### Working with Nodes
+1. In Node mode, use the toolbar to add Prompt, Filter, or Filter Join nodes
+2. Connect nodes by dragging from output handles to input handles
+3. Edit content in Prompt nodes
+4. Apply formatting options to Filter nodes
+5. Use Filter Join nodes to combine multiple filters
 
 ### Exporting Content
 1. Click the "Export" button in the header

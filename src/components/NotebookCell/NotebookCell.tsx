@@ -4,6 +4,8 @@ import { FaArrowUp, FaArrowDown, FaTrash, FaEdit, FaEye, FaComment, FaCheck, FaC
 import MarkdownPreview from '../MarkdownPreview/MarkdownPreview';
 import RichTextBar from '../RichTextBar/RichTextBar';
 import { CellData, CellType, FormatOptions } from '../../contexts/NotebookContext';
+import { useSnippets } from '../../contexts/SnippetContext';
+import { createNewSnippet } from '../../utils/frontmatter';
 import './NotebookCell.css';
 
 /**
@@ -46,7 +48,43 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   groupingMode = false
 }) => {
   const [showFormatMenu, setShowFormatMenu] = React.useState(false);
+  const [showSnippetDialog, setShowSnippetDialog] = React.useState(false);
+  const [snippetName, setSnippetName] = React.useState('');
+  const [snippetFolder, setSnippetFolder] = React.useState('');
+  const { addSnippet, folders } = useSnippets();
   const ref = useRef<HTMLDivElement>(null);
+  
+  // Handle saving cell as snippet
+  const handleSaveAsSnippet = () => {
+    setShowSnippetDialog(true);
+    // Default name from first line or first few characters
+    const firstLine = cell.content.split('\n')[0].trim();
+    setSnippetName(firstLine.length > 0 ? firstLine : cell.content.substring(0, 20));
+  };
+
+  // Save the cell content as a snippet
+  const saveAsSnippet = () => {
+    if (!snippetName.trim()) return;
+    
+    // Create frontmatter with title and optional formatting
+    let frontmatter = `---\ntitle: ${snippetName.trim()}\ntags: []\n`;
+    if (cell.formatting) {
+      frontmatter += `formatting: ${JSON.stringify(cell.formatting)}\n`;
+    }
+    frontmatter += '---\n\n';
+    
+    // Create and add the snippet
+    const newSnippet = createNewSnippet(
+      snippetName.trim(),
+      frontmatter + cell.content,
+      snippetFolder
+    );
+    
+    addSnippet(newSnippet);
+    setShowSnippetDialog(false);
+    setSnippetName('');
+    setSnippetFolder('');
+  };
   
   // Close format menu when clicking outside
   useEffect(() => {
@@ -69,7 +107,7 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showFormatMenu, cell.id]);
-  
+
   // Set up drag and drop functionality
   const [{ isDragging }, drag] = useDrag({
     type: 'CELL',
@@ -285,30 +323,11 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   };
   
   /**
-   * Handles clicking on the cell
-   * In grouping mode, selects the cell
-   */
-  const handleCellClick = () => {
-    if (groupingMode && onSelect) {
-      onSelect(cell.id);
-    }
-  };
-  
-  /**
-   * Applies cell formatting based on the selected format type
+   * Applies formatting to the cell
    * @param {FormatOptions} formatting - The formatting options to apply
    */
-  const applyFormatting = (formatting: FormatOptions) => {
-    updateCell(cell.id, { formatting });
-    setShowFormatMenu(false);
-  };
-  
-  /**
-   * Removes formatting from the cell
-   */
-  const removeFormatting = () => {
-    const { formatting, ...rest } = cell;
-    updateCell(cell.id, { formatting: undefined });
+  const applyFormatting = (formatting: FormatOptions | null) => {
+    updateCell(cell.id, { formatting: formatting || undefined });
     setShowFormatMenu(false);
   };
   
@@ -324,6 +343,7 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
         const language = cell.formatting.language || '';
         return `\`\`\`${language}\n${cell.content}\n\`\`\``;
       case 'blockquote':
+        // Add > to each line
         return cell.content.split('\n').map(line => `> ${line}`).join('\n');
       case 'callout':
         const calloutType = cell.formatting.calloutType || 'info';
@@ -335,38 +355,29 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
         return cell.content;
     }
   };
-
-  // Initialize drag and drop refs
-  // Fix: Use separate refs for drag and drop to avoid conflicts
-  const dragDropRef = useRef(null);
   
-  // Connect the drag and drop refs
-  drag(drop(dragDropRef));
-
+  // Combine drag and drop refs
+  const dragDropRef = drag(drop(ref));
+  
   return (
     <div 
-      ref={ref}
-      className={`notebook-cell ${cell.type === CellType.COMMENT ? 'comment-cell' : ''} 
-                 ${isDragging ? 'dragging' : ''} 
-                 ${isOver ? 'drop-target' : ''} 
-                 ${isOverTop ? 'drop-target-top' : ''}
-                 ${isOverBottom ? 'drop-target-bottom' : ''}
-                 ${isSelected ? 'selected' : ''} 
-                 ${groupingMode ? 'grouping-mode' : ''}
-                 ${cell.formatting ? `formatted formatted-${cell.formatting.type}` : ''}`}
-      onClick={handleCellClick}
+      ref={dragDropRef}
+      className={`notebook-cell ${cell.type === CellType.COMMENT ? 'comment-cell' : ''} ${isDragging ? 'dragging' : ''} ${isOver ? 'drop-target' : ''} ${isOverTop ? 'drop-target-top' : ''} ${isOverBottom ? 'drop-target-bottom' : ''} ${isSelected ? 'selected' : ''}`}
       data-id={cell.id}
+      onClick={() => groupingMode && onSelect && onSelect(cell.id)}
     >
-      <div className="cell-handle" ref={dragDropRef}></div>
+      <div className="cell-handle" />
       
       <div className="cell-content">
         {cell.isEditing ? (
           <>
-            <RichTextBar onFormatText={handleFormatText} />
+            <RichTextBar onFormat={handleFormatText} />
             <textarea 
+              className="cell-editor"
               value={cell.content}
               onChange={handleContentChange}
-              className="cell-editor"
+              placeholder="Enter content here..."
+              autoFocus
             />
           </>
         ) : (
@@ -392,6 +403,14 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
            cell.formatting?.type === 'blockquote' ? <FaQuoteRight /> :
            cell.formatting?.type === 'callout' ? <FaInfoCircle /> :
            cell.formatting?.type === 'xml' ? <FaTag /> : <FaCode />}
+        </button>
+        
+        <button
+          className="cell-action-button save-snippet"
+          onClick={handleSaveAsSnippet}
+          title="Save as snippet"
+        >
+          <FaTag />
         </button>
         
         {!groupingMode && (
@@ -458,42 +477,32 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
             >
               <FaTag /> XML Tags
             </button>
-            
-            {cell.formatting && (
-              <button 
-                className="format-option remove-format"
-                onClick={removeFormatting}
-              >
-                Remove Formatting
-              </button>
-            )}
+            <button 
+              className="format-option"
+              onClick={() => applyFormatting(null)}
+            >
+              <FaCheck /> No Formatting
+            </button>
           </div>
           
           {cell.formatting?.type === 'code' && (
-            <div className="format-suboptions">
+            <div className="format-sub-options">
               <label>Language:</label>
-              <select 
+              <input 
+                type="text"
                 value={cell.formatting.language || ''}
-                onChange={(e) => applyFormatting({ ...cell.formatting!, language: e.target.value })}
-              >
-                <option value="">Plain</option>
-                <option value="javascript">JavaScript</option>
-                <option value="typescript">TypeScript</option>
-                <option value="python">Python</option>
-                <option value="html">HTML</option>
-                <option value="css">CSS</option>
-                <option value="json">JSON</option>
-                <option value="markdown">Markdown</option>
-              </select>
+                onChange={(e) => applyFormatting({ ...cell.formatting, language: e.target.value })}
+                placeholder="e.g., javascript, python, etc."
+              />
             </div>
           )}
           
           {cell.formatting?.type === 'callout' && (
-            <div className="format-suboptions">
+            <div className="format-sub-options">
               <label>Type:</label>
-              <select 
+              <select
                 value={cell.formatting.calloutType || 'info'}
-                onChange={(e) => applyFormatting({ ...cell.formatting!, calloutType: e.target.value as 'info' | 'warning' | 'success' | 'error' })}
+                onChange={(e) => applyFormatting({ ...cell.formatting, calloutType: e.target.value as 'info' | 'warning' | 'success' | 'error' })}
               >
                 <option value="info">Info</option>
                 <option value="warning">Warning</option>
@@ -504,16 +513,69 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
           )}
           
           {cell.formatting?.type === 'xml' && (
-            <div className="format-suboptions">
+            <div className="format-sub-options">
               <label>Tag:</label>
               <input 
                 type="text"
                 value={cell.formatting.xmlTag || 'div'}
-                onChange={(e) => applyFormatting({ ...cell.formatting!, xmlTag: e.target.value })}
-                placeholder="div"
+                onChange={(e) => applyFormatting({ ...cell.formatting, xmlTag: e.target.value })}
+                placeholder="e.g., div, span, etc."
               />
             </div>
           )}
+        </div>
+      )}
+      
+      {showSnippetDialog && (
+        <div className="snippet-dialog">
+          <div className="snippet-dialog-header">
+            <h4>Save as Snippet</h4>
+            <button 
+              className="close-snippet-dialog"
+              onClick={() => setShowSnippetDialog(false)}
+            >
+              &times;
+            </button>
+          </div>
+          <div className="snippet-dialog-content">
+            <div className="form-group">
+              <label>Name:</label>
+              <input 
+                type="text"
+                value={snippetName}
+                onChange={(e) => setSnippetName(e.target.value)}
+                placeholder="Enter snippet name"
+                autoFocus
+              />
+            </div>
+            <div className="form-group">
+              <label>Folder:</label>
+              <select
+                value={snippetFolder}
+                onChange={(e) => setSnippetFolder(e.target.value)}
+              >
+                <option value="">Root</option>
+                {folders.map(folder => (
+                  <option key={folder} value={folder}>{folder}</option>
+                ))}
+              </select>
+            </div>
+            <div className="snippet-dialog-actions">
+              <button 
+                className="cancel-button"
+                onClick={() => setShowSnippetDialog(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="save-button"
+                onClick={saveAsSnippet}
+                disabled={!snippetName.trim()}
+              >
+                Save
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
