@@ -11,8 +11,8 @@
 - [x] **7. Cell Formatting Menu - Visualization:** No visual indicator on the cell shows that formatting has been applied
 - [ ] **8. UI/UX:** The overall user interface is perceived as unintuitive and visually unappealing
 - [ ] **9. Snippet Saving:** Saving a snippet to a folder doesn't make it appear within that folder in the panel
-- [ ] **10. Folder Icons:** Icons for created folders are too small and lack clear distinction
-- [ ] **11. Snippet Insertion:** No apparent way to drag/insert snippets from the panel into the cells
+- [x] **10. Folder Icons:** Icons for created folders are too small and lack clear distinction
+- [x] **11. Snippet Insertion:** No apparent way to drag/insert snippets from the panel into the cells
 - [x] **12. Comment Cell Styling:** Comment cells look identical to content cells, unlike Jupyter's distinct background/rendering
 - [x] **13. Cell Grouping - Content View:** Cannot view the actual content of cells within an uncollapsed group; only shows "comments" and "content" tags
 - [x] **14. Cell Grouping - Selection Mode:** No clear indication when the editor is in cell selection mode for grouping

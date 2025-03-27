@@ -100,13 +100,25 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
           setShowFormatMenu(false);
         }
       }
+      
+      if (showSnippetDialog && ref.current) {
+        // Check if the click target is within the snippet dialog
+        const snippetDialog = document.querySelector('.snippet-dialog');
+        const saveButton = document.querySelector(`.notebook-cell[data-id="${cell.id}"] .save-snippet`);
+        
+        if (snippetDialog && 
+            !snippetDialog.contains(event.target as Node) && 
+            !saveButton?.contains(event.target as Node)) {
+          setShowSnippetDialog(false);
+        }
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showFormatMenu, cell.id]);
+  }, [showFormatMenu, showSnippetDialog, cell.id]);
 
   // Set up drag and drop functionality
   const [{ isDragging }, drag] = useDrag({
@@ -147,7 +159,7 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   });
 
   const [{ isOver, isOverTop, isOverBottom }, drop] = useDrop({
-    accept: 'CELL',
+    accept: ['CELL', 'SNIPPET'],
     hover(item: { index: number }, monitor) {
       if (!ref.current) {
         return;
@@ -160,34 +172,47 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
         return;
       }
     },
-    drop(item: { index: number }, monitor) {
+    drop(item: any, monitor) {
       if (!ref.current) {
         return undefined;
       }
-      const dragIndex = item.index;
-      const hoverIndex = index;
-
-      // Don't replace items with themselves
-      if (dragIndex === hoverIndex) {
-        return undefined;
+      
+      // Handle snippet insertion
+      if (item.content !== undefined) {
+        // Insert snippet content into cell
+        updateCell(cell.id, { 
+          content: cell.content + (cell.content ? '\n\n' : '') + item.content 
+        });
+        return { inserted: true };
       }
+      
+      // Handle cell reordering
+      if (item.index !== undefined) {
+        const dragIndex = item.index;
+        const hoverIndex = index;
 
-      // Determine drop position (top or bottom half)
-      const hoverBoundingRect = ref.current.getBoundingClientRect();
-      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-      const clientOffset = monitor.getClientOffset();
-      const hoverClientY = clientOffset ? clientOffset.y - hoverBoundingRect.top : 0;
+        // Don't replace items with themselves
+        if (dragIndex === hoverIndex) {
+          return undefined;
+        }
 
-      // Dragging downwards, drop after the hovered item
-      if (dragIndex < hoverIndex && hoverClientY > hoverMiddleY) {
-        reorderCells(dragIndex, hoverIndex);
-        return undefined;
-      }
+        // Determine drop position (top or bottom half)
+        const hoverBoundingRect = ref.current.getBoundingClientRect();
+        const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+        const clientOffset = monitor.getClientOffset();
+        const hoverClientY = clientOffset ? clientOffset.y - hoverBoundingRect.top : 0;
 
-      // Dragging upwards, drop before the hovered item
-      if (dragIndex > hoverIndex && hoverClientY < hoverMiddleY) {
-        reorderCells(dragIndex, hoverIndex);
-        return undefined;
+        // Dragging downwards, drop after the hovered item
+        if (dragIndex < hoverIndex && hoverClientY > hoverMiddleY) {
+          reorderCells(dragIndex, hoverIndex);
+          return undefined;
+        }
+
+        // Dragging upwards, drop before the hovered item
+        if (dragIndex > hoverIndex && hoverClientY < hoverMiddleY) {
+          reorderCells(dragIndex, hoverIndex);
+          return undefined;
+        }
       }
 
       return undefined;

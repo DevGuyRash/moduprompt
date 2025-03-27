@@ -65,6 +65,9 @@
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.2s;
+  margin-bottom: 4px;
+  background-color: rgba(250, 173, 20, 0.05);
+  border-left: 3px solid #faad14;
 }
 
 .folder-header:hover {
@@ -74,6 +77,7 @@
 .folder-header svg {
   margin-right: 8px;
   color: #faad14;
+  font-size: 18px; /* Increased from default size */
 }
 
 .folder-name {
