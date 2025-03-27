@@ -39,22 +39,28 @@ const SnippetPanel: React.FC<SnippetPanelProps> = ({ onSelectSnippet, className,
     
     // Add snippets to their respective folders
     snippets.forEach(snippet => {
-      if (structure[snippet.folder]) {
+      if (structure[snippet.folder] !== undefined) {
         structure[snippet.folder].push(snippet);
       } else {
         // If folder doesn't exist yet, create it
         structure[snippet.folder] = [snippet];
+        
         // Ensure all parent folders exist
-        extractFolderPaths(snippet.folder).forEach(path => {
-          if (!structure[path]) {
+        const folderPaths = extractFolderPaths(snippet.folder);
+        folderPaths.forEach(path => {
+          if (structure[path] === undefined) {
             structure[path] = [];
+            // Add this folder to the folders list if it's not already there
+            if (!folders.includes(path)) {
+              addFolder(path);
+            }
           }
         });
       }
     });
     
     return structure;
-  }, [snippets, folders]);
+  }, [snippets, folders, addFolder]);
 
   // Get direct subfolders of a folder
   const getSubfolders = (parentPath: string): FolderType[] => {
@@ -132,9 +138,26 @@ const SnippetPanel: React.FC<SnippetPanelProps> = ({ onSelectSnippet, className,
   const handleSaveSnippet = () => {
     if (!editingSnippet) return;
     
+    // Extract folder path from content if it exists
+    const { frontmatter } = parseFrontmatter(editingSnippetContent);
+    const folderPath = frontmatter.folder || editingSnippet.folder;
+    
+    // Update the snippet with new content and possibly new folder
     updateSnippet(editingSnippet.id, {
-      content: editingSnippetContent
+      content: editingSnippetContent,
+      folder: folderPath
     });
+    
+    // If folder path changed, ensure it exists
+    if (folderPath && folderPath !== editingSnippet.folder && !folders.includes(folderPath)) {
+      addFolder(folderPath);
+      
+      // Auto-expand the folder
+      setExpandedFolders(prev => ({
+        ...prev,
+        [folderPath]: true
+      }));
+    }
     
     setEditingSnippet(null);
     setEditingSnippetContent('');

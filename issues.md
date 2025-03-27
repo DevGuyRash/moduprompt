@@ -10,7 +10,7 @@
 - [x] **6. Cell Formatting Menu - Icons:** XML Tags and Save Snippet icons are identical
 - [x] **7. Cell Formatting Menu - Visualization:** No visual indicator on the cell shows that formatting has been applied
 - [ ] **8. UI/UX:** The overall user interface is perceived as unintuitive and visually unappealing
-- [ ] **9. Snippet Saving:** Saving a snippet to a folder doesn't make it appear within that folder in the panel
+- [x] **9. Snippet Saving:** Saving a snippet to a folder doesn't make it appear within that folder in the panel
 - [x] **10. Folder Icons:** Icons for created folders are too small and lack clear distinction
 - [x] **11. Snippet Insertion:** No apparent way to drag/insert snippets from the panel into the cells
 - [x] **12. Comment Cell Styling:** Comment cells look identical to content cells, unlike Jupyter's distinct background/rendering
