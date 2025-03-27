@@ -220,13 +220,15 @@ const App: React.FC = () => {
                 
                 <div className="editor-container">
                   {showFormattingOptions && (
-                    <FormattingOptions 
-                      currentMode={editorMode === EditorMode.NOTEBOOK ? 'notebook' : 'node'}
-                      position={formatPosition}
-                      cellId={selectedCellId}
-                      onClose={() => setShowFormattingOptions(false)}
-                      onCreateFormat={handleCreateFormat}
-                    />
+                    <div className="formatting-options-container">
+                      <FormattingOptions 
+                        currentMode={editorMode === EditorMode.NOTEBOOK ? 'notebook' : 'node'}
+                        position={formatPosition}
+                        cellId={selectedCellId}
+                        onClose={() => setShowFormattingOptions(false)}
+                        onCreateFormat={handleCreateFormat}
+                      />
+                    </div>
                   )}
                   
                   {editorMode === EditorMode.NOTEBOOK ? (

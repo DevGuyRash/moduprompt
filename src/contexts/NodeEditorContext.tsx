@@ -18,7 +18,7 @@ export interface NodeConnection {
 }
 
 export interface FormatOptions {
-  type: 'code' | 'blockquote' | 'callout' | 'xml';
+  type: 'code' | 'blockquote' | 'callout' | 'xml' | 'comment';
   language?: string;
   calloutType?: 'info' | 'warning' | 'success' | 'error';
   xmlTag?: string;
@@ -200,6 +200,8 @@ export const NodeEditorProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         return `Callout (${options.calloutType || 'info'})`;
       case 'xml':
         return `XML <${options.xmlTag || 'div'}>`;
+      case 'comment':
+        return 'Comment';
       default:
         return 'Format';
     }

@@ -17,7 +17,7 @@ export enum CellType {
  * @property {string} xmlTag - The XML tag to wrap content with
  */
 export interface FormatOptions {
-  type?: 'code' | 'blockquote' | 'callout' | 'xml';
+  type?: 'code' | 'blockquote' | 'callout' | 'xml' | 'comment';
   language?: string;
   calloutType?: 'info' | 'warning' | 'success' | 'error';
   xmlTag?: string;

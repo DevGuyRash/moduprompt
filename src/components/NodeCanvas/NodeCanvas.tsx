@@ -5,7 +5,7 @@ import Node from '../Node/Node';
 import PromptNode from './PromptNode';
 import FilterNode from './FilterNode';
 import FormattingOptions from '../FormattingOptions/FormattingOptions';
-import { FaPlus, FaFilter, FaObjectGroup, FaCode, FaSearchMinus, FaSearchPlus, FaHome, FaInfoCircle } from 'react-icons/fa';
+import { FaPlus, FaFilter, FaObjectGroup, FaCode, FaSearchMinus, FaSearchPlus, FaHome, FaInfoCircle, FaComment } from 'react-icons/fa';
 import './NodeCanvas.css';
 
 interface ConnectionLineProps {
@@ -482,7 +482,7 @@ const NodeCanvas: React.FC = () => {
                 formatOptions: { 
                   type: 'comment',
                   language: '',
-                  calloutType: '',
+                  calloutType: 'info',
                   xmlTag: ''
                 } 
               });
