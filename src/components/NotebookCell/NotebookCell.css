@@ -1,32 +1,38 @@
 .notebook-cell {
   position: relative;
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  margin: 12px 0;
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
   background-color: #fff;
   transition: all 0.2s ease;
   cursor: text;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.notebook-cell:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .notebook-cell.dragging {
   opacity: 0.5;
   border: 1px dashed #999;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .notebook-cell.drop-target {
   background-color: #f0f8ff;
-  border-color: #1890ff;
+  border-color: #4a90e2;
 }
 
 .notebook-cell.drop-target-top {
-  border-top: 3px solid #1890ff;
-  padding-top: 8px;
+  border-top: 3px solid #4a90e2;
+  padding-top: 10px;
 }
 
 .notebook-cell.drop-target-bottom {
-  border-bottom: 3px solid #1890ff;
-  padding-bottom: 8px;
+  border-bottom: 3px solid #4a90e2;
+  padding-bottom: 10px;
 }
 
 .notebook-cell.comment-cell {
@@ -35,70 +41,92 @@
 }
 
 .notebook-cell.selected {
-  border-color: #1890ff;
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
 .notebook-cell.grouping-mode {
   cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.notebook-cell.grouping-mode:hover {
+  transform: scale(1.005);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
 }
 
 .cell-handle {
   position: absolute;
-  left: -15px;
+  left: -18px;
   top: 50%;
   transform: translateY(-50%);
-  width: 10px;
-  height: 40px; /* Increased height for easier targeting */
-  background-color: #ddd;
-  border-radius: 3px;
+  width: 12px;
+  height: 45px; /* Increased height for easier targeting */
+  background-color: #e0e0e0;
+  border-radius: 4px;
   cursor: grab;
   z-index: 10;
   opacity: 0.7;
+  transition: all 0.2s ease;
 }
 
 .cell-handle:hover {
   opacity: 1;
   background-color: #aaa;
-  width: 12px; /* Slightly wider on hover for better feedback */
+  width: 14px; /* Slightly wider on hover for better feedback */
 }
 
 .cell-content {
   min-height: 50px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   user-select: text;
+  line-height: 1.5;
+  color: #333;
 }
 
 .cell-editor {
   width: 100%;
-  min-height: 100px;
-  padding: 8px;
-  border: 1px solid #ddd;
+  min-height: 120px;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
   border-radius: 4px;
   font-family: 'Courier New', monospace;
   resize: vertical;
   user-select: text;
+  line-height: 1.5;
+  transition: border-color 0.2s ease;
+}
+
+.cell-editor:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
 }
 
 .cell-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 5px;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #f0f0f0;
 }
 
 .cell-action-button {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 5px;
-  border-radius: 3px;
+  padding: 6px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #666;
+  transition: all 0.2s ease;
 }
 
 .cell-action-button:hover {
-  background-color: #f0f0f0;
+  background-color: #f0f2f5;
+  color: #4a90e2;
 }
 
 .cell-action-button.delete:hover {
@@ -118,15 +146,15 @@
 
 .cell-type-indicator {
   position: absolute;
-  top: 5px;
-  left: 5px;
+  top: 8px;
+  left: 8px;
   color: #faad14;
 }
 
 .cell-selection-indicator {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 8px;
+  right: 8px;
   color: #52c41a;
 }
 
@@ -135,24 +163,38 @@
   right: 40px;
   top: 0;
   background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 100;
-  width: 200px;
+  width: 220px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .format-menu-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  border-bottom: 1px solid #eee;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .format-menu-header h4 {
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
+  color: #2c3e50;
+  font-weight: 600;
 }
 
 .format-menu-header button {
@@ -160,10 +202,16 @@
   border: none;
   font-size: 16px;
   cursor: pointer;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.format-menu-header button:hover {
+  color: #ff4d4f;
 }
 
 .format-menu-options {
-  padding: 8px;
+  padding: 10px;
 }
 
 .format-option {
@@ -171,12 +219,13 @@
   align-items: center;
   width: 100%;
   padding: 8px 12px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   background: none;
   border: none;
   border-radius: 4px;
   text-align: left;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .format-option:hover {
@@ -185,18 +234,23 @@
 
 .format-option.active {
   background-color: #e6f7ff;
-  color: #1890ff;
+  color: #4a90e2;
 }
 
 .format-option svg {
-  margin-right: 8px;
+  margin-right: 10px;
+  font-size: 16px;
 }
 
 .format-option.remove {
   color: #ff4d4f;
-  border-top: 1px solid #eee;
-  margin-top: 4px;
-  padding-top: 8px;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 6px;
+  padding-top: 10px;
+}
+
+.format-option.remove:hover {
+  background-color: #fff1f0;
 }
 
 .notebook-cell.formatted {
@@ -209,19 +263,36 @@
   left: 0;
   top: 0;
   bottom: 0;
-  width: 3px;
+  width: 4px;
+  border-radius: 4px 0 0 4px;
+}
+
+.notebook-cell.formatted-code {
+  background-color: #f8fafc;
 }
 
 .notebook-cell.formatted-code::before {
-  background-color: #1890ff;
+  background-color: #4a90e2;
+}
+
+.notebook-cell.formatted-blockquote {
+  background-color: #f9f9f9;
 }
 
 .notebook-cell.formatted-blockquote::before {
   background-color: #722ed1;
 }
 
+.notebook-cell.formatted-callout {
+  background-color: #f6ffed;
+}
+
 .notebook-cell.formatted-callout::before {
   background-color: #52c41a;
+}
+
+.notebook-cell.formatted-xml {
+  background-color: #fff7e6;
 }
 
 .notebook-cell.formatted-xml::before {
@@ -234,24 +305,27 @@
   right: 40px;
   top: 0;
   background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 100;
-  width: 300px;
+  width: 320px;
+  animation: fadeIn 0.2s ease;
 }
 
 .snippet-dialog-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  border-bottom: 1px solid #eee;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .snippet-dialog-header h4 {
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
+  color: #2c3e50;
+  font-weight: 600;
 }
 
 .snippet-dialog-header button {
@@ -259,64 +333,86 @@
   border: none;
   font-size: 16px;
   cursor: pointer;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.snippet-dialog-header button:hover {
+  color: #ff4d4f;
 }
 
 .snippet-dialog-content {
-  padding: 12px;
+  padding: 14px;
 }
 
 .form-group {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   font-size: 14px;
+  color: #333;
+  font-weight: 500;
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
   border-radius: 4px;
   font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
 }
 
 .snippet-dialog-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 16px;
+  gap: 10px;
+  margin-top: 18px;
 }
 
 .snippet-dialog-actions button {
-  padding: 6px 12px;
+  padding: 8px 14px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.2s ease;
 }
 
 .snippet-dialog-actions .cancel-button {
   background-color: #f5f5f5;
-  border: 1px solid #d9d9d9;
+  border: 1px solid #e0e0e0;
+  color: #333;
+}
+
+.snippet-dialog-actions .cancel-button:hover {
+  background-color: #e8e8e8;
 }
 
 .snippet-dialog-actions .save-button {
-  background-color: #1890ff;
-  border: 1px solid #1890ff;
+  background-color: #4a90e2;
+  border: 1px solid #4a90e2;
   color: white;
 }
 
 .snippet-dialog-actions .save-button:hover {
-  background-color: #40a9ff;
-  border-color: #40a9ff;
+  background-color: #3a80d2;
+  border-color: #3a80d2;
 }
 
 .snippet-dialog-actions .save-button[disabled] {
   background-color: #f5f5f5;
-  border-color: #d9d9d9;
+  border-color: #e0e0e0;
   color: rgba(0, 0, 0, 0.25);
   cursor: not-allowed;
 }
