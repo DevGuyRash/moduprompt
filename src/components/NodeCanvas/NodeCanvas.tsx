@@ -4,7 +4,6 @@ import { NodeData, NodeConnection, NodeType, useNodeEditor, FormatOptions } from
 import Node from '../Node/Node';
 import PromptNode from './PromptNode';
 import FilterNode from './FilterNode';
-import FilterJoinNode from './FilterJoinNode';
 import FormattingOptions from '../FormattingOptions/FormattingOptions';
 import { FaPlus, FaFilter, FaObjectGroup, FaCode, FaSearchMinus, FaSearchPlus, FaHome, FaInfoCircle } from 'react-icons/fa';
 import './NodeCanvas.css';
@@ -547,17 +546,6 @@ const NodeCanvas: React.FC = () => {
                 content={node.content}
                 formatOptions={node.formatOptions}
                 onFormatChange={handleNodeFormatChange}
-              />
-            );
-          } else if (node.type === NodeType.FILTER_JOIN) {
-            return (
-              <FilterJoinNode
-                key={node.id}
-                id={node.id}
-                content={node.content}
-                isEditing={isEditing}
-                onContentChange={handleNodeContentChange}
-                onToggleEdit={() => handleToggleNodeEdit(node.id)}
               />
             );
           } else {
