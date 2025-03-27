@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { FaCode, FaQuoteRight, FaInfoCircle, FaTag, FaPlus, FaToggleOn, FaToggleOff } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { FaCode, FaQuoteRight, FaInfoCircle, FaTag, FaPlus, FaToggleOn, FaToggleOff, FaGripVertical } from 'react-icons/fa';
 import { FormatOptions, NodeType, useNodeEditor } from '../../contexts/NodeEditorContext';
 import { useNotebook } from '../../contexts/NotebookContext';
 import './FormattingOptions.css';
@@ -22,6 +22,15 @@ interface FormattingOptionsProps {
   onCreateFormat?: (formatOptions: FormatOptions) => void;
 }
 
+// Define format types and their properties
+interface FormatType {
+  id: string;
+  name: string;
+  icon: React.ReactNode;
+  exclusive: boolean; // Whether this format is exclusive with others in its group
+  group: 'wrapper' | 'container'; // Formats in the same group are mutually exclusive if exclusive=true
+}
+
 /**
  * Component for selecting and applying formatting options to cells or nodes
  * Provides options for code blocks, blockquotes, callouts, and XML tags
@@ -36,41 +45,35 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
 }) => {
   const { addNode } = useNodeEditor();
   const { cells, formatCell, removeFormatting } = useNotebook();
-  const [activeFormatters, setActiveFormatters] = React.useState<{
-    code: boolean;
-    blockquote: boolean;
-    callout: boolean;
-    xml: boolean;
-  }>({
-    code: false,
-    blockquote: false,
-    callout: false,
-    xml: false
-  });
-  const [codeLanguage, setCodeLanguage] = React.useState('');
-  const [calloutType, setCalloutType] = React.useState('info');
-  const [xmlTag, setXmlTag] = React.useState('div');
-  const [calloutName, setCalloutName] = React.useState('');
+  
+  // Define available format types
+  const formatTypes: FormatType[] = [
+    { id: 'code', name: 'Code Block', icon: <FaCode />, exclusive: true, group: 'wrapper' },
+    { id: 'xml', name: 'XML Tags', icon: <FaTag />, exclusive: true, group: 'wrapper' },
+    { id: 'blockquote', name: 'Blockquote', icon: <FaQuoteRight />, exclusive: true, group: 'container' },
+    { id: 'callout', name: 'Callout', icon: <FaInfoCircle />, exclusive: true, group: 'container' },
+  ];
+  
+  // Track active formatters in order of application
+  const [activeFormats, setActiveFormats] = useState<string[]>([]);
+  
+  // Format-specific options
+  const [codeLanguage, setCodeLanguage] = useState('');
+  const [calloutType, setCalloutType] = useState('info');
+  const [xmlTag, setXmlTag] = useState('div');
+  const [calloutName, setCalloutName] = useState('');
 
   // Load existing formatting when component mounts or cellId changes
   useEffect(() => {
     if (currentMode === 'notebook' && cellId) {
       const cell = cells.find(c => c.id === cellId);
       if (cell && cell.formatting) {
-        // Reset all formatters first
-        setActiveFormatters({
-          code: false,
-          blockquote: false,
-          callout: false,
-          xml: false
-        });
+        // Reset active formats
+        setActiveFormats([]);
 
         // Set the active formatter based on the cell's formatting
         if (cell.formatting.type) {
-          setActiveFormatters(prev => ({
-            ...prev,
-            [cell.formatting?.type || 'code']: true
-          }));
+          setActiveFormats([cell.formatting.type]);
 
           // Set additional options based on the formatter type
           switch (cell.formatting.type) {
@@ -91,38 +94,41 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
 
   /**
    * Toggles a formatter on or off
-   * @param {string} formatter - The formatter to toggle
+   * @param {string} formatId - The formatter to toggle
    */
-  const toggleFormatter = (formatter: 'code' | 'blockquote' | 'callout' | 'xml') => {
-    // If toggling on XML or code, turn off the other (they're mutually exclusive wrappers)
-    if ((formatter === 'xml' || formatter === 'code') && !activeFormatters[formatter]) {
-      setActiveFormatters(prev => ({
-        ...prev,
-        code: formatter === 'code' ? true : false,
-        xml: formatter === 'xml' ? true : false,
-        [formatter]: !prev[formatter]
-      }));
-    } 
-    // If toggling on blockquote or callout, turn off the other (they're mutually exclusive containers)
-    else if ((formatter === 'blockquote' || formatter === 'callout') && !activeFormatters[formatter]) {
-      setActiveFormatters(prev => ({
-        ...prev,
-        blockquote: formatter === 'blockquote' ? true : false,
-        callout: formatter === 'callout' ? true : false,
-        [formatter]: !prev[formatter]
-      }));
+  const toggleFormatter = (formatId: string) => {
+    const formatType = formatTypes.find(f => f.id === formatId);
+    if (!formatType) return;
+    
+    // Check if format is already active
+    const isActive = activeFormats.includes(formatId);
+    
+    if (isActive) {
+      // Remove the format
+      setActiveFormats(prev => prev.filter(f => f !== formatId));
+    } else {
+      // Add the format, respecting exclusivity rules
+      setActiveFormats(prev => {
+        const newFormats = [...prev];
+        
+        // If exclusive, remove other formats in the same group
+        if (formatType.exclusive) {
+          const formatGroup = formatType.group;
+          const conflictingFormats = formatTypes
+            .filter(f => f.group === formatGroup && f.id !== formatId)
+            .map(f => f.id);
+          
+          return [...newFormats.filter(f => !conflictingFormats.includes(f)), formatId];
+        }
+        
+        return [...newFormats, formatId];
+      });
     }
-    else {
-      setActiveFormatters(prev => ({
-        ...prev,
-        [formatter]: !prev[formatter]
-      }));
-    }
-
+    
     // Apply formatting to the cell in notebook mode
     if (currentMode === 'notebook' && cellId) {
-      // If turning off the formatter, remove formatting
-      if (activeFormatters[formatter]) {
+      // If turning off the formatter and it was the only one, remove formatting
+      if (isActive && activeFormats.length === 1) {
         removeFormatting(cellId);
       } else {
         // Apply the new formatting
@@ -135,21 +141,23 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
    * Applies the current formatting options to the selected cell
    */
   const applyFormatting = () => {
-    if (currentMode === 'notebook' && cellId) {
-      // Determine which formatters are active
-      let formatOptions: FormatOptions = { type: 'code' };
+    if (currentMode === 'notebook' && cellId && activeFormats.length > 0) {
+      // Use the first active format as the primary format type
+      // In future, could implement nested formatting
+      const primaryFormat = activeFormats[0];
+      let formatOptions: FormatOptions = { type: primaryFormat as any };
       
-      if (activeFormatters.code) {
-        formatOptions.type = 'code';
-        formatOptions.language = codeLanguage;
-      } else if (activeFormatters.xml) {
-        formatOptions.type = 'xml';
-        formatOptions.xmlTag = xmlTag;
-      } else if (activeFormatters.blockquote) {
-        formatOptions.type = 'blockquote';
-      } else if (activeFormatters.callout) {
-        formatOptions.type = 'callout';
-        formatOptions.calloutType = calloutType as 'info' | 'warning' | 'success' | 'error';
+      // Add format-specific options
+      switch (primaryFormat) {
+        case 'code':
+          formatOptions.language = codeLanguage;
+          break;
+        case 'xml':
+          formatOptions.xmlTag = xmlTag;
+          break;
+        case 'callout':
+          formatOptions.calloutType = calloutType as 'info' | 'warning' | 'success' | 'error';
+          break;
       }
 
       // Apply formatting to the cell
@@ -161,21 +169,22 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
    * Creates a format node in node mode
    */
   const createFormatNode = () => {
-    if (currentMode === 'node' && position) {
-      // Determine which formatters are active
-      let formatOptions: FormatOptions = { type: 'code' };
+    if (currentMode === 'node' && position && activeFormats.length > 0) {
+      // Use the first active format as the primary format type
+      const primaryFormat = activeFormats[0];
+      let formatOptions: FormatOptions = { type: primaryFormat as any };
       
-      if (activeFormatters.code) {
-        formatOptions.type = 'code';
-        formatOptions.language = codeLanguage;
-      } else if (activeFormatters.xml) {
-        formatOptions.type = 'xml';
-        formatOptions.xmlTag = xmlTag;
-      } else if (activeFormatters.blockquote) {
-        formatOptions.type = 'blockquote';
-      } else if (activeFormatters.callout) {
-        formatOptions.type = 'callout';
-        formatOptions.calloutType = calloutType as 'info' | 'warning' | 'success' | 'error';
+      // Add format-specific options
+      switch (primaryFormat) {
+        case 'code':
+          formatOptions.language = codeLanguage;
+          break;
+        case 'xml':
+          formatOptions.xmlTag = xmlTag;
+          break;
+        case 'callout':
+          formatOptions.calloutType = calloutType as 'info' | 'warning' | 'success' | 'error';
+          break;
       }
 
       if (onCreateFormat) {
@@ -219,7 +228,7 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
 
   // Handle changes to formatting options
   useEffect(() => {
-    if (currentMode === 'notebook' && cellId) {
+    if (currentMode === 'notebook' && cellId && activeFormats.length > 0) {
       // Apply formatting when options change
       applyFormatting();
     }
@@ -229,58 +238,31 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
     <div className={`formatting-options ${isDocumentLevel ? 'document-level' : ''}`}>
       <h3>{isDocumentLevel ? 'Document Formatting' : 'Cell Formatting'}</h3>
       
-      <div className="format-toggles">
-        <div 
-          className={`format-toggle ${activeFormatters.code ? 'active' : ''}`}
-          onClick={() => toggleFormatter('code')}
-        >
-          <div className="toggle-icon">
-            {activeFormatters.code ? <FaToggleOn /> : <FaToggleOff />}
-          </div>
-          <div className="toggle-label">
-            <FaCode /> Code Block
-          </div>
-        </div>
-        
-        <div 
-          className={`format-toggle ${activeFormatters.blockquote ? 'active' : ''}`}
-          onClick={() => toggleFormatter('blockquote')}
-        >
-          <div className="toggle-icon">
-            {activeFormatters.blockquote ? <FaToggleOn /> : <FaToggleOff />}
-          </div>
-          <div className="toggle-label">
-            <FaQuoteRight /> Blockquote
-          </div>
-        </div>
-        
-        <div 
-          className={`format-toggle ${activeFormatters.callout ? 'active' : ''}`}
-          onClick={() => toggleFormatter('callout')}
-        >
-          <div className="toggle-icon">
-            {activeFormatters.callout ? <FaToggleOn /> : <FaToggleOff />}
-          </div>
-          <div className="toggle-label">
-            <FaInfoCircle /> Callout
-          </div>
-        </div>
-        
-        <div 
-          className={`format-toggle ${activeFormatters.xml ? 'active' : ''}`}
-          onClick={() => toggleFormatter('xml')}
-        >
-          <div className="toggle-icon">
-            {activeFormatters.xml ? <FaToggleOn /> : <FaToggleOff />}
-          </div>
-          <div className="toggle-label">
-            <FaTag /> XML Tags
-          </div>
+      <div className="format-section">
+        <h4>Select Format Types</h4>
+        <div className="format-toggles">
+          {formatTypes.map(format => (
+            <div 
+              key={format.id}
+              className={`format-toggle ${activeFormats.includes(format.id) ? 'active' : ''}`}
+              onClick={() => toggleFormatter(format.id)}
+            >
+              <div className="toggle-icon">
+                {activeFormats.includes(format.id) ? <FaToggleOn /> : <FaToggleOff />}
+              </div>
+              <div className="toggle-label">
+                {format.icon} {format.name}
+              </div>
+              <div className="format-group-indicator">
+                {format.exclusive ? `(${format.group})` : ''}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
       
       <div className="format-options-container">
-        {activeFormatters.code && (
+        {activeFormats.includes('code') && (
           <div className="formatter-group">
             <label>Language:</label>
             <select 
@@ -300,7 +282,7 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
           </div>
         )}
         
-        {activeFormatters.callout && (
+        {activeFormats.includes('callout') && (
           <>
             <div className="formatter-group">
               <label>Callout Type:</label>
@@ -328,7 +310,7 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
           </>
         )}
         
-        {activeFormatters.xml && (
+        {activeFormats.includes('xml') && (
           <div className="formatter-group">
             <label>Tag Name:</label>
             <input 
@@ -346,9 +328,8 @@ const FormattingOptions: React.FC<FormattingOptionsProps> = ({
         <button 
           className="create-format-button"
           onClick={createFormatNode}
-          disabled={(activeFormatters.xml && !xmlTag) || 
-                   (!activeFormatters.code && !activeFormatters.blockquote && 
-                    !activeFormatters.callout && !activeFormatters.xml)}
+          disabled={activeFormats.length === 0 || 
+                   (activeFormats.includes('xml') && !xmlTag)}
         >
           <FaPlus /> Create Format Node
         </button>

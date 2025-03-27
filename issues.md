@@ -5,8 +5,8 @@
 - [x] **1. Text Selection/Cursor:** Cannot highlight text within cells; clicking resets the cursor to the beginning
 - [x] **2. Toolbar Functionality:** Toolbar buttons (Bold, Italic, Strikethrough, Inline Code, Heading, Lists, Link) do not work correctly or apply formatting to selected text
 - [x] **3. Cell Formatting Menu - Callout:** Incorrectly applies `:::` instead of proper Markdown callout syntax
-- [ ] **4. Cell Formatting Menu - Logic:** Needs redesign for checkboxes (mix-and-match) vs. exclusive selections (radio buttons/dropdown) and ordering of applied formats
-- [ ] **5. Cell Formatting Menu - Closing:** Menu does not close when clicking outside
+- [x] **4. Cell Formatting Menu - Logic:** Needs redesign for checkboxes (mix-and-match) vs. exclusive selections (radio buttons/dropdown) and ordering of applied formats
+- [x] **5. Cell Formatting Menu - Closing:** Menu does not close when clicking outside
 - [x] **6. Cell Formatting Menu - Icons:** XML Tags and Save Snippet icons are identical
 - [x] **7. Cell Formatting Menu - Visualization:** No visual indicator on the cell shows that formatting has been applied
 - [ ] **8. UI/UX:** The overall user interface is perceived as unintuitive and visually unappealing

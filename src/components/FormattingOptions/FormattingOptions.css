@@ -17,6 +17,19 @@
   color: #333;
 }
 
+.formatting-options h4 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+.format-section {
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
 .format-toggles {
   display: flex;
   flex-direction: column;
@@ -56,10 +69,17 @@
 .toggle-label {
   display: flex;
   align-items: center;
+  flex: 1;
 }
 
 .toggle-label svg {
   margin-right: 8px;
+}
+
+.format-group-indicator {
+  font-size: 12px;
+  color: #888;
+  margin-left: 5px;
 }
 
 .format-options-container {
