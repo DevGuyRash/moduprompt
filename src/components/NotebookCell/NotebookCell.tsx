@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-import { FaArrowUp, FaArrowDown, FaTrash, FaEdit, FaEye, FaComment, FaCheck, FaCode, FaQuoteRight, FaInfoCircle, FaTag } from 'react-icons/fa';
+import { FaArrowUp, FaArrowDown, FaTrash, FaEdit, FaEye, FaComment, FaCheck, FaCode, FaQuoteRight, FaInfoCircle, FaTag, FaSave } from 'react-icons/fa';
 import MarkdownPreview from '../MarkdownPreview/MarkdownPreview';
 import RichTextBar from '../RichTextBar/RichTextBar';
 import { CellData, CellType, FormatOptions } from '../../contexts/NotebookContext';
@@ -240,36 +240,36 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
     const selectedText = textarea.value.substring(start, end);
     
     if (start === end && formatType !== 'unordered-list' && formatType !== 'ordered-list') {
-      // No text selected, don't apply formatting
+      // No text selected, don't apply formatting except for lists
       return;
     }
     
     let formattedText = '';
-    let newCursorPos = end;
+    let newCursorPos = start;
     
     switch (formatType) {
       case 'bold':
         formattedText = `**${selectedText}**`;
-        newCursorPos = end + 4;
+        newCursorPos = start + formattedText.length;
         break;
       case 'italic':
         formattedText = `*${selectedText}*`;
-        newCursorPos = end + 2;
+        newCursorPos = start + formattedText.length;
         break;
       case 'strikethrough':
         formattedText = `~~${selectedText}~~`;
-        newCursorPos = end + 4;
+        newCursorPos = start + formattedText.length;
         break;
       case 'code-inline':
         formattedText = `\`${selectedText}\``;
-        newCursorPos = end + 2;
+        newCursorPos = start + formattedText.length;
         break;
       case 'heading':
         // Add heading level (default to h2)
         const level = formatValue || '2';
         const prefix = '#'.repeat(parseInt(level));
         formattedText = `${prefix} ${selectedText}`;
-        newCursorPos = end + parseInt(level) + 1;
+        newCursorPos = start + formattedText.length;
         break;
       case 'unordered-list':
         // Add bullet points to each line
@@ -297,14 +297,16 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
           newCursorPos = start + formattedText.length;
         } else {
           formattedText = `[${selectedText}](url)`;
+          // Position cursor inside the url parentheses for easy editing
           newCursorPos = start + selectedText.length + 3;
         }
         break;
       default:
         formattedText = selectedText;
+        newCursorPos = start + formattedText.length;
     }
     
-    // Update the content
+    // Update the content by replacing the selected text with formatted text
     const newContent = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
     updateCell(cell.id, { content: newContent });
     
@@ -347,7 +349,8 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
         return cell.content.split('\n').map(line => `> ${line}`).join('\n');
       case 'callout':
         const calloutType = cell.formatting.calloutType || 'info';
-        return `:::${calloutType}\n${cell.content}\n:::`;
+        // Use standard Markdown callout syntax
+        return `> [!${calloutType.toUpperCase()}]\n> ${cell.content.split('\n').join('\n> ')}`;
       case 'xml':
         const tag = cell.formatting.xmlTag || 'div';
         return `<${tag}>\n${cell.content}\n</${tag}>`;
@@ -366,9 +369,15 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
   return (
     <div 
       ref={dragDropRef}
-      className={`notebook-cell ${cell.type === CellType.COMMENT ? 'comment-cell' : ''} ${isDragging ? 'dragging' : ''} ${isOver ? 'drop-target' : ''} ${isOverTop ? 'drop-target-top' : ''} ${isOverBottom ? 'drop-target-bottom' : ''} ${isSelected ? 'selected' : ''}`}
+      className={`notebook-cell ${cell.type === CellType.COMMENT ? 'comment-cell' : ''} ${isDragging ? 'dragging' : ''} ${isOver ? 'drop-target' : ''} ${isOverTop ? 'drop-target-top' : ''} ${isOverBottom ? 'drop-target-bottom' : ''} ${isSelected ? 'selected' : ''} ${cell.formatting ? `formatted formatted-${cell.formatting.type}` : ''}`}
       data-id={cell.id}
-      onClick={() => groupingMode && onSelect && onSelect(cell.id)}
+      onClick={(e) => {
+        // Only handle cell selection in grouping mode
+        // Don't interfere with text selection otherwise
+        if (groupingMode && onSelect) {
+          onSelect(cell.id);
+        }
+      }}
     >
       <div className="cell-handle" />
       
@@ -382,6 +391,12 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
               onChange={handleContentChange}
               placeholder="Enter content here..."
               autoFocus
+              onBlur={() => {
+                // Auto-exit edit mode for comment cells when focus is lost
+                if (cell.type === CellType.COMMENT) {
+                  updateCell(cell.id, { isEditing: false });
+                }
+              }}
             />
           </>
         ) : (
@@ -414,7 +429,7 @@ const NotebookCell: React.FC<NotebookCellProps> = ({
           onClick={handleSaveAsSnippet}
           title="Save as snippet"
         >
-          <FaTag />
+          <FaSave />
         </button>
         
         {!groupingMode && (

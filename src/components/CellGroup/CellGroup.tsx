@@ -35,7 +35,19 @@ const CellGroup: React.FC<CellGroupProps> = ({ cells, startIndex, endIndex }) =>
       
       {!isCollapsed && (
         <div className="group-content">
-          {/* Group content would render the cells */}
+          {groupCells.map((cell, idx) => (
+            <div key={cell.id} className="group-cell">
+              {/* Import and use NotebookCell component to render each cell */}
+              {React.createElement(require('../NotebookCell/NotebookCell').default, {
+                cell,
+                index: startIndex + idx,
+                updateCell,
+                deleteCell,
+                moveCell,
+                reorderCells
+              })}
+            </div>
+          ))}
         </div>
       )}
       

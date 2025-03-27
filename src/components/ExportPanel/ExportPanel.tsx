@@ -37,7 +37,8 @@ const ExportPanel: React.FC<ExportPanelProps> = ({ currentMode }) => {
         return content.split('\n').map(line => `> ${line}`).join('\n');
       case 'callout':
         const calloutType = formatting.calloutType || 'info';
-        return `:::${calloutType}\n${content}\n:::`;
+        // Use standard Markdown callout syntax
+        return `> [!${calloutType.toUpperCase()}]\n> ${content.split('\n').join('\n> ')}`;
       case 'xml':
         const tag = formatting.xmlTag || 'div';
         return `<${tag}>\n${content}\n</${tag}>`;

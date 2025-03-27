@@ -47,6 +47,27 @@
   overflow-y: auto;
 }
 
+.notebook-cells.grouping-mode {
+  background-color: rgba(24, 144, 255, 0.05);
+  border: 2px dashed rgba(24, 144, 255, 0.3);
+  border-radius: 4px;
+  position: relative;
+}
+
+.notebook-cells.grouping-mode::before {
+  content: 'Selection Mode - Click cells to select for grouping';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(24, 144, 255, 0.1);
+  color: #1890ff;
+  padding: 8px;
+  text-align: center;
+  font-weight: bold;
+  border-bottom: 1px dashed rgba(24, 144, 255, 0.3);
+}
+
 .empty-notebook {
   display: flex;
   flex-direction: column;
