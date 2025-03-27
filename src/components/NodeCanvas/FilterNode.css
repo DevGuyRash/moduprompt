@@ -102,8 +102,8 @@
 .format-options-menu {
   position: absolute;
   top: 0;
-  right: -220px;
-  width: 200px;
+  right: -280px;
+  width: 260px;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -135,35 +135,48 @@
   padding: 8px;
 }
 
-.format-option {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 8px 12px;
-  margin-bottom: 4px;
-  background: none;
-  border: none;
-  border-radius: 4px;
-  text-align: left;
-  cursor: pointer;
+.format-section {
+  margin-bottom: 12px;
 }
 
-.format-option:hover {
+.format-section h5 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #333;
+}
+
+.format-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.format-radio-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.format-radio-option:hover {
   background-color: #f5f5f5;
 }
 
-.format-option.active {
-  background-color: #f9f0ff;
-  color: #722ed1;
+.format-radio-option input[type="radio"] {
+  margin: 0;
 }
 
-.format-option svg {
-  margin-right: 8px;
+.format-radio-option svg {
+  color: #722ed1;
+  font-size: 14px;
 }
 
 .format-sub-options {
   padding: 8px 12px;
-  margin-bottom: 8px;
+  margin: 8px 0;
   background-color: #f9f9f9;
   border-radius: 4px;
 }
@@ -181,4 +194,25 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 12px;
+}
+
+.format-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.apply-format-button {
+  background-color: #722ed1;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.apply-format-button:hover {
+  background-color: #5b21b6;
 }

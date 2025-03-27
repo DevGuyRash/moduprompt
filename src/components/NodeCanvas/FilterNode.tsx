@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaCode, FaQuoteRight, FaInfoCircle, FaTag } from 'react-icons/fa';
+import { FaCode, FaQuoteRight, FaInfoCircle, FaTag, FaSave } from 'react-icons/fa';
 import { NodeType, FormatOptions } from '../../contexts/NodeEditorContext';
 import './FilterNode.css';
 
@@ -12,12 +12,45 @@ interface FilterNodeProps {
 
 const FilterNode: React.FC<FilterNodeProps> = ({ id, content, formatOptions, onFormatChange }) => {
   const [showFormatOptions, setShowFormatOptions] = useState(false);
+  
+  // Initialize format state with current options or defaults
+  const [formatState, setFormatState] = useState<{
+    type: string;
+    language: string;
+    calloutType: string;
+    xmlTag: string;
+  }>({
+    type: formatOptions?.type || 'none',
+    language: formatOptions?.language || 'javascript',
+    calloutType: formatOptions?.calloutType || 'info',
+    xmlTag: formatOptions?.xmlTag || 'div'
+  });
 
-  const handleFormatChange = (type: 'code' | 'blockquote' | 'callout' | 'xml', additionalOptions?: any) => {
+  const handleFormatTypeChange = (type: string) => {
+    // For exclusive options, update the type
+    setFormatState({
+      ...formatState,
+      type
+    });
+  };
+
+  const handleSubOptionChange = (key: string, value: string) => {
+    // Update sub-options without changing the type
+    setFormatState({
+      ...formatState,
+      [key]: value
+    });
+  };
+
+  const applyFormatting = () => {
+    // Create format options based on current state
     const newFormatOptions: FormatOptions = {
-      type,
-      ...additionalOptions
+      type: formatState.type as any,
+      language: formatState.type === 'code' ? formatState.language : undefined,
+      calloutType: formatState.type === 'callout' ? formatState.calloutType as any : undefined,
+      xmlTag: formatState.type === 'xml' ? formatState.xmlTag : undefined
     };
+    
     onFormatChange(id, newFormatOptions);
     setShowFormatOptions(false);
   };
@@ -83,45 +116,85 @@ const FilterNode: React.FC<FilterNodeProps> = ({ id, content, formatOptions, onF
           </div>
           
           <div className="format-options-list">
-            <button 
-              className={`format-option ${formatOptions?.type === 'code' ? 'active' : ''}`}
-              onClick={() => handleFormatChange('code', { language: formatOptions?.language || '' })}
-            >
-              <FaCode /> Code Block
-            </button>
+            <div className="format-section">
+              <h5>Format Type (Choose One)</h5>
+              <div className="format-radio-group">
+                <label className="format-radio-option">
+                  <input 
+                    type="radio" 
+                    name="formatType" 
+                    value="none" 
+                    checked={formatState.type === 'none'}
+                    onChange={() => handleFormatTypeChange('none')}
+                  />
+                  <span>None</span>
+                </label>
+                
+                <label className="format-radio-option">
+                  <input 
+                    type="radio" 
+                    name="formatType" 
+                    value="code" 
+                    checked={formatState.type === 'code'}
+                    onChange={() => handleFormatTypeChange('code')}
+                  />
+                  <FaCode /> <span>Code Block</span>
+                </label>
+                
+                <label className="format-radio-option">
+                  <input 
+                    type="radio" 
+                    name="formatType" 
+                    value="blockquote" 
+                    checked={formatState.type === 'blockquote'}
+                    onChange={() => handleFormatTypeChange('blockquote')}
+                  />
+                  <FaQuoteRight /> <span>Blockquote</span>
+                </label>
+                
+                <label className="format-radio-option">
+                  <input 
+                    type="radio" 
+                    name="formatType" 
+                    value="callout" 
+                    checked={formatState.type === 'callout'}
+                    onChange={() => handleFormatTypeChange('callout')}
+                  />
+                  <FaInfoCircle /> <span>Callout</span>
+                </label>
+                
+                <label className="format-radio-option">
+                  <input 
+                    type="radio" 
+                    name="formatType" 
+                    value="xml" 
+                    checked={formatState.type === 'xml'}
+                    onChange={() => handleFormatTypeChange('xml')}
+                  />
+                  <FaTag /> <span>XML Tags</span>
+                </label>
+              </div>
+            </div>
             
-            {formatOptions?.type === 'code' && (
+            {/* Conditional sub-options based on selected format type */}
+            {formatState.type === 'code' && (
               <div className="format-sub-options">
                 <label>Language:</label>
                 <input 
                   type="text"
-                  value={formatOptions.language || ''}
-                  onChange={(e) => handleFormatChange('code', { language: e.target.value })}
+                  value={formatState.language}
+                  onChange={(e) => handleSubOptionChange('language', e.target.value)}
                   placeholder="e.g., javascript, python, etc."
                 />
               </div>
             )}
             
-            <button 
-              className={`format-option ${formatOptions?.type === 'blockquote' ? 'active' : ''}`}
-              onClick={() => handleFormatChange('blockquote')}
-            >
-              <FaQuoteRight /> Blockquote
-            </button>
-            
-            <button 
-              className={`format-option ${formatOptions?.type === 'callout' ? 'active' : ''}`}
-              onClick={() => handleFormatChange('callout', { calloutType: formatOptions?.calloutType || 'info' })}
-            >
-              <FaInfoCircle /> Callout
-            </button>
-            
-            {formatOptions?.type === 'callout' && (
+            {formatState.type === 'callout' && (
               <div className="format-sub-options">
                 <label>Type:</label>
                 <select
-                  value={formatOptions.calloutType || 'info'}
-                  onChange={(e) => handleFormatChange('callout', { calloutType: e.target.value as 'info' | 'warning' | 'success' | 'error' })}
+                  value={formatState.calloutType}
+                  onChange={(e) => handleSubOptionChange('calloutType', e.target.value)}
                 >
                   <option value="info">Info</option>
                   <option value="warning">Warning</option>
@@ -131,24 +204,26 @@ const FilterNode: React.FC<FilterNodeProps> = ({ id, content, formatOptions, onF
               </div>
             )}
             
-            <button 
-              className={`format-option ${formatOptions?.type === 'xml' ? 'active' : ''}`}
-              onClick={() => handleFormatChange('xml', { xmlTag: formatOptions?.xmlTag || 'div' })}
-            >
-              <FaTag /> XML Tags
-            </button>
-            
-            {formatOptions?.type === 'xml' && (
+            {formatState.type === 'xml' && (
               <div className="format-sub-options">
                 <label>Tag:</label>
                 <input 
                   type="text"
-                  value={formatOptions.xmlTag || 'div'}
-                  onChange={(e) => handleFormatChange('xml', { xmlTag: e.target.value })}
+                  value={formatState.xmlTag}
+                  onChange={(e) => handleSubOptionChange('xmlTag', e.target.value)}
                   placeholder="e.g., div, span, etc."
                 />
               </div>
             )}
+            
+            <div className="format-actions">
+              <button 
+                className="apply-format-button"
+                onClick={applyFormatting}
+              >
+                Apply Formatting
+              </button>
+            </div>
           </div>
         </div>
       )}

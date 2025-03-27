@@ -21,7 +21,7 @@
 
 - [x] **15. Initial Synchronization:** Switching to Node mode only syncs cells once; nodes are incorrectly stacked vertically in the top-left, not on the canvas, and subsequent cell additions aren't reflected
 - [x] **16. Selection/Movement:** Cursor gets stuck as a hand; clicking anywhere moves all nodes as a group; individual node selection/movement is broken
-- [ ] **17. Filter Node:** Does not work as intended; needs to replicate cell formatting logic (checkboxes, exclusives, ordering) and apply selected formatting to all connected prompt nodes
+- [x] **17. Filter Node:** Does not work as intended; needs to replicate cell formatting logic (checkboxes, exclusives, ordering) and apply selected formatting to all connected prompt nodes
 - [ ] **18. Filter Join Node:** Not implemented and should be removed
 - [ ] **19. Toolbar Buttons:** Buttons in the Node mode toolbar are visually broken, jumbled, and appear randomized
 - [x] **20. Home Button:** Stacks all nodes in the top-left instead of centering the view to fit all nodes
