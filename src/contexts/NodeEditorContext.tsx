@@ -230,19 +230,30 @@ export const NodeEditorProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const newNodes: NodeData[] = [];
     const newConnections: NodeConnection[] = [];
     
-    // Position nodes in a vertical layout
-    let yPosition = 100;
+    // Position nodes in a grid layout instead of vertical stack
+    const gridColumns = 3; // Number of columns in the grid
+    const columnWidth = 400; // Width between columns
+    const rowHeight = 300; // Height between rows
+    const startX = 200; // Starting X position
+    const startY = 100; // Starting Y position
+    
     let previousNodeId: string | null = null;
     
     cells.forEach((cell, index) => {
       if (cell.type === CellType.CONTENT) {
+        // Calculate grid position
+        const column = index % gridColumns;
+        const row = Math.floor(index / gridColumns);
+        const xPosition = startX + (column * columnWidth);
+        const yPosition = startY + (row * rowHeight);
+        
         // Create a prompt node for the content
         const promptNodeId = generateId();
         const promptNode: NodeData = {
           id: promptNodeId,
           type: NodeType.PROMPT,
           content: cell.content,
-          position: { x: 300, y: yPosition },
+          position: { x: xPosition, y: yPosition },
           isCollapsed: false,
           inputs: getNodeInputs(NodeType.PROMPT),
           outputs: ['output']
@@ -261,7 +272,7 @@ export const NodeEditorProvider: React.FC<{ children: React.ReactNode }> = ({ ch
               id: formatNodeId,
               type: NodeType.FORMAT,
               content: getFormatDescription(formatOptions),
-              position: { x: 100, y: yPosition },
+              position: { x: xPosition - 150, y: yPosition },
               isCollapsed: false,
               inputs: getNodeInputs(NodeType.FORMAT),
               outputs: ['output'],
@@ -291,7 +302,6 @@ export const NodeEditorProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }
         
         previousNodeId = promptNodeId;
-        yPosition += 250; // Increment Y position for next node
       }
     });
     

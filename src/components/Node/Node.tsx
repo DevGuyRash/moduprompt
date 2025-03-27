@@ -57,7 +57,29 @@ const Node: React.FC<NodeProps> = ({
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
-    canDrag: () => !isDraggingHandle, // Prevent node dragging when dragging a handle
+    canDrag: (monitor) => {
+      // Only allow dragging when directly clicking on the node header
+      // This prevents the entire canvas from being draggable
+      if (isDraggingHandle) return false;
+      
+      const draggedDOM = nodeRef.current;
+      if (!draggedDOM) return false;
+      
+      const mousePosition = monitor.getClientOffset();
+      if (!mousePosition) return false;
+      
+      // Check if mouse is over the node header
+      const nodeHeader = draggedDOM.querySelector('.node-header');
+      if (!nodeHeader) return false;
+      
+      const rect = nodeHeader.getBoundingClientRect();
+      return (
+        mousePosition.x >= rect.left &&
+        mousePosition.x <= rect.right &&
+        mousePosition.y >= rect.top &&
+        mousePosition.y <= rect.bottom
+      );
+    },
   });
 
   // Connect the drag ref to our node ref

@@ -19,13 +19,13 @@
 
 ## Node Mode Issues
 
-- [ ] **15. Initial Synchronization:** Switching to Node mode only syncs cells once; nodes are incorrectly stacked vertically in the top-left, not on the canvas, and subsequent cell additions aren't reflected
-- [ ] **16. Selection/Movement:** Cursor gets stuck as a hand; clicking anywhere moves all nodes as a group; individual node selection/movement is broken
+- [x] **15. Initial Synchronization:** Switching to Node mode only syncs cells once; nodes are incorrectly stacked vertically in the top-left, not on the canvas, and subsequent cell additions aren't reflected
+- [x] **16. Selection/Movement:** Cursor gets stuck as a hand; clicking anywhere moves all nodes as a group; individual node selection/movement is broken
 - [ ] **17. Filter Node:** Does not work as intended; needs to replicate cell formatting logic (checkboxes, exclusives, ordering) and apply selected formatting to all connected prompt nodes
 - [ ] **18. Filter Join Node:** Not implemented and should be removed
 - [ ] **19. Toolbar Buttons:** Buttons in the Node mode toolbar are visually broken, jumbled, and appear randomized
-- [ ] **20. Home Button:** Stacks all nodes in the top-left instead of centering the view to fit all nodes
+- [x] **20. Home Button:** Stacks all nodes in the top-left instead of centering the view to fit all nodes
 - [ ] **21. Info Button:** Does not provide helpful information
-- [ ] **22. CRITICAL - Synchronization:** State and content changes are not consistently synchronized between Cell and Node modes
+- [x] **22. CRITICAL - Synchronization:** State and content changes are not consistently synchronized between Cell and Node modes
 - [ ] **23. Comments in Node Mode:** No way to add comments; they shouldn't be standard nodes, and their order preservation needs a different mechanism than Cell mode
 - [ ] **24. Overall Formatting Dropdown:** Appears behind nodes instead of pushing the canvas down; needs the same logic rework as the cell formatting menu

@@ -358,9 +358,47 @@ const NodeCanvas: React.FC = () => {
   };
   
   const handleResetView = () => {
-    setScale(1);
-    setPosition({ x: 0, y: 0 });
-    showHint('View reset');
+    // Center the view to fit all nodes
+    if (nodes.length === 0) {
+      // If no nodes, just reset to default position
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+      showHint('View reset');
+      return;
+    }
+    
+    // Calculate the bounding box of all nodes
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    
+    nodes.forEach(node => {
+      minX = Math.min(minX, node.position.x);
+      minY = Math.min(minY, node.position.y);
+      maxX = Math.max(maxX, node.position.x + 300); // Approximate node width
+      maxY = Math.max(maxY, node.position.y + 200); // Approximate node height
+    });
+    
+    // Calculate the center of the bounding box
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    
+    // Calculate the canvas center
+    const canvasRect = canvasRef.current?.getBoundingClientRect();
+    if (!canvasRect) return;
+    
+    const canvasCenterX = canvasRect.width / 2;
+    const canvasCenterY = canvasRect.height / 2;
+    
+    // Set the position to center the nodes
+    setScale(1); // Reset zoom level
+    setPosition({
+      x: canvasCenterX - centerX,
+      y: canvasCenterY - centerY
+    });
+    
+    showHint('Centered view on all nodes');
   };
   
   const handleFormatChange = (formatOptions: FormatOptions) => {

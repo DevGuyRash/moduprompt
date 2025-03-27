@@ -26,8 +26,8 @@ const ContentSynchronizer: React.FC<{ editorMode: EditorMode }> = ({ editorMode 
   // When mode changes, synchronize content
   useEffect(() => {
     // Convert from notebook to node mode
-    if (editorMode === EditorMode.NODE && cells.length > 0 && nodes.length === 0) {
-      // Convert cells to nodes with proper formatting
+    if (editorMode === EditorMode.NODE) {
+      // Always convert cells to nodes when in node mode to ensure synchronization
       convertCellsToNodes(cells);
     }
     
