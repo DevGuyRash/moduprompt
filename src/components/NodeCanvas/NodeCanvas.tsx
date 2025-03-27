@@ -464,6 +464,42 @@ const NodeCanvas: React.FC = () => {
           >
             <FaFilter /> Filter
           </button>
+          <button 
+            className="toolbar-button"
+            onClick={() => {
+              // Add a comment node
+              const canvasRect = canvasContentRef.current?.getBoundingClientRect();
+              if (!canvasRect) return;
+              
+              const centerX = (canvasRect.width / 2 - position.x) / scale;
+              const centerY = (canvasRect.height / 2 - position.y) / scale;
+              
+              // Add the node with comment type
+              const nodeId = addNode(NodeType.PROMPT, { x: centerX, y: centerY });
+              
+              // Set comment formatting
+              updateNode(nodeId, { 
+                formatOptions: { 
+                  type: 'comment',
+                  language: '',
+                  calloutType: '',
+                  xmlTag: ''
+                } 
+              });
+              
+              // Select the new node and set to editing mode
+              setSelectedNodeId(nodeId);
+              setNodeEditingStates(prev => ({
+                ...prev,
+                [nodeId]: true
+              }));
+              
+              showHint('Comment node added');
+            }}
+            title="Add Comment Node"
+          >
+            <FaComment /> Comment
+          </button>
         </div>
         
         <div className="toolbar-section">
