@@ -25,7 +25,7 @@
 - [x] **18. Filter Join Node:** Not implemented and should be removed
 - [x] **19. Toolbar Buttons:** Buttons in the Node mode toolbar are visually broken, jumbled, and appear randomized
 - [x] **20. Home Button:** Stacks all nodes in the top-left instead of centering the view to fit all nodes
-- [ ] **21. Info Button:** Does not provide helpful information
+- [x] **21. Info Button:** Does not provide helpful information
 - [x] **22. CRITICAL - Synchronization:** State and content changes are not consistently synchronized between Cell and Node modes
 - [ ] **23. Comments in Node Mode:** No way to add comments; they shouldn't be standard nodes, and their order preservation needs a different mechanism than Cell mode
 - [ ] **24. Overall Formatting Dropdown:** Appears behind nodes instead of pushing the canvas down; needs the same logic rework as the cell formatting menu

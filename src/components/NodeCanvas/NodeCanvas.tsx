@@ -464,13 +464,6 @@ const NodeCanvas: React.FC = () => {
           >
             <FaFilter /> Filter
           </button>
-          <button 
-            className="toolbar-button"
-            onClick={() => handleAddNode(NodeType.FILTER_JOIN)}
-            title="Add Filter Join Node"
-          >
-            <FaObjectGroup /> Join
-          </button>
         </div>
         
         <div className="toolbar-section">
@@ -500,7 +493,21 @@ const NodeCanvas: React.FC = () => {
         <div className="toolbar-section">
           <button 
             className="toolbar-button help-button"
-            onClick={() => showHint('Drag nodes to move, drag from outputs to inputs to connect')}
+            onClick={() => {
+              const helpText = `
+Node Editor Help:
+
+• Nodes: Create prompt and filter nodes using the toolbar buttons
+• Navigation: Pan by dragging the canvas, zoom with + and - buttons
+• Connections: Drag from output handle (right) to input handle (left)
+• Selection: Click on node headers to select and move nodes
+• Formatting: Use filter nodes to apply formatting to connected prompt nodes
+• Reset View: Click the home button to center all nodes in view
+
+Tip: Switch between Cell mode and Node mode to see different views of your content
+              `;
+              showHint(helpText);
+            }}
             title="Show Help"
           >
             <FaInfoCircle />
