@@ -1,0 +1,11 @@
+{
+  "DocumentModel": "./document-model.json",
+  "Block": "./block.json",
+  "Edge": "./edge.json",
+  "VariableDefinition": "./variable-definition.json",
+  "Snippet": "./snippet.json",
+  "SnippetVersion": "./snippet-version.json",
+  "ExportRecipe": "./export-recipe.json",
+  "WorkspaceStatus": "./workspace-status.json",
+  "AuditLogEntry": "./audit-log-entry.json"
+}

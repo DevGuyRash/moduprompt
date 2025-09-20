@@ -1,0 +1,115 @@
+{
+  "type": "object",
+  "properties": {
+    "type": {
+      "$ref": "#/definitions/AuditLogEventType",
+      "title": "type"
+    },
+    "subjectId": {
+      "type": "string",
+      "title": "subjectId"
+    },
+    "metadata": {
+      "$ref": "#/definitions/JsonObject",
+      "title": "metadata"
+    },
+    "actorId": {
+      "type": "string",
+      "title": "actorId"
+    },
+    "occurredAt": {
+      "$ref": "#/definitions/ISODateString",
+      "title": "occurredAt"
+    },
+    "id": {
+      "type": "string",
+      "title": "id"
+    },
+    "createdAt": {
+      "type": "number",
+      "title": "createdAt"
+    },
+    "updatedAt": {
+      "type": "number",
+      "title": "updatedAt"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "createdAt",
+    "id",
+    "metadata",
+    "occurredAt",
+    "subjectId",
+    "type",
+    "updatedAt"
+  ],
+  "definitions": {
+    "AuditLogEventType": {
+      "title": "AuditLogEventType",
+      "enum": [
+        "document.status.changed",
+        "document.tags.changed",
+        "export.completed",
+        "plugin.installed",
+        "snippet.version.created",
+        "snippet.version.reverted"
+      ],
+      "type": "string"
+    },
+    "JsonObject": {
+      "title": "JsonObject",
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/JsonValue"
+            }
+          },
+          {
+            "$ref": "#/definitions/JsonObject"
+          },
+          {
+            "type": [
+              "null",
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
+        ]
+      }
+    },
+    "JsonValue": {
+      "title": "JsonValue",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JsonValue"
+          }
+        },
+        {
+          "$ref": "#/definitions/JsonObject"
+        },
+        {
+          "type": [
+            "null",
+            "string",
+            "number",
+            "boolean"
+          ]
+        }
+      ]
+    },
+    "ISODateString": {
+      "title": "ISODateString",
+      "type": "string"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.moduprompt.dev/audit-log-entry.json",
+  "title": "AuditLogEntry"
+}

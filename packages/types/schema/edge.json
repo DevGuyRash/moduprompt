@@ -1,0 +1,138 @@
+{
+  "type": "object",
+  "properties": {
+    "source": {
+      "type": "string",
+      "title": "source"
+    },
+    "target": {
+      "type": "string",
+      "title": "target"
+    },
+    "sourcePort": {
+      "type": "string",
+      "title": "sourcePort"
+    },
+    "targetPort": {
+      "type": "string",
+      "title": "targetPort"
+    },
+    "kind": {
+      "$ref": "#/definitions/EdgeKind",
+      "title": "kind"
+    },
+    "condition": {
+      "$ref": "#/definitions/EdgeCondition",
+      "title": "condition"
+    },
+    "metadata": {
+      "$ref": "#/definitions/JsonObject",
+      "title": "metadata"
+    },
+    "id": {
+      "type": "string",
+      "title": "id"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "kind",
+    "source",
+    "target"
+  ],
+  "definitions": {
+    "EdgeKind": {
+      "title": "EdgeKind",
+      "enum": [
+        "conditional",
+        "default",
+        "error"
+      ],
+      "type": "string"
+    },
+    "EdgeCondition": {
+      "title": "EdgeCondition",
+      "$ref": "#/definitions/EdgeCondition_1"
+    },
+    "EdgeCondition_1": {
+      "title": "EdgeCondition_1",
+      "type": "object",
+      "properties": {
+        "expression": {
+          "type": "string",
+          "title": "expression"
+        },
+        "language": {
+          "enum": [
+            "javascript",
+            "jq",
+            "jsonata",
+            "liquid"
+          ],
+          "type": "string",
+          "title": "language"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "expression",
+        "language"
+      ]
+    },
+    "JsonObject": {
+      "title": "JsonObject",
+      "$ref": "#/definitions/JsonObject_1"
+    },
+    "JsonObject_1": {
+      "title": "JsonObject_1",
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/JsonValue"
+            }
+          },
+          {
+            "$ref": "#/definitions/JsonObject_1"
+          },
+          {
+            "type": [
+              "null",
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
+        ]
+      }
+    },
+    "JsonValue": {
+      "title": "JsonValue",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JsonValue"
+          }
+        },
+        {
+          "$ref": "#/definitions/JsonObject_1"
+        },
+        {
+          "type": [
+            "null",
+            "string",
+            "number",
+            "boolean"
+          ]
+        }
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.moduprompt.dev/edge.json",
+  "title": "Edge"
+}

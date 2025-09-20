@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+.pnp.cjs
+.pnp.loader.mjs
+.DS_Store
+coverage/
+.tmp/
+logs/
+*.log

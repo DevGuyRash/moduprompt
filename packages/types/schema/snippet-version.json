@@ -1,0 +1,117 @@
+{
+  "type": "object",
+  "properties": {
+    "snippetId": {
+      "type": "string",
+      "title": "snippetId"
+    },
+    "rev": {
+      "type": "number",
+      "title": "rev"
+    },
+    "parentRev": {
+      "type": "number",
+      "title": "parentRev"
+    },
+    "author": {
+      "$ref": "#/definitions/AuthorMeta",
+      "title": "author"
+    },
+    "note": {
+      "type": "string",
+      "title": "note"
+    },
+    "timestamp": {
+      "type": "number",
+      "title": "timestamp"
+    },
+    "body": {
+      "type": "string",
+      "title": "body"
+    },
+    "frontmatter": {
+      "$ref": "#/definitions/SnippetFrontmatter",
+      "title": "frontmatter"
+    },
+    "hash": {
+      "type": "string",
+      "title": "hash"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "body",
+    "frontmatter",
+    "hash",
+    "rev",
+    "snippetId",
+    "timestamp"
+  ],
+  "definitions": {
+    "AuthorMeta": {
+      "description": "Common author metadata attached to snippet revisions and audit records.",
+      "title": "AuthorMeta",
+      "$ref": "#/definitions/AuthorMeta_1"
+    },
+    "AuthorMeta_1": {
+      "description": "Common author metadata attached to snippet revisions and audit records.",
+      "title": "AuthorMeta_1",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "name": {
+          "type": "string",
+          "title": "name"
+        },
+        "email": {
+          "type": "string",
+          "title": "email"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id"
+      ]
+    },
+    "SnippetFrontmatter": {
+      "title": "SnippetFrontmatter",
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "number",
+          "const": 1,
+          "title": "schemaVersion"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "tags"
+        },
+        "status": {
+          "type": "string",
+          "title": "status"
+        },
+        "description": {
+          "type": "string",
+          "title": "description"
+        },
+        "language": {
+          "type": "string",
+          "title": "language"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.moduprompt.dev/snippet-version.json",
+  "title": "SnippetVersion"
+}

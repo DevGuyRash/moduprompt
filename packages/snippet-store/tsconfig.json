@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "target": "ES2021",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "noEmitOnError": true
+  },
+  "include": ["src/**/*", "migrations/**/*"],
+  "exclude": ["dist", "__tests__"]
+}

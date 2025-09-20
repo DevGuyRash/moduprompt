@@ -1,0 +1,401 @@
+{
+  "anyOf": [
+    {
+      "$ref": "#/definitions/MarkdownBlock"
+    },
+    {
+      "$ref": "#/definitions/SnippetBlock"
+    },
+    {
+      "$ref": "#/definitions/GroupBlock"
+    },
+    {
+      "$ref": "#/definitions/CommentBlock"
+    },
+    {
+      "$ref": "#/definitions/DividerBlock"
+    }
+  ],
+  "definitions": {
+    "MarkdownBlock": {
+      "title": "MarkdownBlock",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "markdown",
+          "title": "kind"
+        },
+        "body": {
+          "description": "Markdown (GFM) body content.",
+          "type": "string",
+          "title": "body"
+        },
+        "languageHint": {
+          "description": "Optional syntax highlighting language override for fenced code blocks.",
+          "type": "string",
+          "title": "languageHint"
+        },
+        "sequence": {
+          "description": "Stable ordering index used for deterministic exports and node graph layout.",
+          "type": "number",
+          "title": "sequence"
+        },
+        "label": {
+          "description": "Optional label surfaced in previews and governance reports.",
+          "type": "string",
+          "title": "label"
+        },
+        "metadata": {
+          "$ref": "#/definitions/JsonObject",
+          "description": "Arbitrary metadata stored with a block (e.g., formatter configuration).",
+          "title": "metadata"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "body",
+        "createdAt",
+        "id",
+        "kind",
+        "sequence",
+        "updatedAt"
+      ]
+    },
+    "JsonObject": {
+      "title": "JsonObject",
+      "$ref": "#/definitions/JsonObject_1"
+    },
+    "JsonObject_1": {
+      "title": "JsonObject_1",
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/JsonValue"
+            }
+          },
+          {
+            "$ref": "#/definitions/JsonObject_1"
+          },
+          {
+            "type": [
+              "null",
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
+        ]
+      }
+    },
+    "JsonValue": {
+      "title": "JsonValue",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JsonValue"
+          }
+        },
+        {
+          "$ref": "#/definitions/JsonObject_1"
+        },
+        {
+          "type": [
+            "null",
+            "string",
+            "number",
+            "boolean"
+          ]
+        }
+      ]
+    },
+    "SnippetBlock": {
+      "title": "SnippetBlock",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "snippet",
+          "title": "kind"
+        },
+        "snippetId": {
+          "description": "Snippet identifier inserted into the document.",
+          "type": "string",
+          "title": "snippetId"
+        },
+        "revision": {
+          "description": "Optional pinned revision providing deterministic provenance.",
+          "type": "number",
+          "title": "revision"
+        },
+        "mode": {
+          "description": "Render mode controls inline copy vs. live transclusion behaviour.",
+          "enum": [
+            "inline",
+            "transclude"
+          ],
+          "type": "string",
+          "title": "mode"
+        },
+        "sequence": {
+          "description": "Stable ordering index used for deterministic exports and node graph layout.",
+          "type": "number",
+          "title": "sequence"
+        },
+        "label": {
+          "description": "Optional label surfaced in previews and governance reports.",
+          "type": "string",
+          "title": "label"
+        },
+        "metadata": {
+          "$ref": "#/definitions/JsonObject",
+          "description": "Arbitrary metadata stored with a block (e.g., formatter configuration).",
+          "title": "metadata"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "id",
+        "kind",
+        "mode",
+        "sequence",
+        "snippetId",
+        "updatedAt"
+      ]
+    },
+    "GroupBlock": {
+      "title": "GroupBlock",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "group",
+          "title": "kind"
+        },
+        "children": {
+          "description": "Child block identifiers contained in the group.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "children"
+        },
+        "collapsed": {
+          "description": "When true the group renders collapsed in notebook view.",
+          "type": "boolean",
+          "title": "collapsed"
+        },
+        "sequence": {
+          "description": "Stable ordering index used for deterministic exports and node graph layout.",
+          "type": "number",
+          "title": "sequence"
+        },
+        "label": {
+          "description": "Optional label surfaced in previews and governance reports.",
+          "type": "string",
+          "title": "label"
+        },
+        "metadata": {
+          "$ref": "#/definitions/JsonObject",
+          "description": "Arbitrary metadata stored with a block (e.g., formatter configuration).",
+          "title": "metadata"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "children",
+        "createdAt",
+        "id",
+        "kind",
+        "sequence",
+        "updatedAt"
+      ]
+    },
+    "CommentBlock": {
+      "title": "CommentBlock",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "comment",
+          "title": "kind"
+        },
+        "body": {
+          "description": "Free-form governance notes.",
+          "type": "string",
+          "title": "body"
+        },
+        "author": {
+          "$ref": "#/definitions/AuthorMeta",
+          "title": "author"
+        },
+        "resolved": {
+          "type": "boolean",
+          "title": "resolved"
+        },
+        "sequence": {
+          "description": "Stable ordering index used for deterministic exports and node graph layout.",
+          "type": "number",
+          "title": "sequence"
+        },
+        "label": {
+          "description": "Optional label surfaced in previews and governance reports.",
+          "type": "string",
+          "title": "label"
+        },
+        "metadata": {
+          "$ref": "#/definitions/JsonObject",
+          "description": "Arbitrary metadata stored with a block (e.g., formatter configuration).",
+          "title": "metadata"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "body",
+        "createdAt",
+        "id",
+        "kind",
+        "sequence",
+        "updatedAt"
+      ]
+    },
+    "AuthorMeta": {
+      "description": "Common author metadata attached to snippet revisions and audit records.",
+      "title": "AuthorMeta",
+      "$ref": "#/definitions/AuthorMeta_1"
+    },
+    "AuthorMeta_1": {
+      "description": "Common author metadata attached to snippet revisions and audit records.",
+      "title": "AuthorMeta_1",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "name": {
+          "type": "string",
+          "title": "name"
+        },
+        "email": {
+          "type": "string",
+          "title": "email"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id"
+      ]
+    },
+    "DividerBlock": {
+      "title": "DividerBlock",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "divider",
+          "title": "kind"
+        },
+        "style": {
+          "enum": [
+            "line",
+            "space"
+          ],
+          "type": "string",
+          "title": "style"
+        },
+        "sequence": {
+          "description": "Stable ordering index used for deterministic exports and node graph layout.",
+          "type": "number",
+          "title": "sequence"
+        },
+        "label": {
+          "description": "Optional label surfaced in previews and governance reports.",
+          "type": "string",
+          "title": "label"
+        },
+        "metadata": {
+          "$ref": "#/definitions/JsonObject",
+          "description": "Arbitrary metadata stored with a block (e.g., formatter configuration).",
+          "title": "metadata"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "id",
+        "kind",
+        "sequence",
+        "updatedAt"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.moduprompt.dev/block.json",
+  "title": "Block"
+}

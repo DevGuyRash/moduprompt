@@ -1,6 +1,6 @@
 # Tasks Document
 
-- [ ] 1. Establish shared schema contracts in packages/types
+- [x] 1. Establish shared schema contracts in packages/types
   - File: packages/types/src/moduprompt.ts, packages/types/src/index.ts, packages/types/schema/*.json
   - Define TypeScript interfaces and JSON Schema generators for DocumentModel v2, Block, Edge, VariableDefinition, Snippet, SnippetVersion, ExportRecipe, WorkspaceStatus, AuditLogEntry
   - Configure build scripts to emit schema artifacts for client and server consumption
@@ -9,7 +9,7 @@
   - _Requirements: FR-1, FR-3, FR-8, FR-10, FR-14, NFR-4_
   - _Prompt: Implement the task for spec moduprompt-overview, first run spec-workflow-guide to get the workflow guide then implement the task: Role: TypeScript Domain Architect | Task: Author shared TypeScript interfaces and JSON Schema outputs for ModuPrompt core entities, wiring them into workspace exports | Restrictions: Preserve backwards compatibility with existing base types, enforce strict type safety, avoid duplicating schemas across packages | _Leverage: packages/types/src/base.ts, existing schema build scripts | _Requirements: FR-1, FR-3, FR-8, FR-10, FR-14, NFR-4 | Success: Schemas compile without errors, JSON Schemas generated, consuming packages build against new contracts_
 
-- [ ] 2. Implement IndexedDB/OPFS adapters and migrations in packages/snippet-store
+- [x] 2. Implement IndexedDB/OPFS adapters and migrations in packages/snippet-store
   - File: packages/snippet-store/src/dexie/workspaceStore.ts, packages/snippet-store/src/opfs/*.ts, packages/snippet-store/migrations/*.ts
   - Define Dexie stores for documents, snippets, versions, workspace settings; implement schema version migration handlers
   - Integrate OPFS helpers for large asset persistence and backup/export routines

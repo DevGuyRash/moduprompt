@@ -1,0 +1,87 @@
+{
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "title"
+    },
+    "path": {
+      "type": "string",
+      "title": "path"
+    },
+    "frontmatter": {
+      "$ref": "#/definitions/SnippetFrontmatter",
+      "title": "frontmatter"
+    },
+    "body": {
+      "type": "string",
+      "title": "body"
+    },
+    "headRev": {
+      "type": "number",
+      "title": "headRev"
+    },
+    "id": {
+      "type": "string",
+      "title": "id"
+    },
+    "createdAt": {
+      "type": "number",
+      "title": "createdAt"
+    },
+    "updatedAt": {
+      "type": "number",
+      "title": "updatedAt"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "body",
+    "createdAt",
+    "frontmatter",
+    "headRev",
+    "id",
+    "path",
+    "title",
+    "updatedAt"
+  ],
+  "definitions": {
+    "SnippetFrontmatter": {
+      "title": "SnippetFrontmatter",
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "number",
+          "const": 1,
+          "title": "schemaVersion"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "tags"
+        },
+        "status": {
+          "type": "string",
+          "title": "status"
+        },
+        "description": {
+          "type": "string",
+          "title": "description"
+        },
+        "language": {
+          "type": "string",
+          "title": "language"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.moduprompt.dev/snippet.json",
+  "title": "Snippet"
+}

@@ -1,0 +1,1083 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "DocumentModel": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "number",
+          "const": 2,
+          "title": "schemaVersion"
+        },
+        "title": {
+          "type": "string",
+          "title": "title"
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Block"
+          },
+          "title": "blocks"
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Edge"
+          },
+          "title": "edges"
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VariableDefinition"
+          },
+          "title": "variables"
+        },
+        "exportRecipes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ExportRecipeBinding"
+          },
+          "title": "exportRecipes"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "tags"
+        },
+        "statusKey": {
+          "type": "string",
+          "title": "statusKey"
+        },
+        "settings": {
+          "$ref": "#/definitions/DocumentSettings",
+          "title": "settings"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "blocks",
+        "createdAt",
+        "edges",
+        "exportRecipes",
+        "id",
+        "schemaVersion",
+        "settings",
+        "statusKey",
+        "tags",
+        "title",
+        "updatedAt",
+        "variables"
+      ]
+    },
+    "Block": {
+      "title": "Block",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/MarkdownBlock"
+        },
+        {
+          "$ref": "#/definitions/SnippetBlock"
+        },
+        {
+          "$ref": "#/definitions/GroupBlock"
+        },
+        {
+          "$ref": "#/definitions/CommentBlock"
+        },
+        {
+          "$ref": "#/definitions/DividerBlock"
+        }
+      ]
+    },
+    "Edge": {
+      "title": "Edge",
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "title": "source"
+        },
+        "target": {
+          "type": "string",
+          "title": "target"
+        },
+        "sourcePort": {
+          "type": "string",
+          "title": "sourcePort"
+        },
+        "targetPort": {
+          "type": "string",
+          "title": "targetPort"
+        },
+        "kind": {
+          "$ref": "#/definitions/EdgeKind",
+          "title": "kind"
+        },
+        "condition": {
+          "$ref": "#/definitions/EdgeCondition",
+          "title": "condition"
+        },
+        "metadata": {
+          "$ref": "#/definitions/JsonObject",
+          "title": "metadata"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "source",
+        "target"
+      ]
+    },
+    "VariableDefinition": {
+      "title": "VariableDefinition",
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "title": "key"
+        },
+        "label": {
+          "type": "string",
+          "title": "label"
+        },
+        "description": {
+          "type": "string",
+          "title": "description"
+        },
+        "type": {
+          "$ref": "#/definitions/VariableType",
+          "title": "type"
+        },
+        "defaultValue": {
+          "$ref": "#/definitions/JsonValue_1",
+          "title": "defaultValue"
+        },
+        "required": {
+          "type": "boolean",
+          "title": "required"
+        },
+        "secret": {
+          "type": "boolean",
+          "title": "secret"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VariableOption"
+          },
+          "title": "options"
+        },
+        "metadata": {
+          "$ref": "#/definitions/JsonObject",
+          "title": "metadata"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "key",
+        "type"
+      ]
+    },
+    "Snippet": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "title": "title"
+        },
+        "path": {
+          "type": "string",
+          "title": "path"
+        },
+        "frontmatter": {
+          "$ref": "#/definitions/SnippetFrontmatter",
+          "title": "frontmatter"
+        },
+        "body": {
+          "type": "string",
+          "title": "body"
+        },
+        "headRev": {
+          "type": "number",
+          "title": "headRev"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "body",
+        "createdAt",
+        "frontmatter",
+        "headRev",
+        "id",
+        "path",
+        "title",
+        "updatedAt"
+      ]
+    },
+    "SnippetVersion": {
+      "type": "object",
+      "properties": {
+        "snippetId": {
+          "type": "string",
+          "title": "snippetId"
+        },
+        "rev": {
+          "type": "number",
+          "title": "rev"
+        },
+        "parentRev": {
+          "type": "number",
+          "title": "parentRev"
+        },
+        "author": {
+          "$ref": "#/definitions/AuthorMeta",
+          "title": "author"
+        },
+        "note": {
+          "type": "string",
+          "title": "note"
+        },
+        "timestamp": {
+          "type": "number",
+          "title": "timestamp"
+        },
+        "body": {
+          "type": "string",
+          "title": "body"
+        },
+        "frontmatter": {
+          "$ref": "#/definitions/SnippetFrontmatter",
+          "title": "frontmatter"
+        },
+        "hash": {
+          "type": "string",
+          "title": "hash"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "body",
+        "frontmatter",
+        "hash",
+        "rev",
+        "snippetId",
+        "timestamp"
+      ]
+    },
+    "ExportRecipe": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name"
+        },
+        "type": {
+          "$ref": "#/definitions/ExportRecipeType",
+          "title": "type"
+        },
+        "include": {
+          "$ref": "#/definitions/ExportRecipeInclude",
+          "title": "include"
+        },
+        "theme": {
+          "type": "string",
+          "title": "theme"
+        },
+        "pdf": {
+          "$ref": "#/definitions/ExportRecipePdfConfig",
+          "title": "pdf"
+        },
+        "allowedStatuses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "allowedStatuses"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "id",
+        "include",
+        "name",
+        "type",
+        "updatedAt"
+      ]
+    },
+    "WorkspaceStatus": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "title": "key"
+        },
+        "name": {
+          "type": "string",
+          "title": "name"
+        },
+        "color": {
+          "$ref": "#/definitions/HexColor",
+          "title": "color"
+        },
+        "description": {
+          "type": "string",
+          "title": "description"
+        },
+        "order": {
+          "type": "number",
+          "title": "order"
+        },
+        "isFinal": {
+          "type": "boolean",
+          "title": "isFinal"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "color",
+        "key",
+        "name"
+      ]
+    },
+    "AuditLogEntry": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/AuditLogEventType",
+          "title": "type"
+        },
+        "subjectId": {
+          "type": "string",
+          "title": "subjectId"
+        },
+        "metadata": {
+          "$ref": "#/definitions/JsonObject_1",
+          "title": "metadata"
+        },
+        "actorId": {
+          "type": "string",
+          "title": "actorId"
+        },
+        "occurredAt": {
+          "$ref": "#/definitions/ISODateString",
+          "title": "occurredAt"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "id",
+        "metadata",
+        "occurredAt",
+        "subjectId",
+        "type",
+        "updatedAt"
+      ]
+    },
+    "MarkdownBlock": {
+      "title": "MarkdownBlock",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "markdown",
+          "title": "kind"
+        },
+        "body": {
+          "description": "Markdown (GFM) body content.",
+          "type": "string",
+          "title": "body"
+        },
+        "languageHint": {
+          "description": "Optional syntax highlighting language override for fenced code blocks.",
+          "type": "string",
+          "title": "languageHint"
+        },
+        "sequence": {
+          "description": "Stable ordering index used for deterministic exports and node graph layout.",
+          "type": "number",
+          "title": "sequence"
+        },
+        "label": {
+          "description": "Optional label surfaced in previews and governance reports.",
+          "type": "string",
+          "title": "label"
+        },
+        "metadata": {
+          "$ref": "#/definitions/JsonObject",
+          "description": "Arbitrary metadata stored with a block (e.g., formatter configuration).",
+          "title": "metadata"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "body",
+        "createdAt",
+        "id",
+        "kind",
+        "sequence",
+        "updatedAt"
+      ]
+    },
+    "JsonObject": {
+      "title": "JsonObject",
+      "$ref": "#/definitions/JsonObject_1"
+    },
+    "JsonObject_1": {
+      "title": "JsonObject_1",
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/JsonValue"
+            }
+          },
+          {
+            "$ref": "#/definitions/JsonObject_1"
+          },
+          {
+            "type": [
+              "null",
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
+        ]
+      }
+    },
+    "JsonValue": {
+      "title": "JsonValue",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JsonValue"
+          }
+        },
+        {
+          "$ref": "#/definitions/JsonObject_1"
+        },
+        {
+          "type": [
+            "null",
+            "string",
+            "number",
+            "boolean"
+          ]
+        }
+      ]
+    },
+    "SnippetBlock": {
+      "title": "SnippetBlock",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "snippet",
+          "title": "kind"
+        },
+        "snippetId": {
+          "description": "Snippet identifier inserted into the document.",
+          "type": "string",
+          "title": "snippetId"
+        },
+        "revision": {
+          "description": "Optional pinned revision providing deterministic provenance.",
+          "type": "number",
+          "title": "revision"
+        },
+        "mode": {
+          "description": "Render mode controls inline copy vs. live transclusion behaviour.",
+          "enum": [
+            "inline",
+            "transclude"
+          ],
+          "type": "string",
+          "title": "mode"
+        },
+        "sequence": {
+          "description": "Stable ordering index used for deterministic exports and node graph layout.",
+          "type": "number",
+          "title": "sequence"
+        },
+        "label": {
+          "description": "Optional label surfaced in previews and governance reports.",
+          "type": "string",
+          "title": "label"
+        },
+        "metadata": {
+          "$ref": "#/definitions/JsonObject",
+          "description": "Arbitrary metadata stored with a block (e.g., formatter configuration).",
+          "title": "metadata"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "id",
+        "kind",
+        "mode",
+        "sequence",
+        "snippetId",
+        "updatedAt"
+      ]
+    },
+    "GroupBlock": {
+      "title": "GroupBlock",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "group",
+          "title": "kind"
+        },
+        "children": {
+          "description": "Child block identifiers contained in the group.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "children"
+        },
+        "collapsed": {
+          "description": "When true the group renders collapsed in notebook view.",
+          "type": "boolean",
+          "title": "collapsed"
+        },
+        "sequence": {
+          "description": "Stable ordering index used for deterministic exports and node graph layout.",
+          "type": "number",
+          "title": "sequence"
+        },
+        "label": {
+          "description": "Optional label surfaced in previews and governance reports.",
+          "type": "string",
+          "title": "label"
+        },
+        "metadata": {
+          "$ref": "#/definitions/JsonObject",
+          "description": "Arbitrary metadata stored with a block (e.g., formatter configuration).",
+          "title": "metadata"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "children",
+        "createdAt",
+        "id",
+        "kind",
+        "sequence",
+        "updatedAt"
+      ]
+    },
+    "CommentBlock": {
+      "title": "CommentBlock",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "comment",
+          "title": "kind"
+        },
+        "body": {
+          "description": "Free-form governance notes.",
+          "type": "string",
+          "title": "body"
+        },
+        "author": {
+          "$ref": "#/definitions/AuthorMeta",
+          "title": "author"
+        },
+        "resolved": {
+          "type": "boolean",
+          "title": "resolved"
+        },
+        "sequence": {
+          "description": "Stable ordering index used for deterministic exports and node graph layout.",
+          "type": "number",
+          "title": "sequence"
+        },
+        "label": {
+          "description": "Optional label surfaced in previews and governance reports.",
+          "type": "string",
+          "title": "label"
+        },
+        "metadata": {
+          "$ref": "#/definitions/JsonObject",
+          "description": "Arbitrary metadata stored with a block (e.g., formatter configuration).",
+          "title": "metadata"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "body",
+        "createdAt",
+        "id",
+        "kind",
+        "sequence",
+        "updatedAt"
+      ]
+    },
+    "AuthorMeta": {
+      "description": "Common author metadata attached to snippet revisions and audit records.",
+      "title": "AuthorMeta",
+      "$ref": "#/definitions/AuthorMeta_1"
+    },
+    "AuthorMeta_1": {
+      "description": "Common author metadata attached to snippet revisions and audit records.",
+      "title": "AuthorMeta_1",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "name": {
+          "type": "string",
+          "title": "name"
+        },
+        "email": {
+          "type": "string",
+          "title": "email"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id"
+      ]
+    },
+    "DividerBlock": {
+      "title": "DividerBlock",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "divider",
+          "title": "kind"
+        },
+        "style": {
+          "enum": [
+            "line",
+            "space"
+          ],
+          "type": "string",
+          "title": "style"
+        },
+        "sequence": {
+          "description": "Stable ordering index used for deterministic exports and node graph layout.",
+          "type": "number",
+          "title": "sequence"
+        },
+        "label": {
+          "description": "Optional label surfaced in previews and governance reports.",
+          "type": "string",
+          "title": "label"
+        },
+        "metadata": {
+          "$ref": "#/definitions/JsonObject",
+          "description": "Arbitrary metadata stored with a block (e.g., formatter configuration).",
+          "title": "metadata"
+        },
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "createdAt": {
+          "type": "number",
+          "title": "createdAt"
+        },
+        "updatedAt": {
+          "type": "number",
+          "title": "updatedAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "id",
+        "kind",
+        "sequence",
+        "updatedAt"
+      ]
+    },
+    "EdgeKind": {
+      "title": "EdgeKind",
+      "enum": [
+        "conditional",
+        "default",
+        "error"
+      ],
+      "type": "string"
+    },
+    "EdgeCondition": {
+      "title": "EdgeCondition",
+      "$ref": "#/definitions/EdgeCondition_1"
+    },
+    "EdgeCondition_1": {
+      "title": "EdgeCondition_1",
+      "type": "object",
+      "properties": {
+        "expression": {
+          "type": "string",
+          "title": "expression"
+        },
+        "language": {
+          "enum": [
+            "javascript",
+            "jq",
+            "jsonata",
+            "liquid"
+          ],
+          "type": "string",
+          "title": "language"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "expression",
+        "language"
+      ]
+    },
+    "VariableType": {
+      "title": "VariableType",
+      "enum": [
+        "boolean",
+        "choice",
+        "json",
+        "multiselect",
+        "number",
+        "string"
+      ],
+      "type": "string"
+    },
+    "JsonValue_1": {
+      "title": "JsonValue_1",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JsonValue"
+          }
+        },
+        {
+          "$ref": "#/definitions/JsonObject_1"
+        },
+        {
+          "type": [
+            "null",
+            "string",
+            "number",
+            "boolean"
+          ]
+        }
+      ]
+    },
+    "VariableOption": {
+      "title": "VariableOption",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "value"
+        },
+        "label": {
+          "type": "string",
+          "title": "label"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "value"
+      ]
+    },
+    "ExportRecipeBinding": {
+      "title": "ExportRecipeBinding",
+      "type": "object",
+      "properties": {
+        "recipeId": {
+          "type": "string",
+          "title": "recipeId"
+        },
+        "includeProvenance": {
+          "type": "boolean",
+          "title": "includeProvenance"
+        },
+        "lastRunAt": {
+          "type": "number",
+          "title": "lastRunAt"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "recipeId"
+      ]
+    },
+    "DocumentSettings": {
+      "title": "DocumentSettings",
+      "type": "object",
+      "properties": {
+        "maxWidth": {
+          "$ref": "#/definitions/DocumentMaxWidth",
+          "title": "maxWidth"
+        },
+        "theme": {
+          "type": "string",
+          "title": "theme"
+        },
+        "pageNumbering": {
+          "enum": [
+            "decimal",
+            "none",
+            "roman"
+          ],
+          "type": "string",
+          "title": "pageNumbering"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "maxWidth"
+      ]
+    },
+    "DocumentMaxWidth": {
+      "title": "DocumentMaxWidth",
+      "enum": [
+        "120ch",
+        "80ch",
+        "96ch"
+      ],
+      "type": "string"
+    },
+    "SnippetFrontmatter": {
+      "title": "SnippetFrontmatter",
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "number",
+          "const": 1,
+          "title": "schemaVersion"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "tags"
+        },
+        "status": {
+          "type": "string",
+          "title": "status"
+        },
+        "description": {
+          "type": "string",
+          "title": "description"
+        },
+        "language": {
+          "type": "string",
+          "title": "language"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion"
+      ]
+    },
+    "ExportRecipeType": {
+      "title": "ExportRecipeType",
+      "enum": [
+        "html",
+        "markdown",
+        "pdf",
+        "text"
+      ],
+      "type": "string"
+    },
+    "ExportRecipeInclude": {
+      "title": "ExportRecipeInclude",
+      "type": "object",
+      "properties": {
+        "blocks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "blocks"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "groups"
+        },
+        "all": {
+          "const": true,
+          "type": "boolean",
+          "title": "all"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExportRecipePdfConfig": {
+      "title": "ExportRecipePdfConfig",
+      "$ref": "#/definitions/ExportRecipePdfConfig_1"
+    },
+    "ExportRecipePdfConfig_1": {
+      "title": "ExportRecipePdfConfig_1",
+      "type": "object",
+      "properties": {
+        "margin": {
+          "type": "string",
+          "title": "margin"
+        },
+        "headerFooter": {
+          "type": "boolean",
+          "title": "headerFooter"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "margin"
+      ]
+    },
+    "HexColor": {
+      "description": "Color tokens stored as hex values validated elsewhere (governance UI enforces AA contrast).",
+      "title": "HexColor",
+      "type": "string",
+      "pattern": "^#.*$"
+    },
+    "AuditLogEventType": {
+      "title": "AuditLogEventType",
+      "enum": [
+        "document.status.changed",
+        "document.tags.changed",
+        "export.completed",
+        "plugin.installed",
+        "snippet.version.created",
+        "snippet.version.reverted"
+      ],
+      "type": "string"
+    },
+    "ISODateString": {
+      "title": "ISODateString",
+      "type": "string"
+    }
+  },
+  "$id": "https://schemas.moduprompt.dev/moduprompt.json",
+  "title": "ModuPrompt Core Entities"
+}

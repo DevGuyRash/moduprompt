@@ -1,0 +1,44 @@
+{
+  "name": "@moduprompt/types",
+  "version": "0.1.0",
+  "description": "Shared TypeScript contracts and JSON Schema for ModuPrompt core entities",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "schema"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "schema": "ts-node --project tsconfig.scripts.json ./scripts/generate-schemas.ts",
+    "prepare": "pnpm run build && pnpm run schema"
+  },
+  "keywords": [
+    "moduprompt",
+    "types",
+    "json-schema"
+  ],
+  "author": "ModuPrompt Architecture Guild",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./schemas": {
+      "import": "./dist/schemas.js",
+      "types": "./dist/schemas.d.ts"
+    },
+    "./schema": "./schema/index.json",
+    "./schema/*": "./schema/*.json"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4",
+    "typescript-json-schema": "^0.65.0",
+    "@types/json-schema": "^7.0.15",
+    "@types/node": "^20.11.5"
+  }
+}

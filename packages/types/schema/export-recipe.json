@@ -1,0 +1,116 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "name"
+    },
+    "type": {
+      "$ref": "#/definitions/ExportRecipeType",
+      "title": "type"
+    },
+    "include": {
+      "$ref": "#/definitions/ExportRecipeInclude",
+      "title": "include"
+    },
+    "theme": {
+      "type": "string",
+      "title": "theme"
+    },
+    "pdf": {
+      "$ref": "#/definitions/ExportRecipePdfConfig",
+      "title": "pdf"
+    },
+    "allowedStatuses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "title": "allowedStatuses"
+    },
+    "id": {
+      "type": "string",
+      "title": "id"
+    },
+    "createdAt": {
+      "type": "number",
+      "title": "createdAt"
+    },
+    "updatedAt": {
+      "type": "number",
+      "title": "updatedAt"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "createdAt",
+    "id",
+    "include",
+    "name",
+    "type",
+    "updatedAt"
+  ],
+  "definitions": {
+    "ExportRecipeType": {
+      "title": "ExportRecipeType",
+      "enum": [
+        "html",
+        "markdown",
+        "pdf",
+        "text"
+      ],
+      "type": "string"
+    },
+    "ExportRecipeInclude": {
+      "title": "ExportRecipeInclude",
+      "type": "object",
+      "properties": {
+        "blocks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "blocks"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "groups"
+        },
+        "all": {
+          "const": true,
+          "type": "boolean",
+          "title": "all"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExportRecipePdfConfig": {
+      "title": "ExportRecipePdfConfig",
+      "$ref": "#/definitions/ExportRecipePdfConfig_1"
+    },
+    "ExportRecipePdfConfig_1": {
+      "title": "ExportRecipePdfConfig_1",
+      "type": "object",
+      "properties": {
+        "margin": {
+          "type": "string",
+          "title": "margin"
+        },
+        "headerFooter": {
+          "type": "boolean",
+          "title": "headerFooter"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "margin"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.moduprompt.dev/export-recipe.json",
+  "title": "ExportRecipe"
+}

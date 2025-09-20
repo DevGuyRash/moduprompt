@@ -1,0 +1,162 @@
+{
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "title": "key"
+    },
+    "label": {
+      "type": "string",
+      "title": "label"
+    },
+    "description": {
+      "type": "string",
+      "title": "description"
+    },
+    "type": {
+      "$ref": "#/definitions/VariableType",
+      "title": "type"
+    },
+    "defaultValue": {
+      "$ref": "#/definitions/JsonValue",
+      "title": "defaultValue"
+    },
+    "required": {
+      "type": "boolean",
+      "title": "required"
+    },
+    "secret": {
+      "type": "boolean",
+      "title": "secret"
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/VariableOption"
+      },
+      "title": "options"
+    },
+    "metadata": {
+      "$ref": "#/definitions/JsonObject_1",
+      "title": "metadata"
+    },
+    "id": {
+      "type": "string",
+      "title": "id"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "key",
+    "type"
+  ],
+  "definitions": {
+    "VariableType": {
+      "title": "VariableType",
+      "enum": [
+        "boolean",
+        "choice",
+        "json",
+        "multiselect",
+        "number",
+        "string"
+      ],
+      "type": "string"
+    },
+    "JsonValue": {
+      "title": "JsonValue",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JsonValue_1"
+          }
+        },
+        {
+          "$ref": "#/definitions/JsonObject"
+        },
+        {
+          "type": [
+            "null",
+            "string",
+            "number",
+            "boolean"
+          ]
+        }
+      ]
+    },
+    "JsonValue_1": {
+      "title": "JsonValue_1",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JsonValue_1"
+          }
+        },
+        {
+          "$ref": "#/definitions/JsonObject"
+        },
+        {
+          "type": [
+            "null",
+            "string",
+            "number",
+            "boolean"
+          ]
+        }
+      ]
+    },
+    "JsonObject": {
+      "title": "JsonObject",
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/JsonValue_1"
+            }
+          },
+          {
+            "$ref": "#/definitions/JsonObject"
+          },
+          {
+            "type": [
+              "null",
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
+        ]
+      }
+    },
+    "VariableOption": {
+      "title": "VariableOption",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "value"
+        },
+        "label": {
+          "type": "string",
+          "title": "label"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "value"
+      ]
+    },
+    "JsonObject_1": {
+      "title": "JsonObject_1",
+      "$ref": "#/definitions/JsonObject"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.moduprompt.dev/variable-definition.json",
+  "title": "VariableDefinition"
+}
