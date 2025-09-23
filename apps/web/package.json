@@ -1,0 +1,34 @@
+{
+  "name": "@moduprompt/web",
+  "version": "0.1.0",
+  "description": "ModuPrompt web client state and UI modules",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@moduprompt/types": "workspace:*",
+    "immer": "^10.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^4.5.4"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "6.6.3",
+    "@testing-library/react": "14.1.2",
+    "@testing-library/user-event": "14.5.2",
+    "@types/node": "^20.11.5",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "jsdom": "24.1.0",
+    "typescript": "^5.5.4",
+    "vitest": "^1.6.0"
+  }
+}

@@ -18,7 +18,7 @@
   - _Requirements: FR-2, FR-3, FR-11, NFR-1, NFR-3_
   - _Prompt: Implement the task for spec moduprompt-overview, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Offline Data Engineer | Task: Build Dexie and OPFS adapters with schema migrations supporting snippet versioning and document governance | Restrictions: Maintain deterministic migration order, do not block UI thread, ensure integrity hashes verified | _Leverage: packages/snippet-store/src/dexie/baseStore.ts, existing OPFS utilities | _Requirements: FR-2, FR-3, FR-11, NFR-1, NFR-3 | Success: Stores and migrations registered, offline persistence verified via unit tests, backup/export operations succeed_
 
-- [ ] 3. Develop DocumentModelStore and shared state selectors in apps/web
+- [x] 3. Develop DocumentModelStore and shared state selectors in apps/web
   - File: apps/web/src/state/document-model.ts, apps/web/src/state/selectors/documentSelectors.ts, apps/web/src/state/useUndoRedo.ts
   - Implement Zustand/Jotai stores managing blocks, edges, variables, tags, status; add schemaVersion upgrades and topological ordering utilities
   - Wire undo/redo and multi-select operations; expose selectors for notebook and node graph modules
@@ -27,7 +27,7 @@
   - _Requirements: FR-1, FR-4, FR-8, NFR-1, NFR-4_
   - _Prompt: Implement the task for spec moduprompt-overview, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Frontend State Engineer | Task: Construct the document model store with parity selectors for notebook and node projections | Restrictions: Avoid prop drilling, ensure updates are transactional, preserve deterministic ordering | _Leverage: packages/types, existing Zustand utilities | _Requirements: FR-1, FR-4, FR-8, NFR-1, NFR-4 | Success: Store APIs consumed by notebook/node modules, schema migrations executed safely, unit tests confirm synchronization_
 
-- [ ] 4. Build Notebook module UI and interactions
+- [x] 4. Build Notebook module UI and interactions
   - File: apps/web/src/modules/notebook/*.tsx, apps/web/src/modules/notebook/hooks/*.ts
   - Implement cell rendering, grouping, collapsing, drag-reorder handles, formatter toolbar, snippet drop zones, comment cell logic
   - Integrate command palette actions, Markdown importer, and keyboard navigation for accessibility
