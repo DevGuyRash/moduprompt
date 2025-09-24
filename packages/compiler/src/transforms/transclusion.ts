@@ -2,8 +2,8 @@ import {
   collectTransclusionTokens,
   resolveSnippetById,
   resolveSnippetByPath,
-} from '../snippets';
-import type { CompilerDiagnostic, ProvenanceEntry, SnippetIndex } from '../types';
+} from '../snippets.js';
+import type { CompilerDiagnostic, ProvenanceEntry, SnippetIndex } from '../types.js';
 
 interface ApplyTransclusionOptions {
   index: SnippetIndex;

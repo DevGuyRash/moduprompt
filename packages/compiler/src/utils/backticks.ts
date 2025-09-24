@@ -1,4 +1,4 @@
-import { normalizeNewlines } from './text';
+import { normalizeNewlines } from './text.js';
 
 const countMaxFence = (input: string): number => {
   const normalized = normalizeNewlines(input);

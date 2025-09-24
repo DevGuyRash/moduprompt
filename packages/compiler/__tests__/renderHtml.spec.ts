@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import type { DocumentModel } from '@moduprompt/types';
-import type { CompileResult } from '../src/types';
-import { renderHtml } from '../src/server/export';
+import type { CompileResult } from '../src/types.js';
+import { renderHtml } from '../src/server/export.js';
 
 vi.mock('marked', () => ({
   marked: {

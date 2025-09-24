@@ -4,7 +4,7 @@ export {
   normalizeStatusSchema,
   buildStatusIndex,
   findStatus,
-} from './statusSchema';
+} from './statusSchema.js';
 
 export {
   normalizeTags,
@@ -12,7 +12,7 @@ export {
   isExportAllowed,
   createStatusChangeAuditEntry,
   createTagChangeAuditEntry,
-} from './policyEngine';
+} from './policyEngine.js';
 
-export type { StatusTransitionInput, StatusTransitionResult, ExportPolicyInput, ExportPolicyResult } from './policyEngine';
-export type { StatusIndex } from './statusSchema';
+export type { StatusTransitionInput, StatusTransitionResult, ExportPolicyInput, ExportPolicyResult } from './policyEngine.js';
+export type { StatusIndex } from './statusSchema.js';

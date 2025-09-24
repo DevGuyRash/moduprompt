@@ -1,7 +1,7 @@
 import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
 import type { SnippetVersion } from '@moduprompt/types';
-import { stableStringify } from './stableJson';
+import { stableStringify } from './stableJson.js';
 
 const encoder = new TextEncoder();
 

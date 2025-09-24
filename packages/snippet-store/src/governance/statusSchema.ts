@@ -1,18 +1,18 @@
-import type { WorkspaceStatus } from '@moduprompt/types';
+import type { HexColor, WorkspaceStatus } from '@moduprompt/types';
 
-export const DEFAULT_STATUS_COLOR = '#475569';
+export const DEFAULT_STATUS_COLOR: HexColor = '#475569';
 
 const HEX_PATTERN = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i;
 
-const expandShortHex = (value: string): string => {
+const expandShortHex = (value: string): HexColor => {
   if (value.length === 4) {
     const [, r, g, b] = value;
-    return `#${r}${r}${g}${g}${b}${b}`;
+    return `#${r}${r}${g}${g}${b}${b}` as HexColor;
   }
-  return value;
+  return value as HexColor;
 };
 
-export const normalizeStatusColor = (value?: string | null): string => {
+export const normalizeStatusColor = (value?: string | null): HexColor => {
   if (!value) {
     return DEFAULT_STATUS_COLOR;
   }

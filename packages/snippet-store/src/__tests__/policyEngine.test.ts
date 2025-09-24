@@ -6,7 +6,7 @@ import {
   isExportAllowed,
   createStatusChangeAuditEntry,
   createTagChangeAuditEntry,
-} from '../governance/policyEngine';
+} from '../governance/policyEngine.js';
 
 const statuses: WorkspaceStatus[] = [
   {

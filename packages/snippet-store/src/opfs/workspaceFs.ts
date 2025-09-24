@@ -1,4 +1,4 @@
-import type { DirectoryHandle, FileHandle, WritableFileStream } from './types';
+import type { DirectoryHandle, FileHandle, WritableFileStream } from './types.js';
 
 const toSegments = (path: string | string[]): string[] => {
   if (Array.isArray(path)) return [...path];

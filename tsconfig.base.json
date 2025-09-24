@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2021",
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -11,11 +11,7 @@
     "resolveJsonModule": true,
     "noImplicitOverride": true,
     "noUncheckedIndexedAccess": true,
-    "baseUrl": ".",
-    "paths": {
-      "@moduprompt/types": ["packages/types/src/index.ts"],
-      "@moduprompt/types/*": ["packages/types/src/*"]
-    }
+    "baseUrl": "."
   },
   "exclude": ["node_modules", "dist", "build"]
 }

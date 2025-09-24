@@ -9,9 +9,9 @@ import {
   readTextFile,
   writeBinaryFile,
   removeEntry,
-} from '../src';
-import { WORKSPACE_MIGRATIONS } from '../migrations/workspace';
-import type { DirectoryHandle, FileHandle, WritableFileStream } from '../src/opfs/types';
+} from '../src/index.js';
+import { WORKSPACE_MIGRATIONS } from '../migrations/workspace.js';
+import type { DirectoryHandle, FileHandle, WritableFileStream } from '../src/opfs/types.js';
 
 class NotFoundError extends Error {
   constructor(message: string) {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { registerCompilerWorker } from '../src/worker';
+import { registerCompilerWorker } from '../src/worker.js';
 
 describe('compiler worker sandbox', () => {
   it('disables network APIs when registering worker scope', () => {

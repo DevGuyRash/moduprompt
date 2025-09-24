@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { DocumentModel, Snippet, SnippetVersion, VariableDefinition } from '@moduprompt/types';
-import { compileDocument } from '..';
+import { compileDocument } from '../index.js';
 
 const baseVariables: VariableDefinition[] = [
   {
@@ -9,8 +9,6 @@ const baseVariables: VariableDefinition[] = [
     label: 'Product Name',
     type: 'string',
     required: true,
-    createdAt: 1,
-    updatedAt: 1,
   },
 ];
 

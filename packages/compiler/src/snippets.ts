@@ -3,8 +3,8 @@ import {
   type SnippetBundle,
   type SnippetIndex,
   type SnippetIndexEntry,
-} from './types';
-import { normalizeNewlines } from './utils/text';
+} from './types.js';
+import { normalizeNewlines } from './utils/text.js';
 
 export interface ResolvedSnippet {
   snippet: Snippet;

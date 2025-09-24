@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { DocumentModel, Snippet, SnippetVersion } from '@moduprompt/types';
-import { runPreflight } from '../preflight';
+import { runPreflight } from '../preflight/index.js';
 
 const buildDocument = (): DocumentModel => ({
   id: 'doc-preflight',
@@ -39,16 +39,12 @@ const buildDocument = (): DocumentModel => ({
       source: 'snippet-block',
       target: 'markdown-1',
       kind: 'default',
-      createdAt: 1,
-      updatedAt: 1,
     },
     {
       id: 'edge-2',
       source: 'markdown-1',
       target: 'snippet-block',
       kind: 'default',
-      createdAt: 1,
-      updatedAt: 1,
     },
   ],
   variables: [
@@ -57,8 +53,6 @@ const buildDocument = (): DocumentModel => ({
       key: 'requiredVar',
       type: 'string',
       required: true,
-      createdAt: 1,
-      updatedAt: 1,
     },
   ],
   exportRecipes: [],

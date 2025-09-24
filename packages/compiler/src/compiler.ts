@@ -4,20 +4,20 @@ import type {
   MarkdownBlock,
   SnippetBlock,
 } from '@moduprompt/types';
-import { buildSnippetIndex, resolveSnippetById, resolveSnippetByPath } from './snippets';
-import { applyTransclusions } from './transforms/transclusion';
-import { substituteVariables } from './transforms/substitution';
-import { applyFilters, applyFormatters } from './transforms/formatters';
-import { computeHash } from './utils/hash';
+import { buildSnippetIndex, resolveSnippetById, resolveSnippetByPath } from './snippets.js';
+import { applyTransclusions } from './transforms/transclusion.js';
+import { substituteVariables } from './transforms/substitution.js';
+import { applyFilters, applyFormatters } from './transforms/formatters.js';
+import { computeHash } from './utils/hash.js';
 import {
   ensureTerminalNewline,
   markdownToText,
   normalizeNewlines,
   trimTrailingWhitespace,
-} from './utils/text';
-import { resolveVariables } from './variables';
-import { runPreflight } from './preflight';
-import { createDefaultFilters, createDefaultFormatters } from './defaults';
+} from './utils/text.js';
+import { resolveVariables } from './variables.js';
+import { runPreflight } from './preflight/index.js';
+import { createDefaultFilters, createDefaultFormatters } from './defaults.js';
 import type {
   CompileOptions,
   CompileResult,
@@ -25,7 +25,7 @@ import type {
   FormatterContext,
   ProvenanceEntry,
   SnippetIndex,
-} from './types';
+} from './types.js';
 
 const sortBlocks = (blocks: Block[]): Block[] => {
   return [...blocks].sort((a, b) => {
