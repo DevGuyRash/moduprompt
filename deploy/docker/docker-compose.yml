@@ -13,7 +13,7 @@ x-app-env: &app-env
 services:
   app:
     build:
-      context: ..
+      context: ../..
       dockerfile: deploy/docker/Dockerfile
     image: moduprompt/app:local
     environment:
@@ -47,7 +47,7 @@ services:
 
   exporter:
     build:
-      context: ..
+      context: ../..
       dockerfile: deploy/docker/Dockerfile
       target: exporter
     image: moduprompt/exporter:local
@@ -134,4 +134,3 @@ volumes:
   postgres-data:
   minio-data:
   redis-data:
-
