@@ -10,7 +10,12 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "noImplicitOverride": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "baseUrl": ".",
+    "paths": {
+      "@moduprompt/types": ["packages/types/src/index.ts"],
+      "@moduprompt/types/*": ["packages/types/src/*"]
+    }
   },
   "exclude": ["node_modules", "dist", "build"]
 }

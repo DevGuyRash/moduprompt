@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/fix-typescript-workspace-build/requirements.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-09-24T10:00:51.002Z",
+      "trigger": "initial",
+      "approvalId": "approval_1758708050985_fgw6a2zp5",
+      "approvalTitle": "Requirements – fix-typescript-workspace-build v0.1.0"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-09-24T10:01:46.550Z",
+      "trigger": "approved",
+      "approvalId": "approval_1758708050985_fgw6a2zp5",
+      "approvalTitle": "Requirements – fix-typescript-workspace-build v0.1.0"
+    }
+  ]
+}
