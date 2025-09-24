@@ -1,6 +1,21 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
+const fromRoot = (relative: string) => path.resolve(rootDir, relative);
+
 export default defineConfig({
+  resolve: {
+    alias: [
+      { find: '@moduprompt/compiler', replacement: fromRoot('../../packages/compiler/src/index.ts') },
+      { find: '@moduprompt/compiler/', replacement: fromRoot('../../packages/compiler/src/') },
+      { find: '@moduprompt/snippet-store', replacement: fromRoot('../../packages/snippet-store/src/index.ts') },
+      { find: '@moduprompt/snippet-store/', replacement: fromRoot('../../packages/snippet-store/src/') },
+      { find: '@moduprompt/types', replacement: fromRoot('../../packages/types/src/index.ts') },
+      { find: '@moduprompt/types/', replacement: fromRoot('../../packages/types/src/') },
+    ],
+  },
   test: {
     environment: 'jsdom',
     globals: true,

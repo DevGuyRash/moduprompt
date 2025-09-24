@@ -14,10 +14,14 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@moduprompt/compiler": "workspace:*",
+    "@moduprompt/snippet-store": "workspace:*",
     "@moduprompt/types": "workspace:*",
     "immer": "^10.1.1",
+    "nanoid": "^5.1.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "reactflow": "^11.10.2",
     "zustand": "^4.5.4"
   },
   "devDependencies": {
@@ -27,6 +31,7 @@
     "@types/node": "^20.11.5",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
+    "fake-indexeddb": "5.0.1",
     "jsdom": "24.1.0",
     "typescript": "^5.5.4",
     "vitest": "^1.6.0"

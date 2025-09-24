@@ -1,39 +1,15 @@
-import type {
-  DocumentModel,
-  ExportRecipe,
-  Snippet,
-  SnippetVersion,
-  WorkspaceStatus,
-} from '@moduprompt/types';
+import type { DocumentModel, Snippet, SnippetVersion } from '@moduprompt/types';
 import { WorkspaceDexie, type WorkspaceSettingsRecord } from './baseStore';
 import type { WorkspaceMigration } from '../../migrations/types';
 import { verifySnippetIntegrity } from '../internal/hash';
+import { normalizeStatusSchema, normalizeTags } from '../governance';
 
 export interface WorkspaceStoreOptions {
   dbName?: string;
   migrations?: WorkspaceMigration[];
 }
 
-const normalizeTags = (tags: string[]): string[] => {
-  const unique = new Set<string>();
-  for (const tag of tags) {
-    const trimmed = tag.trim();
-    if (trimmed.length > 0) {
-      unique.add(trimmed.toLowerCase());
-    }
-  }
-  return Array.from(unique).sort();
-};
-
-const normalizeStatuses = (statuses: WorkspaceStatus[]): WorkspaceStatus[] => {
-  return [...statuses].sort((a, b) => {
-    const orderDiff = (a.order ?? 0) - (b.order ?? 0);
-    if (orderDiff !== 0) return orderDiff;
-    return a.name.localeCompare(b.name);
-  });
-};
-
-const TABLE_NAMES = ['documents', 'snippets', 'snippetVersions', 'workspaceSettings'] as const;
+const TABLE_NAMES = ['documents', 'snippets', 'snippetVersions', 'workspaceSettings', 'auditBuffer'] as const;
 
 export class WorkspaceStore {
   private readonly db: WorkspaceDexie;
@@ -157,7 +133,7 @@ export class WorkspaceStore {
       schemaVersion: record.schemaVersion,
       exportRecipes: [...record.exportRecipes],
       lastExportedAt: record.lastExportedAt,
-      statuses: normalizeStatuses(record.statuses),
+      statuses: normalizeStatusSchema(record.statuses),
       updatedAt: record.updatedAt,
     };
     await this.db.workspaceSettings.put(payload);
@@ -218,7 +194,7 @@ export class WorkspaceStore {
       if (snapshot.workspaceSettings) {
         await this.db.workspaceSettings.put({
           ...snapshot.workspaceSettings,
-          statuses: normalizeStatuses(snapshot.workspaceSettings.statuses),
+          statuses: normalizeStatusSchema(snapshot.workspaceSettings.statuses),
           id: 'workspace',
         });
       }

@@ -7,6 +7,12 @@ export default defineConfig({
     globals: true,
     coverage: {
       reporter: ['text', 'json-summary', 'lcov'],
+      thresholds: {
+        statements: 0.8,
+        branches: 0.65,
+        functions: 0.75,
+        lines: 0.8,
+      },
     },
   },
 });

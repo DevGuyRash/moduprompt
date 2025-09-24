@@ -1,0 +1,49 @@
+{
+  "name": "@moduprompt/api",
+  "version": "0.1.0",
+  "description": "ModuPrompt Fastify API service",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "test": "vitest run",
+    "lint": "eslint src --ext .ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "openapi": "tsx src/openapi/export.ts"
+  },
+  "dependencies": {
+    "@fastify/swagger": "^8.12.0",
+    "@fastify/swagger-ui": "^3.0.2",
+    "@fastify/type-provider-zod": "npm:fastify-type-provider-zod@^6.0.0",
+    "@moduprompt/snippet-store": "workspace:*",
+    "@moduprompt/types": "workspace:*",
+    "@prisma/client": "^5.17.0",
+    "fastify": "^4.26.2",
+    "fastify-plugin": "^5.0.1",
+    "nanoid": "^5.0.7",
+    "pino": "^9.3.0",
+    "pino-pretty": "^11.2.2",
+    "zod": "^3.23.8",
+    "@aws-sdk/client-s3": "^3.609.0",
+    "marked": "^14.1.2",
+    "mime-types": "^2.1.35",
+    "p-queue": "^8.1.0",
+    "puppeteer-core": "^22.11.1",
+    "sanitize-html": "^2.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "prisma": "^5.17.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.5.4",
+    "vitest": "^1.6.0"
+  }
+}

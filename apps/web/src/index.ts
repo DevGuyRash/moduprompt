@@ -31,3 +31,7 @@ export {
 export { useUndoRedo, type UndoRedoControls } from './state/useUndoRedo';
 
 export * from './modules/notebook';
+export * from './modules/node-graph';
+export * from './modules/snippets';
+export * from './modules/governance';
+export * from './modules/compiler-preview';

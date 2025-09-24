@@ -8,6 +8,7 @@ import type {
 } from '@moduprompt/types';
 import { WORKSPACE_MIGRATIONS } from '../../migrations/workspace';
 import type { WorkspaceMigration } from '../../migrations/types';
+import type { AuditBufferRecord } from '../audit/types';
 
 export interface WorkspaceSettingsRecord {
   id: 'workspace';
@@ -23,6 +24,7 @@ export type WorkspaceDbTables = {
   snippets: Snippet;
   snippetVersions: SnippetVersion;
   workspaceSettings: WorkspaceSettingsRecord;
+  auditBuffer: AuditBufferRecord;
 };
 
 const DEFAULT_DB_NAME = 'moduprompt-workspace';
@@ -32,6 +34,7 @@ export class WorkspaceDexie extends Dexie {
   snippets!: Table<Snippet, string>;
   snippetVersions!: Table<SnippetVersion, [string, number]>;
   workspaceSettings!: Table<WorkspaceSettingsRecord, string>;
+  auditBuffer!: Table<AuditBufferRecord, string>;
 
   constructor(name: string = DEFAULT_DB_NAME, migrations: WorkspaceMigration[] = WORKSPACE_MIGRATIONS) {
     super(name);
