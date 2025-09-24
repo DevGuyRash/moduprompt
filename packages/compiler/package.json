@@ -1,0 +1,27 @@
+{
+  "name": "@moduprompt/compiler",
+  "version": "0.1.0",
+  "description": "Deterministic prompt compiler and preflight pipeline for ModuPrompt",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@moduprompt/types": "workspace:*",
+    "@noble/hashes": "^1.5.0",
+    "marked": "^14.1.2",
+    "sanitize-html": "^2.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "typescript": "^5.5.4",
+    "vitest": "^1.6.0"
+  }
+}

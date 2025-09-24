@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Snippet {
+  id          String           @id @default(cuid())
+  title       String
+  path        String
+  frontmatter Json
+  body        String
+  headRev     Int               @default(1)
+  versions    SnippetVersion[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([path])
+}
+
+model SnippetVersion {
+  id          Int      @id @default(autoincrement())
+  snippet     Snippet  @relation(fields: [snippetId], references: [id])
+  snippetId   String
+  rev         Int
+  parentRev   Int?
+  authorId    String?
+  authorName  String?
+  authorEmail String?
+  note        String?
+  timestamp   DateTime  @default(now())
+  body        String
+  frontmatter Json
+  hash        String
+
+  @@unique([snippetId, rev])
+  @@index([snippetId])
+}
+
+model Document {
+  id            String      @id @default(cuid())
+  title         String
+  schemaVersion Int
+  blocks        Json
+  edges         Json
+  variables     Json
+  exportRecipes Json
+  tags          Json
+  statusKey     String
+  settings      Json
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  exports       ExportJob[]
+
+  @@index([statusKey])
+}
+
+model ExportRecipe {
+  id              String      @id @default(cuid())
+  name            String
+  type            String
+  include         Json
+  theme           String?
+  pdf             Json?
+  allowedStatuses Json?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  jobs            ExportJob[]
+}
+
+model ExportJob {
+  id           String        @id @default(cuid())
+  document     Document      @relation(fields: [documentId], references: [id])
+  documentId   String
+  recipe       ExportRecipe  @relation(fields: [recipeId], references: [id])
+  recipeId     String
+  status       ExportJobStatus @default(queued)
+  artifactUri  String?
+  error        String?
+  metadata     Json?
+  requestedBy  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  completedAt  DateTime?
+
+  @@index([documentId])
+  @@index([recipeId])
+}
+
+enum ExportJobStatus {
+  queued
+  processing
+  completed
+  failed
+}
+
+model WorkspaceStatus {
+  key         String   @id
+  name        String
+  color       String
+  description String?
+  order       Int?
+  isFinal     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model WebhookSubscription {
+  id          String   @id @default(cuid())
+  url         String
+  secret      String?
+  events      Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  disabledAt  DateTime?
+}
+
+model AuditLogEntry {
+  id         String   @id @default(cuid())
+  type       String
+  subjectId  String
+  metadata   Json
+  actorId    String?
+  occurredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+}
+
+model PluginRegistry {
+  id          String   @id @default(cuid())
+  name        String
+  version     String
+  kind        String
+  manifest    Json
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([name, version, kind], name: "name_version_kind")
+}

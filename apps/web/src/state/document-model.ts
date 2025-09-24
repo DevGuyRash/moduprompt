@@ -7,6 +7,7 @@ import type {
   GroupBlock,
   VariableDefinition,
 } from '@moduprompt/types';
+import { normalizeTags } from '@moduprompt/snippet-store';
 import type { StoreApi } from 'zustand/vanilla';
 import { createScopedStore } from './baseStore';
 
@@ -97,17 +98,6 @@ export interface DocumentStoreActions {
 
 export type DocumentStoreValue = DocumentStoreState & DocumentStoreActions;
 export type DocumentStoreApi = StoreApi<DocumentStoreValue>;
-
-const normalizeTags = (tags: string[]): string[] => {
-  const set = new Set<string>();
-  for (const tag of tags) {
-    const normalized = tag.trim().toLowerCase();
-    if (normalized.length > 0) {
-      set.add(normalized);
-    }
-  }
-  return Array.from(set).sort((a, b) => a.localeCompare(b));
-};
 
 const normalizeSettings = (settings: DocumentSettings): DocumentSettings => ({
   ...settings,

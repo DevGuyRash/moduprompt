@@ -38,4 +38,14 @@ export const WORKSPACE_MIGRATIONS: MigrationList = [
       );
     },
   },
+  {
+    version: 3,
+    stores: {
+      documents: '&id, updatedAt, title',
+      snippets: '&id, path, updatedAt, headRev',
+      snippetVersions: '&[snippetId+rev], snippetId, rev, timestamp, hash',
+      workspaceSettings: '&id, updatedAt',
+      auditBuffer: '&id, bufferedAt',
+    },
+  },
 ];

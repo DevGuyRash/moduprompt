@@ -5,9 +5,23 @@
   "scripts": {
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
-    "schema": "pnpm -r schema"
+    "schema": "pnpm -r schema",
+    "test": "pnpm -r test",
+    "test:perf": "vitest bench tests/perf --run",
+    "test:e2e": "playwright test --config tests/e2e/playwright.config.ts"
   },
   "engines": {
     "node": ">=18.18.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.9.1",
+    "@playwright/test": "^1.48.2",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.7"
   }
 }
