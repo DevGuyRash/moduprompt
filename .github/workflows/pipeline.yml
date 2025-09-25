@@ -80,6 +80,15 @@ jobs:
       - name: Install dependencies (no scripts)
         run: pnpm install --frozen-lockfile --ignore-scripts
 
+      - name: Verify Docker build workflow
+        env:
+          PNPM_LOG_LEVEL: info
+        run: |
+          set -euxo pipefail
+          echo "Running pnpm docker:verify to validate Docker build pipeline"
+          pnpm docker:verify
+          echo "pnpm deploy command: pnpm --filter @moduprompt/api --prod deploy /srv/deploy"
+
       - name: Build application image
         run: docker build -f deploy/docker/Dockerfile -t moduprompt/app:${{ github.sha }} .
 
@@ -135,4 +144,3 @@ jobs:
           sarif_file: |
             trivy-app.sarif
             trivy-exporter.sarif
-

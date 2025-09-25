@@ -9,6 +9,7 @@ x-app-env: &app-env
   EXPORT_QUEUE_URL: ${EXPORT_QUEUE_URL:-redis://redis:6379}
   EXPORT_CALLBACK_URL: ${EXPORT_CALLBACK_URL:-http://app:8080}
   LOG_LEVEL: ${LOG_LEVEL:-info}
+  STATIC_ROOT: ${STATIC_ROOT:-/srv/moduprompt/apps/web/dist}
 
 services:
   app:

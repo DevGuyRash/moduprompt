@@ -30,19 +30,24 @@ export const webhooksRoutes: FastifyPluginAsync = async (app) => {
   const service = new WebhookService(app);
   const withTypeProvider = app.withTypeProvider<ZodTypeProvider>();
 
-  withTypeProvider.get<{ Reply: WebhookListResponse }>('/webhooks/subscriptions', {
+  withTypeProvider.route<{ Reply: WebhookListResponse }>({
+    method: 'GET',
+    url: '/webhooks/subscriptions',
     schema: {
       tags: ['webhooks'],
       response: {
         200: webhookListSchema,
       },
     },
-  }, async () => {
-    const items = await service.list();
-    return { items };
+    handler: async () => {
+      const items = await service.list();
+      return { items };
+    },
   });
 
-  withTypeProvider.post<{ Body: CreateWebhookSubscription; Reply: WebhookResponse }>('/webhooks/subscriptions', {
+  withTypeProvider.route<{ Body: CreateWebhookSubscription; Reply: WebhookResponse }>({
+    method: 'POST',
+    url: '/webhooks/subscriptions',
     schema: {
       tags: ['webhooks'],
       body: createWebhookSubscriptionSchema,
@@ -50,17 +55,20 @@ export const webhooksRoutes: FastifyPluginAsync = async (app) => {
         201: webhookResponseSchema,
       },
     },
-  }, async (request, reply) => {
-    const subscription = await service.create(request.body);
-    reply.code(201);
-    return subscription;
+    handler: async (request, reply) => {
+      const subscription = await service.create(request.body);
+      reply.code(201);
+      return subscription;
+    },
   });
 
-  withTypeProvider.patch<{
+  withTypeProvider.route<{
     Params: WebhookRouteParams;
     Body: UpdateWebhookSubscription & { disabled?: boolean };
     Reply: WebhookResponse;
-  }>('/webhooks/subscriptions/:id', {
+  }>({
+    method: 'PATCH',
+    url: '/webhooks/subscriptions/:id',
     schema: {
       tags: ['webhooks'],
       params: webhookParamsSchema,
@@ -69,12 +77,13 @@ export const webhooksRoutes: FastifyPluginAsync = async (app) => {
         200: webhookResponseSchema,
       },
     },
-  }, async (request) => {
-    const { disabled, ...payload } = request.body;
-    const subscription = await service.update(request.params.id, {
-      ...payload,
-      disabled,
-    });
-    return subscription;
+    handler: async (request) => {
+      const { disabled, ...payload } = request.body;
+      const subscription = await service.update(request.params.id, {
+        ...payload,
+        disabled,
+      });
+      return subscription;
+    },
   });
 };

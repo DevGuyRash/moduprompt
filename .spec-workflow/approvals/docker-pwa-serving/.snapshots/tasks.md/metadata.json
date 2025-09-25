@@ -1,0 +1,14 @@
+{
+  "filePath": ".spec-workflow/specs/docker-pwa-serving/tasks.md",
+  "currentVersion": 1,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-09-25T19:59:37.053Z",
+      "trigger": "initial",
+      "approvalId": "approval_1758830377023_rkje889rs",
+      "approvalTitle": "docker-pwa-serving tasks v1.0.0"
+    }
+  ]
+}

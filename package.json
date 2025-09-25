@@ -4,7 +4,7 @@
   "packageManager": "pnpm@9.7.0",
   "scripts": {
     "build": "pnpm --filter @moduprompt/api prisma:generate && pnpm --filter @moduprompt/types build && pnpm -r --filter '!@moduprompt/types' build",
-    "docker:build": "docker build --file deploy/docker/Dockerfile --target runtime-base --tag moduprompt/app:verify .",
+    "docker:build": "docker build --file deploy/docker/Dockerfile --target runtime --tag moduprompt/app:verify .",
     "docker:verify": "pnpm docker:build && pnpm docker:verify:deps",
     "docker:verify:deps": "node ./scripts/docker/verify-runtime-deps.mjs",
     "schema": "pnpm -r schema",

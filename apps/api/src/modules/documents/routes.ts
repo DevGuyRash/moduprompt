@@ -49,55 +49,52 @@ export const documentsRoutes: FastifyPluginAsync = async (app) => {
   const service = new DocumentService(app);
   const withTypeProvider = app.withTypeProvider<ZodTypeProvider>();
 
-  withTypeProvider.get<{ Querystring: DocumentListQuery; Reply: DocumentListResponse }>(
-    '/documents',
-    {
-      schema: {
-        tags: ['documents'],
-        querystring: documentQuerySchema,
-        response: {
-          200: documentListSchema,
-        },
+  withTypeProvider.route<{ Querystring: DocumentListQuery; Reply: DocumentListResponse }>({
+    method: 'GET',
+    url: '/documents',
+    schema: {
+      tags: ['documents'],
+      querystring: documentQuerySchema,
+      response: {
+        200: documentListSchema,
       },
     },
-    async (request) => {
+    handler: async (request) => {
       const items = await service.list(request.query);
       return { items };
     },
-  );
+  });
 
-  withTypeProvider.post<{ Body: CreateDocumentRequest; Reply: DocumentResponse }>(
-    '/documents',
-    {
-      schema: {
-        tags: ['documents'],
-        body: createDocumentRequestSchema,
-        response: {
-          201: documentSchema,
-        },
+  withTypeProvider.route<{ Body: CreateDocumentRequest; Reply: DocumentResponse }>({
+    method: 'POST',
+    url: '/documents',
+    schema: {
+      tags: ['documents'],
+      body: createDocumentRequestSchema,
+      response: {
+        201: documentSchema,
       },
     },
-    async (request, reply) => {
+    handler: async (request, reply) => {
       const { actorId, ...payload } = request.body;
       const document = await service.create(payload, actorId);
       reply.code(201);
       return document;
     },
-  );
+  });
 
-  withTypeProvider.get<{ Params: DocumentParams; Reply: DocumentResponse | { message: string } }>(
-    '/documents/:id',
-    {
-      schema: {
-        tags: ['documents'],
-        params: documentParamsSchema,
-        response: {
-          200: documentSchema,
-          404: z.object({ message: z.string() }),
-        },
+  withTypeProvider.route<{ Params: DocumentParams; Reply: DocumentResponse | { message: string } }>({
+    method: 'GET',
+    url: '/documents/:id',
+    schema: {
+      tags: ['documents'],
+      params: documentParamsSchema,
+      response: {
+        200: documentSchema,
+        404: z.object({ message: z.string() }),
       },
     },
-    async (request, reply) => {
+    handler: async (request, reply) => {
       const document = await service.get(request.params.id);
       if (!document) {
         reply.code(404);
@@ -105,22 +102,25 @@ export const documentsRoutes: FastifyPluginAsync = async (app) => {
       }
       return document;
     },
-  );
+  });
 
-  withTypeProvider.patch<{ Params: DocumentParams; Body: UpdateDocumentRequest; Reply: DocumentResponse | { message: string } }>(
-    '/documents/:id',
-    {
-      schema: {
-        tags: ['documents'],
-        params: documentParamsSchema,
-        body: updateDocumentSchema,
-        response: {
-          200: documentSchema,
-          404: z.object({ message: z.string() }),
-        },
+  withTypeProvider.route<{
+    Params: DocumentParams;
+    Body: UpdateDocumentRequest;
+    Reply: DocumentResponse | { message: string };
+  }>({
+    method: 'PATCH',
+    url: '/documents/:id',
+    schema: {
+      tags: ['documents'],
+      params: documentParamsSchema,
+      body: updateDocumentSchema,
+      response: {
+        200: documentSchema,
+        404: z.object({ message: z.string() }),
       },
     },
-    async (request, reply) => {
+    handler: async (request, reply) => {
       try {
         return await service.update(request.params.id, request.body);
       } catch (error) {
@@ -128,22 +128,25 @@ export const documentsRoutes: FastifyPluginAsync = async (app) => {
         return { message: (error as Error).message };
       }
     },
-  );
+  });
 
-  withTypeProvider.patch<{ Params: DocumentParams; Body: SetTagsRequest; Reply: DocumentResponse | { message: string } }>(
-    '/documents/:id/tags',
-    {
-      schema: {
-        tags: ['documents'],
-        params: documentParamsSchema,
-        body: setTagsSchema,
-        response: {
-          200: documentSchema,
-          400: z.object({ message: z.string() }),
-        },
+  withTypeProvider.route<{
+    Params: DocumentParams;
+    Body: SetTagsRequest;
+    Reply: DocumentResponse | { message: string };
+  }>({
+    method: 'PATCH',
+    url: '/documents/:id/tags',
+    schema: {
+      tags: ['documents'],
+      params: documentParamsSchema,
+      body: setTagsSchema,
+      response: {
+        200: documentSchema,
+        400: z.object({ message: z.string() }),
       },
     },
-    async (request, reply) => {
+    handler: async (request, reply) => {
       try {
         return await service.setTags(request.params.id, request.body);
       } catch (error) {
@@ -151,22 +154,25 @@ export const documentsRoutes: FastifyPluginAsync = async (app) => {
         return { message: (error as Error).message };
       }
     },
-  );
+  });
 
-  withTypeProvider.patch<{ Params: DocumentParams; Body: SetStatusRequest; Reply: DocumentResponse | { message: string } }>(
-    '/documents/:id/status',
-    {
-      schema: {
-        tags: ['documents'],
-        params: documentParamsSchema,
-        body: setStatusSchema,
-        response: {
-          200: documentSchema,
-          400: z.object({ message: z.string() }),
-        },
+  withTypeProvider.route<{
+    Params: DocumentParams;
+    Body: SetStatusRequest;
+    Reply: DocumentResponse | { message: string };
+  }>({
+    method: 'PATCH',
+    url: '/documents/:id/status',
+    schema: {
+      tags: ['documents'],
+      params: documentParamsSchema,
+      body: setStatusSchema,
+      response: {
+        200: documentSchema,
+        400: z.object({ message: z.string() }),
       },
     },
-    async (request, reply) => {
+    handler: async (request, reply) => {
       try {
         return await service.setStatus(request.params.id, request.body);
       } catch (error) {
@@ -174,5 +180,5 @@ export const documentsRoutes: FastifyPluginAsync = async (app) => {
         return { message: (error as Error).message };
       }
     },
-  );
+  });
 };

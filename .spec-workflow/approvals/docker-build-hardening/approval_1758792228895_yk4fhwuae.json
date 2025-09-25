@@ -3,8 +3,10 @@
   "title": "Approve tasks for docker-build-hardening",
   "filePath": ".spec-workflow/specs/docker-build-hardening/tasks.md",
   "type": "document",
-  "status": "pending",
+  "status": "approved",
   "createdAt": "2025-09-25T09:23:48.895Z",
   "category": "spec",
-  "categoryName": "docker-build-hardening"
+  "categoryName": "docker-build-hardening",
+  "response": "Approved",
+  "respondedAt": "2025-09-25T15:59:51.228Z"
 }

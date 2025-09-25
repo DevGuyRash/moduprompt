@@ -11,7 +11,7 @@ const exportJobSchema = z.object({
   recipeId: z.string(),
   artifactUri: z.string().nullable().optional(),
   error: z.string().nullable().optional(),
-  metadata: z.record(z.any()).nullable().optional(),
+  metadata: z.record(z.string(), z.any()).nullable().optional(),
   requestedBy: z.string().nullable().optional(),
   createdAt: z.number(),
   updatedAt: z.number(),
@@ -32,36 +32,34 @@ export const exportsRoutes: FastifyPluginAsync = async (app) => {
   const service = new ExportService(app);
   const withTypeProvider = app.withTypeProvider<ZodTypeProvider>();
 
-  withTypeProvider.get<{ Querystring: ExportJobQuery; Reply: ExportJobListResponse }>(
-    '/exports',
-    {
-      schema: {
-        tags: ['exports'],
-        querystring: exportJobQuerySchema,
-        response: {
-          200: exportJobListSchema,
-        },
+  withTypeProvider.route<{ Querystring: ExportJobQuery; Reply: ExportJobListResponse }>({
+    method: 'GET',
+    url: '/exports',
+    schema: {
+      tags: ['exports'],
+      querystring: exportJobQuerySchema,
+      response: {
+        200: exportJobListSchema,
       },
     },
-    async (request) => {
+    handler: async (request) => {
       const items = await service.list(request.query);
       return { items };
     },
-  );
+  });
 
-  withTypeProvider.post<{ Body: CreateExportJobRequest; Reply: ExportJobResponse | { message: string } }>(
-    '/exports',
-    {
-      schema: {
-        tags: ['exports'],
-        body: createExportJobSchema,
-        response: {
-          201: exportJobSchema,
-          400: z.object({ message: z.string() }),
-        },
+  withTypeProvider.route<{ Body: CreateExportJobRequest; Reply: ExportJobResponse | { message: string } }>({
+    method: 'POST',
+    url: '/exports',
+    schema: {
+      tags: ['exports'],
+      body: createExportJobSchema,
+      response: {
+        201: exportJobSchema,
+        400: z.object({ message: z.string() }),
       },
     },
-    async (request, reply) => {
+    handler: async (request, reply) => {
       try {
         const { actorId, ...rest } = request.body;
         const job = await service.create({ ...rest, requestedBy: actorId });
@@ -72,21 +70,20 @@ export const exportsRoutes: FastifyPluginAsync = async (app) => {
         return { message: (error as Error).message };
       }
     },
-  );
+  });
 
-  withTypeProvider.get<{ Params: ExportJobParams; Reply: ExportJobResponse | { message: string } }>(
-    '/exports/:id',
-    {
-      schema: {
-        tags: ['exports'],
-        params: exportJobParamsSchema,
-        response: {
-          200: exportJobSchema,
-          404: z.object({ message: z.string() }),
-        },
+  withTypeProvider.route<{ Params: ExportJobParams; Reply: ExportJobResponse | { message: string } }>({
+    method: 'GET',
+    url: '/exports/:id',
+    schema: {
+      tags: ['exports'],
+      params: exportJobParamsSchema,
+      response: {
+        200: exportJobSchema,
+        404: z.object({ message: z.string() }),
       },
     },
-    async (request, reply) => {
+    handler: async (request, reply) => {
       const job = await service.get(request.params.id);
       if (!job) {
         reply.code(404);
@@ -94,22 +91,25 @@ export const exportsRoutes: FastifyPluginAsync = async (app) => {
       }
       return job;
     },
-  );
+  });
 
-  withTypeProvider.patch<{ Params: ExportJobParams; Body: UpdateExportJobRequest; Reply: ExportJobResponse | { message: string } }>(
-    '/exports/:id',
-    {
-      schema: {
-        tags: ['exports'],
-        params: exportJobParamsSchema,
-        body: updateExportJobStatusSchema,
-        response: {
-          200: exportJobSchema,
-          400: z.object({ message: z.string() }),
-        },
+  withTypeProvider.route<{
+    Params: ExportJobParams;
+    Body: UpdateExportJobRequest;
+    Reply: ExportJobResponse | { message: string };
+  }>({
+    method: 'PATCH',
+    url: '/exports/:id',
+    schema: {
+      tags: ['exports'],
+      params: exportJobParamsSchema,
+      body: updateExportJobStatusSchema,
+      response: {
+        200: exportJobSchema,
+        400: z.object({ message: z.string() }),
       },
     },
-    async (request, reply) => {
+    handler: async (request, reply) => {
       try {
         const job = await service.update(request.params.id, request.body);
         return job;
@@ -118,5 +118,5 @@ export const exportsRoutes: FastifyPluginAsync = async (app) => {
         return { message: (error as Error).message };
       }
     },
-  );
+  });
 };
