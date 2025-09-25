@@ -12,7 +12,7 @@ RUN corepack disable \
 WORKDIR /srv/moduprompt
 
 FROM base AS build
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc ./
 COPY apps ./apps
 COPY packages ./packages
 COPY tests ./tests
@@ -23,7 +23,9 @@ ENV NODE_OPTIONS=--loader=ts-node/esm
 RUN pnpm --filter @moduprompt/types run schema
 ENV NODE_OPTIONS=
 RUN pnpm --filter @moduprompt/api prisma:generate
-RUN pnpm prune --prod --filter ./...
+
+FROM build AS deploy
+RUN pnpm --filter @moduprompt/api --prod deploy /srv/deploy
 
 FROM node:${NODE_VERSION}-alpine AS runtime-base
 RUN addgroup -S moduprompt -g 10001 \
@@ -32,7 +34,7 @@ WORKDIR /srv/moduprompt
 ENV NODE_ENV=production \
     PORT=8080 \
     PATH=/usr/local/bin:$PATH
-COPY --from=build /srv/moduprompt/node_modules ./node_modules
+COPY --from=deploy /srv/deploy/node_modules ./node_modules
 COPY --from=build /srv/moduprompt/apps/api/dist ./apps/api/dist
 COPY --from=build /srv/moduprompt/apps/api/prisma ./apps/api/prisma
 COPY --from=build /srv/moduprompt/apps/web/dist ./apps/web/dist
@@ -50,4 +52,3 @@ ENTRYPOINT ["node","--enable-source-maps","apps/api/dist/index.js"]
 FROM runtime-base AS exporter
 ENTRYPOINT ["node","apps/api/dist/workers/exportWorker.js"]
 CMD []
-
