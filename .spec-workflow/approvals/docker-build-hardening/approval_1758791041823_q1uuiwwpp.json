@@ -1,0 +1,21 @@
+{
+  "id": "approval_1758791041823_q1uuiwwpp",
+  "title": "Approve requirements for docker-build-hardening",
+  "filePath": ".spec-workflow/specs/docker-build-hardening/requirements.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-09-25T09:04:01.823Z",
+  "category": "spec",
+  "categoryName": "docker-build-hardening",
+  "response": "Feedback Summary (1 comments):\n\nGeneral Comments:\n1. I think I'd like a complete readme overhaul too that's more user friendly for newcomers to the repo so it's github ready as FOSS too\n\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"general\",\n      \"comment\": \"I think I'd like a complete readme overhaul too that's more user friendly for newcomers to the repo so it's github ready as FOSS too\",\n      \"timestamp\": \"2025-09-25T09:09:00.445Z\",\n      \"id\": \"comment_1758791340446_74fuhu8rh\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (1 comments):\\n\\nGeneral Comments:\\n1. I think I'd like a complete readme overhaul too that's more user friendly for newcomers to the repo so it's github ready as FOSS too\\n\\n\",\n  \"timestamp\": \"2025-09-25T09:09:02.790Z\"\n}",
+  "respondedAt": "2025-09-25T09:09:02.826Z",
+  "comments": [
+    {
+      "type": "general",
+      "comment": "I think I'd like a complete readme overhaul too that's more user friendly for newcomers to the repo so it's github ready as FOSS too",
+      "timestamp": "2025-09-25T09:09:00.445Z",
+      "id": "comment_1758791340446_74fuhu8rh"
+    }
+  ]
+}

@@ -70,5 +70,5 @@ export const pluginSchema = z.object({
   name: z.string().min(1),
   version: z.string().min(1),
   kind: z.enum(['formatter', 'filter', 'exporter', 'adapter']),
-  manifest: z.record(z.any()),
+  manifest: z.record(z.string(), z.any()),
 });

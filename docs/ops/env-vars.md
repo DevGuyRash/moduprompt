@@ -27,6 +27,7 @@
 | `MINIO_ROOT_PASSWORD` | minio | Required | `minioadmin` (dev only) | Root secret for MinIO. |
 | `REDIS_PORT` | redis | Optional | `6379` | Surface port if Redis is exposed to host; leave internal-only in production. |
 | `LOG_LEVEL` | app, exporter | Optional | `info` | Accepts `trace`→`fatal`. Follow observability contracts; prefer structured logs. |
+| `STATIC_ROOT` | app | Optional | `/srv/moduprompt/apps/web/dist` | Absolute path to compiled PWA bundle. Container defaults point to baked assets; override when running the API against a locally built `apps/web/dist`. |
 | `EXPORTER_PORT` | exporter | Optional | `8081` | Worker HTTP diagnostics port (not exposed by default). |
 
 ## Profiles & Offline Operation
@@ -52,4 +53,3 @@
 - Document forthcoming collaboration services (Yjs sync, webhook dispatcher) once specs mature.
 - Add guidance for Kubernetes deployment manifests mirroring these variables when Helm charts are introduced.
 - Provide sample `secrets.env.example` once baseline defaults are validated and security review approves distribution.
-

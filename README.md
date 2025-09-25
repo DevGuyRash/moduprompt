@@ -1,186 +1,135 @@
 # ModuPrompt
 
-ModuPrompt is a local-first prompt authoring studio that lets teams design,
-test, and ship governed prompt flows without depending on hosted services. The
-platform bridges notebook-style editing with a visual node graph, provides a
-versioned snippet library, and produces deterministic exports that carry full
-provenance.
+[![pnpm workspace](https://img.shields.io/badge/pnpm-9.7.0-FFAE00?logo=pnpm&logoColor=white)](https://pnpm.io/)
+[![Docker ready](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](deploy/docker/)
+[![Spec workflow](https://img.shields.io/badge/spec--workflow-docker--build--hardening-blueviolet)](.spec-workflow/specs/docker-build-hardening/)
+
+ModuPrompt is a local-first prompt authoring studio that unifies notebook and node graph editing, enforces snippet governance, and produces deterministic exports ready for audits. The stack aligns with our approved steering documents, keeping Docker-first delivery and pnpm workspaces at the core while remaining extensible for regulated environments.
 
 ---
 
-## Why ModuPrompt
-- **Unified editing** – switch instantly between notebook and node graph views
-  while working on the same source of truth.
-- **Governed snippets** – track metadata, history, and provenance pins for every
-  reusable fragment.
-- **Deterministic exports** – compile Markdown/HTML/PDF/chat transcripts with
-  stable hashes so audits can rely on them.
-- **Local-first by default** – run everything on your machine or docker host;
-  add optional services only when collaboration is needed.
+## Overview
+- **Unified authoring:** Switch seamlessly between linear notebook editing and a node graph while sharing a single source of truth.
+- **Governed snippets:** Attach metadata, provenance pins, and append-only history to every reusable fragment.
+- **Deterministic delivery:** Reproduce Markdown, HTML, PDF, DOCX, and chat exports with stable hashes and provenance logs.
+- **Local-first foundation:** Run entirely on your workstation via pnpm or Docker; optional services add collaboration, exports, and webhooks when you need them.
 
-The product, technical, and structure steering documents live in
-`.spec-workflow/steering/`. The full approved specification (requirements,
-design, tasks) is available under `.spec-workflow/specs/moduprompt-overview/`.
+> [!NOTE]
+> Product/technical/structure steering lives in `.spec-workflow/steering/`. Follow the spec workflow (Requirements → Design → Tasks → Implementation) before changing behavior.
 
 ---
 
-## Quick Start (≈10 minutes)
-Follow the path that matches how you want to explore ModuPrompt.
+## Choose Your Setup Path
+Pick the workflow that matches how you want to evaluate or contribute to ModuPrompt.
 
-### Option A – Docker (recommended for evaluators & end users)
-1. **Install prerequisites**: Docker Desktop or Docker Engine with Compose v2.
-2. **Create an environment file** (keep it local, do not commit):
-   ```bash
-   cd deploy/docker
-   cat <<'ENV' > .env.local
-   DATABASE_URL=postgresql://moduprompt:moduprompt@postgres:5432/moduprompt?schema=public
-   POSTGRES_PASSWORD=moduprompt
-   STORAGE_ACCESS_KEY=minioadmin
-   STORAGE_SECRET_KEY=minioadmin
-   MINIO_ROOT_USER=minioadmin
-   MINIO_ROOT_PASSWORD=minioadmin
-   ENV
-   ```
-   Change the secrets before sharing with a team.
-3. **Launch the core stack** (app + Postgres):
-   ```bash
-   docker compose --profile core --env-file .env.local up --build --wait
-   ```
-> **Troubleshooting (spec fix-typescript-workspace-build – Requirement 3):** The Docker build runs `pnpm build` inside the image and expects the workspace to resolve the shared package `@moduprompt/types`. If a cached layer still emits `TS2307` errors, rebuild with `docker compose --profile core --env-file .env.local build --no-cache` and run `pnpm install --frozen-lockfile && pnpm build` once on the host to regenerate shared type artifacts before re-running Docker. Keep secrets in `.env.local` out of version control.
-4. Open **http://localhost:8080** in your browser. The PWA runs entirely in your
-   browser even if you stop Docker later.
-5. To try exports and artifact storage, add supporting services:
-   ```bash
-   docker compose --profile exports --env-file .env.local up --build --wait
-   ```
-   This starts the export worker, MinIO (S3-compatible), and Redis queue.
-
-Stop the stack with `docker compose down --volumes` when you are done. This
-removes generated data (snippets, documents, exports).
-
-### Option B – Run from source (for contributors & advanced users)
-1. **Install prerequisites**:
-   - Node.js 20.17.x (Corepack recommended so pnpm is managed for you).
-   - pnpm 9.7.x (workspace is pinned to this version).
-   - Optional: `pnpm exec playwright install` for UI tests.
-2. **Install dependencies**:
+### 1. pnpm workspace (contributors)
+1. **Prerequisites:** Node.js 20.17.x (via Corepack), pnpm 9.7.x, Docker (optional for verification), Playwright browsers if you plan to run UI tests (`pnpm exec playwright install`).
+2. **Install & build:**
    ```bash
    pnpm install --frozen-lockfile
-   ```
-3. **Build everything once**:
-   ```bash
    pnpm build
    ```
-4. **Start the API** (uses in-memory export stub by default):
+3. **Run the API:**
    ```bash
    pnpm --filter @moduprompt/api dev
    ```
-   The service listens on http://localhost:3000. Configure environment variables
-   as described in [Configuration](#configuration-cheat-sheet) before pointing
-   real storage or queues at it.
-5. **Work on the client packages** (modules under `apps/web` and `packages/*`).
-   Use Vitest for fast feedback while you develop:
+   Configure env vars via [`docs/ops/env-vars.md`](docs/ops/env-vars.md) when pointing to real services.
+4. **Work on the web client:**
    ```bash
-   pnpm --filter @moduprompt/web test --watch
+   pnpm --filter @moduprompt/web dev
    ```
-6. To preview the UI interactively without Docker, reuse the Playwright harness:
+5. **Run checks as you iterate:** `pnpm typecheck`, `pnpm test`, and the Playwright harness under `tests/e2e/`.
+
+### 2. Docker Compose (evaluators & ops)
+1. **Prerequisites:** Docker Engine/Compose v2.
+2. **Create a local env file:**
    ```bash
-   pnpm exec vite dev --config tests/e2e/harness/vite.config.ts --host 127.0.0.1 --port 4173
+   cd deploy/docker
+   touch .env.local
    ```
-   Visit http://127.0.0.1:4173 and the harness will serve the app shell backed
-   by your local packages.
+   Populate values using the tables in [`docs/ops/env-vars.md`](docs/ops/env-vars.md); keep secrets out of version control.
+3. **Launch the core stack:**
+   ```bash
+   docker compose --profile core --env-file .env.local up --build --wait
+   ```
+4. **Optional services:** add exports and object storage when needed:
+   ```bash
+   docker compose --profile exports --env-file .env.local up --build --wait
+   ```
+5. Visit http://localhost:8080 for the PWA. Stop with `docker compose down --volumes` to clean generated data.
+6. (Optional) Verify the container serves the SPA bundle:
+   ```bash
+   DOCKER_SMOKE_BASE_URL=http://127.0.0.1:8080 pnpm test:e2e --project docker-smoke
+   ```
+   The smoke suite asserts `/` returns the compiled shell, static assets stream with immutable caching, and `/api/*` retains JSON semantics.
 
 ---
 
-## Everyday Workflows
-- **Compose prompts** in the notebook view with formatter toolbars, snippet drop
-  zones, and command palette shortcuts.
-- **Visualise flows** in the node graph to sanity-check branches, dependency
-  edges, and governance status chips.
-- **Manage snippets** with frontmatter metadata, smart folders, and append-only
-  history. Pin a revision to lock a prompt to a known version.
-- **Preflight & export** using the live preview panel. Resolve any blocking
-  diagnostics, then choose an export recipe to produce Markdown, HTML, PDF, or
-  chat-ready text with provenance.
-- **Stay deterministic** by keeping document width within the allowed 80/96/120
-  character choices and by pinning snippet revisions before export.
+## Verify the Runtime Image (required for releases)
+The docker-build-hardening spec introduces a shared verification workflow that proves runtime images only contain production dependencies.
 
-For a guided walkthrough, see `docs/product/quickstart.md`.
+- **Local & CI command:**
+  ```bash
+  pnpm docker:verify
+  ```
+  This wraps `docker build` (runtime stage only) and executes `scripts/docker/verify-runtime-deps.mjs`. The script outputs structured JSON and fails if it detects devDependencies, missing manifests, or Docker issues.
+- **What to expect:** successful runs emit a ✅ summary in stderr and a `status:"pass"` JSON record in stdout. Failures include actionable hints (e.g., which packages are marked `dev: true`).
+- **Logs in CI:** `.github/workflows/pipeline.yml` calls the same script inside the `container-security` job before Trivy scans, so audit trails show the exact pnpm deploy command executed.
+
+> [!TIP]
+> Set `DOCKER_VERIFY_IMAGE` or `DOCKER_VERIFY_MODULES_PATH` before running `pnpm docker:verify` if you need to inspect a different image tag or manifest location.
 
 ---
 
-## Quality Gate Checklist
-These commands mirror the CI pipeline defined in
-`.github/workflows/pipeline.yml`.
-
-| Command | What it verifies |
+## Quality Gates & Tooling
+| Command | Purpose |
 | --- | --- |
-| `pnpm typecheck` | TypeScript strict mode across all workspace packages. |
-| `pnpm test` | Unit + integration suites (Vitest, jsdom, fake-indexeddb, Prisma). |
-| `pnpm build` | Ensures packages compile and bundler configuration stays valid. |
-| `pnpm test:e2e` | Playwright end-to-end flows with axe-core accessibility checks. |
-| `pnpm test:perf` | Deterministic compiler benchmarks (keep latency budgets). |
-| `docker build -f deploy/docker/Dockerfile .` | Builds the production image. |
-| `trivy image moduprompt/app:TAG` | Optional local security scan matching the CI “container-security” job. |
+| `pnpm typecheck` | Strict TypeScript coverage across workspace packages. |
+| `pnpm test` | Unit + integration suites (Vitest, Prisma, fake-indexeddb). |
+| `pnpm test:e2e` | Playwright + axe-core accessibility flows under `tests/e2e`. |
+| `pnpm test:perf` | Compiler performance benchmarks with deterministic seeds. |
+| `pnpm docker:verify` | Builds runtime image and asserts production-only dependencies. |
+| `pnpm docker:build` | Rebuilds the runtime stage without running assertions (useful for iterative debugging). |
 
-All tests are deterministic—fixtures set explicit seeds to fulfil
-<determinism-and-reproducibility/>.
+All commands mirror our GitHub Actions pipeline and respect <determinism-and-reproducibility/> guardrails.
 
 ---
 
-## Configuration Cheat Sheet
-Full details live in `docs/ops/env-vars.md`. The table below lists the most
-common variables.
+## Documentation Map
+- Product quickstart: [`docs/product/quickstart.md`](docs/product/quickstart.md)
+- Governance administration: [`docs/admin/governance.md`](docs/admin/governance.md)
+- Compiler internals & extension guide: [`docs/developer/compiler.md`](docs/developer/compiler.md)
+- Environment variables & data classification: [`docs/ops/env-vars.md`](docs/ops/env-vars.md)
+- Release & readiness notes: [`docs/changelog/moduprompt-overview.md`](docs/changelog/moduprompt-overview.md)
 
-| Variable | Component | Default | Notes |
-| --- | --- | --- | --- |
-| `DATABASE_URL` | API / exporter | `postgresql://moduprompt:…` | Include `schema=public` for Prisma. Treat as **Confidential**. |
-| `PORT` | API | `8080` (Docker) / `3000` (dev) | Adjust when running behind proxies. |
-| `STORAGE_ENDPOINT` | API / exporter | `http://minio:9000` | Required for deterministic export artifacts. |
-| `STORAGE_ACCESS_KEY`, `STORAGE_SECRET_KEY` | API / exporter | `minioadmin` (dev) | Rotate before sharing instances. |
-| `EXPORT_QUEUE_URL` | API / exporter | `redis://redis:6379` | Leave unset to disable background export jobs. |
-| `EXPORT_PDF_RENDERER` | Exporter | `stub` | Switch to `puppeteer` when Chromium is available. |
-| `LOG_LEVEL` | All services | `info` | Structured logs follow pino format. |
-
-Never commit secrets or `.env` files. Use Compose `--env-file` or your preferred
-secret manager.
+See `.spec-workflow/specs/` for approved specs, including `docker-build-hardening` (current implementation focus) and `moduprompt-overview` (foundational features).
 
 ---
 
-## Observability & Troubleshooting
-- Health checks live at `GET /healthz` (liveness) and `GET /readyz` (readiness).
-- Logs use JSON by default. Tail them with `docker compose logs app` or straight
-  from the pnpm dev server.
-- Governance and export events emit via the webhook dispatcher when optional
-  services are enabled. Configure destinations under **Admin › Integrations**.
-- If exports stall, confirm the exporter container can reach MinIO/S3 and that
-  `EXPORT_QUEUE_URL` is set.
+## Working Within the Spec Workflow
+- Specs live under `.spec-workflow/specs/<name>/` with `requirements.md`, `design.md`, and `tasks.md` (versioned & approval-gated).
+- Before starting a task, mark it as `[-]` in `tasks.md`; mark as `[x]` when finished. This README update corresponds to task **5** of `docker-build-hardening`.
+- Align changes with steering (Product → Technical → Structure) before modifying code or docs. If scope drifts, update the spec and re-run approvals.
 
 ---
 
-## Repository Map
-| Path | What lives here |
-| --- | --- |
-| `apps/web` | Client UI modules, document stores, governance panels. |
-| `apps/api` | Fastify service, Prisma schema, export pipeline, webhooks. |
-| `packages/compiler` | Deterministic compiler and preflight diagnostics. |
-| `packages/snippet-store` | Offline storage adapters, governance policy engine. |
-| `packages/workers` | Sandboxed workers for filters/formatters and sanitisation. |
-| `packages/ui` | Reusable React/Tailwind primitives. |
-| `packages/types` | Shared TypeScript interfaces + JSON Schema emitters. |
-| `deploy/docker` | Dockerfile, Compose profiles, runtime entrypoints. |
-| `docs/` | Product, admin, developer guides, changelog, ADRs. |
-| `tests/` | Playwright E2E flows, accessibility checks, performance benches. |
+## Community & Licensing
+- **Community channels:** use [GitHub Issues](https://github.com/moduprompt/moduprompt/issues) for bugs or feature requests and tag with appropriate spec references. Discussions will open post-FOSS launch; register interest via issues until then.
+- **Security contact:** report vulnerabilities privately to the maintainers (open an issue with the `security` template or email the security contact listed in the forthcoming SECURITY.md).
+- **License status:** ModuPrompt is preparing a FOSS release. The final OSI-approved license and CONTRIBUTING guidelines will land before the wider community launch; track progress in [`docs/changelog/moduprompt-overview.md`](docs/changelog/moduprompt-overview.md).
 
 ---
 
-## Additional Resources
-- Product walkthrough: `docs/product/quickstart.md`
-- Governance administration: `docs/admin/governance.md`
-- Compiler internals & extension guide: `docs/developer/compiler.md`
-- Environment matrix & data classification: `docs/ops/env-vars.md`
-- Changelog & readiness notes: `docs/changelog/moduprompt-overview.md`
+## Contributing & Next Steps
+1. Fork or branch following the Conventional Commits workflow described in `.spec-workflow/specs/moduprompt-overview/tasks.md`.
+2. Run the full quality gate table above before opening a PR.
+3. Reference relevant specs (`docker-build-hardening`, `moduprompt-overview`) in your PR description and note any ADRs or security impacts.
 
-For implementation details or future enhancements, consult the spec package in
-`.spec-workflow/specs/moduprompt-overview/` and keep updates aligned with the
-steering documents before merging changes.
+For roadmap themes and future collaboration opportunities, review the Product Steering roadmap in `.spec-workflow/steering/product.md`.
+
+---
+
+### Need Help?
+- Check the troubleshooting tips embedded in `scripts/docker/verify-runtime-deps.mjs` and our CI logs.
+- Consult the steering docs and specs before requesting changes—they are the single source of truth for architecture and process.
+- If you discover documentation gaps, propose updates via the spec workflow so approvals remain auditable.

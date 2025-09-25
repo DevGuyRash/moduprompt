@@ -1,0 +1,14 @@
+{
+  "filePath": ".spec-workflow/specs/docker-pwa-serving/requirements.md",
+  "currentVersion": 1,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-09-25T19:43:17.304Z",
+      "trigger": "initial",
+      "approvalId": "approval_1758829397042_i6o4s03sb",
+      "approvalTitle": "docker-pwa-serving requirements v1.0.0"
+    }
+  ]
+}

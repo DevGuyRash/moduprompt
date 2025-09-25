@@ -1,0 +1,14 @@
+{
+  "filePath": ".spec-workflow/specs/docker-pwa-serving/design.md",
+  "currentVersion": 1,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-09-25T19:52:28.072Z",
+      "trigger": "initial",
+      "approvalId": "approval_1758829948053_ru8dn8xcx",
+      "approvalTitle": "docker-pwa-serving design v1.0.0"
+    }
+  ]
+}

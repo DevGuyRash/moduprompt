@@ -14,7 +14,7 @@ const pluginSchema = z.object({
   name: z.string(),
   version: z.string(),
   kind: z.string(),
-  manifest: z.record(z.any()),
+  manifest: z.record(z.string(), z.any()),
   enabled: z.boolean(),
   createdAt: z.number(),
   updatedAt: z.number(),
@@ -26,39 +26,37 @@ export const pluginsRoutes: FastifyPluginAsync = async (app) => {
   const service = new PluginService(app);
   const withTypeProvider = app.withTypeProvider<ZodTypeProvider>();
 
-  withTypeProvider.get<{ Querystring: PluginQuery; Reply: PluginListResponse }>(
-    '/plugins',
-    {
-      schema: {
-        tags: ['plugins'],
-        querystring: pluginQuerySchema,
-        response: {
-          200: pluginListSchema,
-        },
+  withTypeProvider.route<{ Querystring: PluginQuery; Reply: PluginListResponse }>({
+    method: 'GET',
+    url: '/plugins',
+    schema: {
+      tags: ['plugins'],
+      querystring: pluginQuerySchema,
+      response: {
+        200: pluginListSchema,
       },
     },
-    async (request) => {
+    handler: async (request) => {
       const items = await service.list(request.query.enabled);
       return { items };
     },
-  );
+  });
 
-  withTypeProvider.post<{ Body: RegisterPluginRequest; Reply: PluginResponse }>(
-    '/plugins',
-    {
-      schema: {
-        tags: ['plugins'],
-        body: registerPluginSchema,
-        response: {
-          201: pluginSchema,
-        },
+  withTypeProvider.route<{ Body: RegisterPluginRequest; Reply: PluginResponse }>({
+    method: 'POST',
+    url: '/plugins',
+    schema: {
+      tags: ['plugins'],
+      body: registerPluginSchema,
+      response: {
+        201: pluginSchema,
       },
     },
-    async (request, reply) => {
+    handler: async (request, reply) => {
       const { actorId, ...payload } = request.body;
       const plugin = await service.register({ ...payload, actorId });
       reply.code(201);
       return plugin;
     },
-  );
+  });
 };

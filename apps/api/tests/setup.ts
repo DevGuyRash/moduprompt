@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PrismaClient } from '@prisma/client';
@@ -12,6 +12,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, '..');
 const dbPath = join(projectRoot, '.tmp', 'test.db');
 const exportsDir = join(projectRoot, '.tmp', 'exports');
+const staticRootDir = join(projectRoot, '.tmp', 'static');
 
 let prisma: PrismaClient;
 
@@ -75,6 +76,23 @@ beforeAll(async () => {
     rmSync(exportsDir, { recursive: true, force: true });
   }
   mkdirSync(exportsDir, { recursive: true });
+  if (existsSync(staticRootDir)) {
+    rmSync(staticRootDir, { recursive: true, force: true });
+  }
+  mkdirSync(staticRootDir, { recursive: true });
+  process.env.STATIC_ROOT = staticRootDir;
+  const indexHtml = '<!doctype html><html><head><title>ModuPrompt Test Shell</title></head><body><div id="root">stub</div><script src="/app.js" type="module"></script></body></html>';
+  const appJs = 'export const ready = true;';
+  const stylesheet = 'body{background:#000;}';
+  const writeFile = (filePath: string, contents: string) => {
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
+    mkdirSync(dirname(filePath), { recursive: true });
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
+    writeFileSync(filePath, contents);
+  };
+  writeFile(join(staticRootDir, 'index.html'), indexHtml);
+  writeFile(join(staticRootDir, 'app.js'), appJs);
+  writeFile(join(staticRootDir, 'styles', 'app.css'), stylesheet);
   process.env.DATABASE_URL = `file:${dbPath}`;
   prisma = new PrismaClient({ datasources: { db: { url: process.env.DATABASE_URL } } });
   await applyMigration();

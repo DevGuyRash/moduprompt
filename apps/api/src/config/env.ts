@@ -1,4 +1,11 @@
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
+
+const DEFAULT_STATIC_ROOT = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '../../web/dist',
+);
 
 const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -23,6 +30,7 @@ const EnvSchema = z.object({
   EXPORT_S3_FORCE_PATH_STYLE: z.coerce.boolean().optional(),
   EXPORT_PDF_RENDERER: z.enum(['puppeteer', 'stub']).default('stub'),
   PUPPETEER_EXECUTABLE_PATH: z.string().optional(),
+  STATIC_ROOT: z.string().min(1).default(DEFAULT_STATIC_ROOT),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
