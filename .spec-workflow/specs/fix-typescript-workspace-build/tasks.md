@@ -25,7 +25,7 @@
   - _Requirements: Requirement 2_
   - _Prompt: Implement the task for spec fix-typescript-workspace-build, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Compiler maintainer with expertise in TypeScript typing hygiene | Task: Introduce typed sanitize-html support by adding @types/sanitize-html, updating imports, and clearing implicit any diagnostics in the compiler server export module | Restrictions: Do not downgrade sanitize-html, keep runtime behaviour identical, ensure lockfile integrity | _Leverage: packages/compiler/package.json, packages/compiler/src/server/export.ts | _Requirements: Requirement 2 | Success: pnpm install --frozen-lockfile succeeds, compiler typecheck/build run clean with no implicit any warnings_
 
-- [ ] 3. Update contributor documentation and validate Docker build
+- [x] 3. Update contributor documentation and validate Docker build
   - Files: `README.md`, `deploy/docker/README` (if present)
   - Actions:
     - Document the shared-types build prerequisite and troubleshooting steps for Docker users.

@@ -46,6 +46,7 @@ Follow the path that matches how you want to explore ModuPrompt.
    ```bash
    docker compose --profile core --env-file .env.local up --build --wait
    ```
+> **Troubleshooting (spec fix-typescript-workspace-build – Requirement 3):** The Docker build runs `pnpm build` inside the image and expects the workspace to resolve the shared package `@moduprompt/types`. If a cached layer still emits `TS2307` errors, rebuild with `docker compose --profile core --env-file .env.local build --no-cache` and run `pnpm install --frozen-lockfile && pnpm build` once on the host to regenerate shared type artifacts before re-running Docker. Keep secrets in `.env.local` out of version control.
 4. Open **http://localhost:8080** in your browser. The PWA runs entirely in your
    browser even if you stop Docker later.
 5. To try exports and artifact storage, add supporting services:
