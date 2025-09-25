@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/docker-build-hardening/design.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-09-25T09:22:04.004Z",
+      "trigger": "initial",
+      "approvalId": "approval_1758792123992_bufuxgua6",
+      "approvalTitle": "Approve design for docker-build-hardening"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-09-25T09:23:03.000Z",
+      "trigger": "approved",
+      "approvalId": "approval_1758792123992_bufuxgua6",
+      "approvalTitle": "Approve design for docker-build-hardening"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "filePath": ".spec-workflow/specs/docker-build-hardening/tasks.md",
+  "currentVersion": 1,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-09-25T09:23:48.903Z",
+      "trigger": "initial",
+      "approvalId": "approval_1758792228895_yk4fhwuae",
+      "approvalTitle": "Approve tasks for docker-build-hardening"
+    }
+  ]
+}
