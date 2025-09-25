@@ -1,6 +1,7 @@
 import type { PrismaClient, Prisma, ExportJobStatus } from '@prisma/client';
 import type { SnippetBundle } from '@moduprompt/compiler';
 import { mapDocument, mapExportRecipe, mapSnippet, mapSnippetVersion } from '../shared/mapper.js';
+import { fromJsonOrNull, toInputJson, toOptionalInputJson } from '../shared/prismaJson.js';
 
 export interface ExportJobFilters {
   documentId?: string;
@@ -48,7 +49,7 @@ type ExportJobRecord = {
   recipeId: string;
   artifactUri: string | null;
   error: string | null;
-  metadata: Record<string, unknown> | null;
+  metadata: Prisma.JsonValue | null;
   requestedBy: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -93,7 +94,7 @@ export class ExportRepository {
         status: input.status,
         artifactUri: input.artifactUri,
         error: input.error,
-        metadata: input.metadata !== undefined ? (input.metadata as Prisma.InputJsonValue) : undefined,
+        metadata: toOptionalInputJson(input.metadata),
         completedAt: input.status === 'completed' || input.status === 'failed' ? new Date() : undefined,
       },
     });
@@ -106,7 +107,7 @@ export class ExportRepository {
       data: {
         status: 'processing',
         error: null,
-        metadata: metadata !== undefined ? (metadata as Prisma.InputJsonValue) : undefined,
+        metadata: toOptionalInputJson(metadata),
       },
     });
     return this.mapJob(job as unknown as ExportJobRecord);
@@ -117,7 +118,7 @@ export class ExportRepository {
       where: { id },
       data: {
         status: 'queued',
-        metadata: metadata !== undefined ? (metadata as Prisma.InputJsonValue) : undefined,
+        metadata: toOptionalInputJson(metadata),
       },
     });
     return this.mapJob(job as unknown as ExportJobRecord);
@@ -132,7 +133,7 @@ export class ExportRepository {
       data: {
         status: 'completed',
         artifactUri: input.artifactUri,
-        metadata: input.metadata as Prisma.InputJsonValue,
+        metadata: toInputJson(input.metadata),
         error: null,
         completedAt: new Date(),
       },
@@ -146,7 +147,7 @@ export class ExportRepository {
       data: {
         status: 'failed',
         error: input.error,
-        metadata: input.metadata !== undefined ? (input.metadata as Prisma.InputJsonValue) : undefined,
+        metadata: toOptionalInputJson(input.metadata),
         completedAt: new Date(),
       },
     });
@@ -197,6 +198,7 @@ export class ExportRepository {
   private mapJob(job: ExportJobRecord): ExportJobView {
     return {
       ...job,
+      metadata: fromJsonOrNull<Record<string, unknown>>(job.metadata),
       createdAt: job.createdAt.getTime(),
       updatedAt: job.updatedAt.getTime(),
       completedAt: job.completedAt?.getTime() ?? null,

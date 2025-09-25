@@ -1,6 +1,6 @@
 import type { Snippet } from '@moduprompt/types';
-import type { SnippetTreeItem } from '../types';
-import { SMART_FOLDERS, type SmartFolderConfig } from './constants';
+import type { SnippetTreeItem } from '../types.js';
+import { SMART_FOLDERS, type SmartFolderConfig } from './constants.js';
 
 const normalize = (value: string): string => value.trim().toLowerCase();
 

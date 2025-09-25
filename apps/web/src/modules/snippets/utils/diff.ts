@@ -15,11 +15,16 @@ export const computeDiff = (previous: string, next: string): DiffSegment[] => {
 
   const table: number[][] = Array.from({ length: rows + 1 }, () => Array(cols + 1).fill(0));
   for (let i = rows - 1; i >= 0; i -= 1) {
+    const nextRow = table[i + 1]!;
+    const currentRow = table[i]!;
     for (let j = cols - 1; j >= 0; j -= 1) {
       if (a[i] === b[j]) {
-        table[i][j] = table[i + 1][j + 1] + 1;
+        const diagonal = nextRow[j + 1] ?? 0;
+        currentRow[j] = diagonal + 1;
       } else {
-        table[i][j] = Math.max(table[i + 1][j], table[i][j + 1]);
+        const down = nextRow[j] ?? 0;
+        const right = currentRow[j + 1] ?? 0;
+        currentRow[j] = down >= right ? down : right;
       }
     }
   }
@@ -38,15 +43,17 @@ export const computeDiff = (previous: string, next: string): DiffSegment[] => {
   };
 
   while (i < rows && j < cols) {
-    if (a[i] === b[j]) {
-      push('context', a[i]!);
+    const lineA = a[i]!;
+    const lineB = b[j]!;
+    if (lineA === lineB) {
+      push('context', lineA);
       i += 1;
       j += 1;
-    } else if (table[i + 1][j] >= table[i][j + 1]) {
-      push('removed', a[i]!);
+    } else if ((table[i + 1]?.[j] ?? 0) >= (table[i]?.[j + 1] ?? 0)) {
+      push('removed', lineA);
       i += 1;
     } else {
-      push('added', b[j]!);
+      push('added', lineB);
       j += 1;
     }
   }

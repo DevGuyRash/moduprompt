@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
+import { toStringArrayJson } from '../shared/prismaJson.js';
 
 export interface WebhookSubscriptionRecord {
   id: string;
@@ -33,7 +34,7 @@ export class WebhookRepository {
       data: {
         url: input.url,
         secret: input.secret,
-        events: input.events,
+        events: toStringArrayJson(input.events),
       },
     });
     return {
@@ -53,7 +54,7 @@ export class WebhookRepository {
       data: {
         url: input.url,
         secret: input.secret,
-        events: input.events,
+        events: input.events ? toStringArrayJson(input.events) : undefined,
         disabledAt: typeof input.disabled === 'boolean' ? (input.disabled ? new Date() : null) : undefined,
       },
     });

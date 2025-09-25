@@ -1,4 +1,4 @@
-import type { NodeProjection } from '../../state/selectors/documentSelectors';
+import type { NodeProjection } from '../../state/selectors/documentSelectors.js';
 
 export interface NodePosition {
   x: number;

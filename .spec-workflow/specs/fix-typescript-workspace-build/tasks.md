@@ -1,6 +1,6 @@
 # Tasks – fix-typescript-workspace-build
 
-- [-] 1. Normalize TypeScript workspace resolution
+- [x] 1. Normalize TypeScript workspace resolution
   - Files: `tsconfig.base.json`, `packages/*/tsconfig*.json` (audit and update only where required), `deploy/docker/Dockerfile`
   - Actions:
     - Set `moduleResolution` to `NodeNext` in the base config and introduce `paths` aliases for `@moduprompt/types`.

@@ -12,7 +12,7 @@ class PuppeteerPdfRenderer implements PdfRenderer {
   async render(html: string, options: PdfRendererOptions): Promise<Buffer> {
     const browser = await puppeteer.launch({
       executablePath: this.executablePath,
-      headless: 'new',
+      headless: 'shell',
       args: ['--no-sandbox', '--disable-setuid-sandbox', '--font-render-hinting=medium'],
     });
     const abortHandler = () => {

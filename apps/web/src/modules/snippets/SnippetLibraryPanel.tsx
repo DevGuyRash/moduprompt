@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
-import type { SnippetLibraryPanelProps } from './types';
-import { useSnippetLibrary } from './hooks/useSnippetLibrary';
-import { SnippetTree } from './components/SnippetTree';
-import { SnippetTimeline } from './components/SnippetTimeline';
-import { DiffViewer } from './components/DiffViewer';
+import type { SnippetLibraryPanelProps } from './types.js';
+import { useSnippetLibrary } from './hooks/useSnippetLibrary.js';
+import { SnippetTree } from './components/SnippetTree.js';
+import { SnippetTimeline } from './components/SnippetTimeline.js';
+import { DiffViewer } from './components/DiffViewer.js';
 
 const panelClasses =
   'grid w-full grid-cols-1 gap-6 rounded-lg border border-surface bg-surface-subtle p-4 text-foreground shadow-md md:grid-cols-[320px_1fr]';
@@ -91,7 +91,7 @@ export const SnippetLibraryPanel = ({
       title: activeSnippet.title,
       revision: activeSnippet.headRev,
       body: activeVersion?.body ?? activeSnippet.body,
-      frontmatter: (activeVersion?.frontmatter ?? activeSnippet.frontmatter) as Record<string, unknown>,
+      frontmatter: activeVersion?.frontmatter ?? activeSnippet.frontmatter,
     });
     setStatusMessage('Snippet ready for insertion. Drag or drop into the editor.');
   }, [activeSnippet, activeVersion, onSnippetInsert]);

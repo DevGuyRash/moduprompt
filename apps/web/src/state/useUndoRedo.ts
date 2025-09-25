@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useDocumentStore, useDocumentStoreApi } from './document-model';
+import { useDocumentStore, useDocumentStoreApi } from './document-model.js';
 
 export interface UndoRedoControls {
   undo: () => void;

@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import type { Snippet } from '@moduprompt/types';
-import type { SmartFolderConfig } from '../utils/constants';
-import { SNIPPET_DRAG_MIME } from '../utils/constants';
-import type { SnippetTreeItem } from '../types';
+import type { SmartFolderConfig } from '../utils/constants.js';
+import { SNIPPET_DRAG_MIME } from '../utils/constants.js';
+import type { SnippetTreeItem } from '../types.js';
 
 export interface SnippetTreeProps {
   treeItems: SnippetTreeItem[];

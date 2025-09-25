@@ -51,11 +51,11 @@
     "AuthorMeta": {
       "description": "Common author metadata attached to snippet revisions and audit records.",
       "title": "AuthorMeta",
-      "$ref": "#/definitions/AuthorMeta_1"
+      "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).AuthorMeta"
     },
-    "AuthorMeta_1": {
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).AuthorMeta": {
       "description": "Common author metadata attached to snippet revisions and audit records.",
-      "title": "AuthorMeta_1",
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).AuthorMeta",
       "type": "object",
       "properties": {
         "id": {

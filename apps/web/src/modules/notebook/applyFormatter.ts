@@ -1,7 +1,7 @@
 import type { Draft } from 'immer';
 import type { Block } from '@moduprompt/types';
-import type { DocumentStoreApi } from '../../state/document-model';
-import type { NotebookFormatter } from './types';
+import type { DocumentStoreApi } from '../../state/document-model.js';
+import type { NotebookFormatter } from './types.js';
 
 export interface ApplyFormatterOptions {
   documentId: string;

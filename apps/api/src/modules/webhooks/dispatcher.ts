@@ -127,10 +127,9 @@ const sanitizeEventForWebhook = (event: DomainEvent): Record<string, unknown> =>
         },
       } satisfies Record<string, unknown>;
     default:
+      const exhaustive: never = event;
       return {
-        type: event.type,
-        occurredAt: event.occurredAt,
-        actorId: event.actorId,
+        type: exhaustive,
       } satisfies Record<string, unknown>;
   }
 };
@@ -180,33 +179,21 @@ export class WebhookDispatcher {
     payload: Record<string, unknown>;
   }): Promise<void> {
     const maxAttempts = this.options.retryLimit + 1;
+    const { subscriptionId, url, secret, event, auditId, payload } = args;
+    const domainEvent = event as DomainEvent;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
       try {
-        await this.send(args);
+        await this.send({ subscriptionId, url, secret, event: domainEvent, auditId, payload });
         if (attempt > 1) {
-          this.logger.info({ subscriptionId: args.subscriptionId, attempt }, 'webhook delivery succeeded after retry');
+          this.logger.info({ subscriptionId, attempt }, 'webhook delivery succeeded after retry');
         }
         return;
       } catch (error) {
         const isFinalAttempt = attempt >= maxAttempts;
-        this.logger.warn(
-          {
-            subscriptionId: args.subscriptionId,
-            attempt,
-            error,
-          },
-          'webhook delivery attempt failed',
-        );
+        this.logger.warn({ subscriptionId, attempt, error }, 'webhook delivery attempt failed');
         if (isFinalAttempt) {
-          this.logger.error(
-            {
-              subscriptionId: args.subscriptionId,
-              auditId: args.auditId,
-              event: args.event.type,
-            },
-            'webhook delivery exhausted retries',
-          );
+          this.logger.error({ subscriptionId, auditId, event: domainEvent.type }, 'webhook delivery exhausted retries');
           return;
         }
         const backoff = computeBackoff(attempt, this.options.backoffMinMs, this.options.backoffMaxMs);

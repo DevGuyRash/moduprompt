@@ -1,10 +1,10 @@
 import { useCallback, useMemo } from 'react';
-import { useDocumentStore, useDocumentStoreApi } from '../../../state/document-model';
-import { selectNotebookProjection } from '../../../state/selectors/documentSelectors';
+import { useDocumentStore, useDocumentStoreApi } from '../../../state/document-model.js';
+import { selectNotebookProjection } from '../../../state/selectors/documentSelectors.js';
 import type { Block } from '@moduprompt/types';
-import type { NotebookCommand, NotebookFormatter } from '../types';
-import { applyFormatter } from '../applyFormatter';
-import { generateId } from '../id';
+import type { NotebookCommand, NotebookFormatter } from '../types.js';
+import { applyFormatter } from '../applyFormatter.js';
+import { generateId } from '../id.js';
 
 export interface UseNotebookCommandsOptions {
   documentId: string;

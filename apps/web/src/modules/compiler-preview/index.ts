@@ -1,4 +1,4 @@
-export { PreviewPane } from './PreviewPane';
-export { usePreflight } from './hooks/usePreflight';
-export type { PreviewPaneProps } from './PreviewPane';
-export type { ExportDrawerProps } from './components/ExportDrawer';
+export { PreviewPane } from './PreviewPane.js';
+export { usePreflight } from './hooks/usePreflight.js';
+export type { PreviewPaneProps } from './PreviewPane.js';
+export type { ExportDrawerProps } from './components/ExportDrawer.js';

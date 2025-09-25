@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import type { SnippetTimelineEntry } from '../types';
+import type { SnippetTimelineEntry } from '../types.js';
 
 const relativeFormatter = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
 

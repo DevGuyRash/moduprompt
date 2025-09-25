@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { Snippet, SnippetVersion } from '@moduprompt/types';
+import type { Snippet, SnippetVersion, SnippetFrontmatter } from '@moduprompt/types';
 import { computeIntegrityHash } from '@moduprompt/snippet-store';
 import type { WorkspaceStore } from '@moduprompt/snippet-store';
-import { useSnippetLibraryContext } from '../provider';
+import { useSnippetLibraryContext } from '../provider.js';
 import type {
   SnippetLibrarySelection,
   SnippetLibraryState,
   SnippetTimelineEntry,
   SnippetTreeItem,
-} from '../types';
-import { buildFolderTree, buildSmartFolders, computeDuplicateIds, filterSnippets } from '../utils/tree';
-import type { SmartFolderConfig } from '../utils/constants';
+} from '../types.js';
+import { buildFolderTree, buildSmartFolders, computeDuplicateIds, filterSnippets } from '../utils/tree.js';
+import type { SmartFolderConfig } from '../utils/constants.js';
 
 interface UseSnippetLibraryOptions {
   initialSnippetId?: string;
@@ -278,7 +278,7 @@ export const useSnippetLibrary = ({
       if (!snippet) {
         throw new Error(`Snippet ${state.selectedSnippetId} not found`);
       }
-      const frontmatter = { ...snippet.frontmatter } as Record<string, unknown>;
+      const frontmatter: SnippetFrontmatter = { ...snippet.frontmatter };
       if (typeof revision === 'number') {
         frontmatter.pinnedRevision = revision;
       } else {

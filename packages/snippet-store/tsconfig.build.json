@@ -1,7 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "declaration": true,
-    "declarationMap": true
+    "rootDir": ".",
+    "noEmit": false,
+    "paths": {
+      "@moduprompt/types": ["../types/dist/index.d.ts"],
+      "@moduprompt/types/*": ["../types/dist/*"]
+    }
   }
 }

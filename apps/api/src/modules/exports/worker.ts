@@ -1,6 +1,6 @@
 import { performance } from 'node:perf_hooks';
 import { randomUUID } from 'node:crypto';
-import type { CompileOptions, PdfRenderer } from '@moduprompt/compiler';
+import type { CompileOptions, PdfRenderer, PreflightIssue } from '@moduprompt/compiler';
 import { buildArtifact, compileDocument } from '@moduprompt/compiler';
 import type { DocumentModel } from '@moduprompt/types';
 import type { Env } from '../../config/env.js';
@@ -78,10 +78,10 @@ export class ExportWorker {
       const compileResult = compileDocument(compileOptions);
 
       if (compileResult.preflight.summary.errors > 0) {
-        const errorMessage = compileResult.preflight.issues
-          .filter((issue) => issue.severity === 'error')
-          .map((issue) => issue.message)
-          .join('; ');
+        const blockingIssues = compileResult.preflight.issues.filter(
+          (issue): issue is PreflightIssue => issue.severity === 'error',
+        );
+        const errorMessage = blockingIssues.map((issue: PreflightIssue) => issue.message).join('; ');
         await this.deps.repository.markFailed(jobId, {
           error: `Preflight blocked export: ${truncate(errorMessage)}`,
           metadata: {
@@ -116,7 +116,12 @@ export class ExportWorker {
         },
       });
 
-      const key = this.buildStorageKey(jobContext.document.id, jobContext.recipe.id, artifact.metadata.artifactHash, artifact.extension);
+      const key = this.buildStorageKey(
+        jobContext.document.id,
+        jobContext.recipe.id,
+        artifact.metadata.artifactHash,
+        artifact.extension,
+      );
       const stored = await this.deps.storage.put({
         key,
         body: artifact.body,
@@ -197,8 +202,9 @@ export class ExportWorker {
     }
   }
 
-  private buildStorageKey(documentId: string, recipeId: string, hash: string, extension: string): string {
+  private buildStorageKey(documentId: string, recipeId: string, hash: string | undefined, extension: string): string {
     const prefix = this.deps.env.EXPORT_ARTIFACT_PREFIX.replace(/\/$/, '');
-    return `${prefix}/${documentId}/${recipeId}/${hash}-${randomUUID()}.${extension}`;
+    const safeHash = hash ?? 'unhashed';
+    return `${prefix}/${documentId}/${recipeId}/${safeHash}-${randomUUID()}.${extension}`;
   }
 }

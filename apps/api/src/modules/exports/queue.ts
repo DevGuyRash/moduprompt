@@ -1,5 +1,5 @@
 import PQueue from 'p-queue';
-import type { Logger } from 'pino';
+import type { FastifyBaseLogger } from 'fastify';
 
 export interface ExportQueueProcessorContext {
   attempt: number;
@@ -10,12 +10,14 @@ export interface ExportQueueProcessorContext {
 
 export type ExportQueueProcessor = (jobId: string, context: ExportQueueProcessorContext) => Promise<void>;
 
+export type ExportQueueLogger = Pick<FastifyBaseLogger, 'info' | 'warn' | 'error'>;
+
 export interface ExportQueueOptions {
   concurrency: number;
   retryLimit: number;
   timeoutMs: number;
   processor: ExportQueueProcessor;
-  logger: Logger;
+  logger: ExportQueueLogger;
 }
 
 const backoffDelay = (attempt: number): number => {

@@ -13,10 +13,10 @@ import {
   DocumentStoreProvider,
   createDocumentStore,
   type DocumentStoreApi,
-} from '../../../state/document-model';
-import { NotebookView } from '../NotebookView';
-import type { NotebookFormatter, NotebookSnippetOption } from '../types';
-import { resetIdCounter } from '../id';
+} from '../../../state/document-model.js';
+import { NotebookView } from '../NotebookView.js';
+import type { NotebookFormatter, NotebookSnippetOption } from '../types.js';
+import { resetIdCounter } from '../id.js';
 
 const timestamp = 1;
 

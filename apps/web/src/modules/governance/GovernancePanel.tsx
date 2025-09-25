@@ -6,14 +6,15 @@ import {
   createStatusChangeAuditEntry,
   createTagChangeAuditEntry,
   normalizeTags,
+  normalizeStatusColor,
 } from '@moduprompt/snippet-store';
-import { useDocumentStore, useDocumentStoreApi } from '../../state/document-model';
-import { selectDocumentModel } from '../../state/selectors/documentSelectors';
-import { GovernanceProvider, useGovernanceStore } from './provider';
-import { AuditLogPanel } from './components/AuditLogPanel';
-import { useWorkspaceGovernance } from './hooks/useWorkspaceGovernance';
-import { getAccessiblePalette } from './utils/color';
-import type { GovernancePanelProps } from './types';
+import { useDocumentStore, useDocumentStoreApi } from '../../state/document-model.js';
+import { selectDocumentModel } from '../../state/selectors/documentSelectors.js';
+import { GovernanceProvider, useGovernanceStore } from './provider.js';
+import { AuditLogPanel } from './components/AuditLogPanel.js';
+import { useWorkspaceGovernance } from './hooks/useWorkspaceGovernance.js';
+import { getAccessiblePalette } from './utils/color.js';
+import type { GovernancePanelProps } from './types.js';
 
 const containerClasses =
   'bg-surface-subtle text-foreground flex w-full flex-col gap-6 rounded-lg border border-surface px-4 py-5 shadow-sm';
@@ -247,7 +248,7 @@ const GovernancePanelInner = ({
           target.name = value;
           target.key = ensureKeyUnique(slugify(value), next, index);
         } else if (field === 'color' && typeof value === 'string') {
-          target.color = value;
+          target.color = normalizeStatusColor(value);
         } else if (field === 'description' && typeof value === 'string') {
           target.description = value;
         } else if (field === 'isFinal' && typeof value === 'boolean') {

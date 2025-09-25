@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { JsonObject } from '@moduprompt/types';
 
 export const auditLogEventTypeSchema = z.enum([
   'snippet.version.created',
@@ -9,9 +10,9 @@ export const auditLogEventTypeSchema = z.enum([
   'plugin.installed',
 ]);
 
-export const auditLogMetadataSchema: z.ZodSchema<Record<string, unknown>> = z
+export const auditLogMetadataSchema = z
   .record(z.string(), z.unknown())
-  .transform((value) => ({ ...value }));
+  .transform((value) => ({ ...value } as JsonObject));
 
 export const auditLogEntrySchema = z.object({
   id: z.string().min(1),

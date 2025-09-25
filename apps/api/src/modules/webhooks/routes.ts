@@ -20,11 +20,17 @@ const webhookResponseSchema = z.object({
 
 const webhookListSchema = z.object({ items: z.array(webhookResponseSchema) });
 
+type WebhookResponse = z.infer<typeof webhookResponseSchema>;
+type WebhookListResponse = z.infer<typeof webhookListSchema>;
+type CreateWebhookSubscription = z.infer<typeof createWebhookSubscriptionSchema>;
+type UpdateWebhookSubscription = z.infer<typeof updateWebhookSubscriptionSchema>;
+type WebhookRouteParams = z.infer<typeof webhookParamsSchema>;
+
 export const webhooksRoutes: FastifyPluginAsync = async (app) => {
   const service = new WebhookService(app);
   const withTypeProvider = app.withTypeProvider<ZodTypeProvider>();
 
-  withTypeProvider.get('/webhooks/subscriptions', {
+  withTypeProvider.get<{ Reply: WebhookListResponse }>('/webhooks/subscriptions', {
     schema: {
       tags: ['webhooks'],
       response: {
@@ -36,7 +42,7 @@ export const webhooksRoutes: FastifyPluginAsync = async (app) => {
     return { items };
   });
 
-  withTypeProvider.post('/webhooks/subscriptions', {
+  withTypeProvider.post<{ Body: CreateWebhookSubscription; Reply: WebhookResponse }>('/webhooks/subscriptions', {
     schema: {
       tags: ['webhooks'],
       body: createWebhookSubscriptionSchema,
@@ -50,7 +56,11 @@ export const webhooksRoutes: FastifyPluginAsync = async (app) => {
     return subscription;
   });
 
-  withTypeProvider.patch('/webhooks/subscriptions/:id', {
+  withTypeProvider.patch<{
+    Params: WebhookRouteParams;
+    Body: UpdateWebhookSubscription & { disabled?: boolean };
+    Reply: WebhookResponse;
+  }>('/webhooks/subscriptions/:id', {
     schema: {
       tags: ['webhooks'],
       params: webhookParamsSchema,

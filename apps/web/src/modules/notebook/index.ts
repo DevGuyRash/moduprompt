@@ -1,4 +1,4 @@
-export { NotebookView } from './NotebookView';
-export { applyFormatter } from './applyFormatter';
-export { useNotebookCommands } from './hooks/useNotebookCommands';
-export * from './types';
+export { NotebookView } from './NotebookView.js';
+export { applyFormatter } from './applyFormatter.js';
+export { useNotebookCommands } from './hooks/useNotebookCommands.js';
+export * from './types.js';

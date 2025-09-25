@@ -13,28 +13,28 @@
     "blocks": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/Block"
+        "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).Block"
       },
       "title": "blocks"
     },
     "edges": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/Edge"
+        "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).Edge"
       },
       "title": "edges"
     },
     "variables": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/VariableDefinition"
+        "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).VariableDefinition"
       },
       "title": "variables"
     },
     "exportRecipes": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/ExportRecipeBinding"
+        "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).ExportRecipeBinding"
       },
       "title": "exportRecipes"
     },
@@ -82,28 +82,28 @@
     "variables"
   ],
   "definitions": {
-    "Block": {
-      "title": "Block",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).Block": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).Block",
       "anyOf": [
         {
-          "$ref": "#/definitions/MarkdownBlock"
+          "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).MarkdownBlock"
         },
         {
-          "$ref": "#/definitions/SnippetBlock"
+          "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).SnippetBlock"
         },
         {
-          "$ref": "#/definitions/GroupBlock"
+          "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).GroupBlock"
         },
         {
-          "$ref": "#/definitions/CommentBlock"
+          "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).CommentBlock"
         },
         {
-          "$ref": "#/definitions/DividerBlock"
+          "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).DividerBlock"
         }
       ]
     },
-    "MarkdownBlock": {
-      "title": "MarkdownBlock",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).MarkdownBlock": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).MarkdownBlock",
       "type": "object",
       "properties": {
         "kind": {
@@ -161,21 +161,21 @@
     },
     "JsonObject": {
       "title": "JsonObject",
-      "$ref": "#/definitions/JsonObject_1"
+      "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonObject"
     },
-    "JsonObject_1": {
-      "title": "JsonObject_1",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonObject": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonObject",
       "type": "object",
       "additionalProperties": {
         "anyOf": [
           {
             "type": "array",
             "items": {
-              "$ref": "#/definitions/JsonValue"
+              "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonValue"
             }
           },
           {
-            "$ref": "#/definitions/JsonObject_1"
+            "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonObject"
           },
           {
             "type": [
@@ -188,17 +188,17 @@
         ]
       }
     },
-    "JsonValue": {
-      "title": "JsonValue",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonValue": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonValue",
       "anyOf": [
         {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/JsonValue"
+            "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonValue"
           }
         },
         {
-          "$ref": "#/definitions/JsonObject_1"
+          "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonObject"
         },
         {
           "type": [
@@ -210,8 +210,8 @@
         }
       ]
     },
-    "SnippetBlock": {
-      "title": "SnippetBlock",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).SnippetBlock": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).SnippetBlock",
       "type": "object",
       "properties": {
         "kind": {
@@ -277,8 +277,8 @@
         "updatedAt"
       ]
     },
-    "GroupBlock": {
-      "title": "GroupBlock",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).GroupBlock": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).GroupBlock",
       "type": "object",
       "properties": {
         "kind": {
@@ -337,8 +337,8 @@
         "updatedAt"
       ]
     },
-    "CommentBlock": {
-      "title": "CommentBlock",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).CommentBlock": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).CommentBlock",
       "type": "object",
       "properties": {
         "kind": {
@@ -400,11 +400,11 @@
     "AuthorMeta": {
       "description": "Common author metadata attached to snippet revisions and audit records.",
       "title": "AuthorMeta",
-      "$ref": "#/definitions/AuthorMeta_1"
+      "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).AuthorMeta"
     },
-    "AuthorMeta_1": {
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).AuthorMeta": {
       "description": "Common author metadata attached to snippet revisions and audit records.",
-      "title": "AuthorMeta_1",
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).AuthorMeta",
       "type": "object",
       "properties": {
         "id": {
@@ -425,8 +425,8 @@
         "id"
       ]
     },
-    "DividerBlock": {
-      "title": "DividerBlock",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).DividerBlock": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).DividerBlock",
       "type": "object",
       "properties": {
         "kind": {
@@ -479,8 +479,8 @@
         "updatedAt"
       ]
     },
-    "Edge": {
-      "title": "Edge",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).Edge": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).Edge",
       "type": "object",
       "properties": {
         "source": {
@@ -535,10 +535,10 @@
     },
     "EdgeCondition": {
       "title": "EdgeCondition",
-      "$ref": "#/definitions/EdgeCondition_1"
+      "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).EdgeCondition"
     },
-    "EdgeCondition_1": {
-      "title": "EdgeCondition_1",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).EdgeCondition": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).EdgeCondition",
       "type": "object",
       "properties": {
         "expression": {
@@ -562,8 +562,8 @@
         "language"
       ]
     },
-    "VariableDefinition": {
-      "title": "VariableDefinition",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).VariableDefinition": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).VariableDefinition",
       "type": "object",
       "properties": {
         "key": {
@@ -583,7 +583,7 @@
           "title": "type"
         },
         "defaultValue": {
-          "$ref": "#/definitions/JsonValue_1",
+          "$ref": "#/definitions/JsonValue",
           "title": "defaultValue"
         },
         "required": {
@@ -597,7 +597,7 @@
         "options": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/VariableOption"
+            "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).VariableOption"
           },
           "title": "options"
         },
@@ -629,17 +629,17 @@
       ],
       "type": "string"
     },
-    "JsonValue_1": {
-      "title": "JsonValue_1",
+    "JsonValue": {
+      "title": "JsonValue",
       "anyOf": [
         {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/JsonValue"
+            "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonValue"
           }
         },
         {
-          "$ref": "#/definitions/JsonObject_1"
+          "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonObject"
         },
         {
           "type": [
@@ -651,8 +651,8 @@
         }
       ]
     },
-    "VariableOption": {
-      "title": "VariableOption",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).VariableOption": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).VariableOption",
       "type": "object",
       "properties": {
         "value": {
@@ -669,8 +669,8 @@
         "value"
       ]
     },
-    "ExportRecipeBinding": {
-      "title": "ExportRecipeBinding",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).ExportRecipeBinding": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).ExportRecipeBinding",
       "type": "object",
       "properties": {
         "recipeId": {

@@ -1,2 +1,2 @@
-export { NodeGraphCanvas } from './NodeGraphCanvas';
-export type { NodeGraphCanvasProps } from './NodeGraphCanvas';
+export { NodeGraphCanvas } from './NodeGraphCanvas.js';
+export type { NodeGraphCanvasProps } from './NodeGraphCanvas.js';

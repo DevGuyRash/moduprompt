@@ -4,6 +4,7 @@ import type { AuditLogEntry } from '@moduprompt/types';
 import type { DomainEvent } from './domainEvents.js';
 import type { AuditService } from '../modules/audit/service.js';
 import type { WebhookDispatcher } from '../modules/webhooks/dispatcher.js';
+import type { FastifyBaseLogger } from 'fastify';
 
 export interface DispatchOptions {
   persistAudit?: boolean;
@@ -18,7 +19,7 @@ const defaultOptions: DispatchOptions = {
 export interface DomainEventDispatcherDependencies {
   auditService: AuditService;
   webhookDispatcher: WebhookDispatcher;
-  logger?: Logger;
+  logger?: FastifyBaseLogger;
 }
 
 export class DomainEventDispatcher {
@@ -26,7 +27,8 @@ export class DomainEventDispatcher {
   private readonly queue = new PQueue({ concurrency: 1 });
 
   constructor(private readonly deps: DomainEventDispatcherDependencies) {
-    this.logger = (deps.logger ?? pino()).child({ name: 'domain-event-dispatcher' });
+    const baseLogger = deps.logger ?? pino();
+    this.logger = (baseLogger as Logger).child({ name: 'domain-event-dispatcher' });
   }
 
   async dispatch(event: DomainEvent, options: DispatchOptions = defaultOptions): Promise<void> {

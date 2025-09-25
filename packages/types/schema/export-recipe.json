@@ -89,10 +89,10 @@
     },
     "ExportRecipePdfConfig": {
       "title": "ExportRecipePdfConfig",
-      "$ref": "#/definitions/ExportRecipePdfConfig_1"
+      "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).ExportRecipePdfConfig"
     },
-    "ExportRecipePdfConfig_1": {
-      "title": "ExportRecipePdfConfig_1",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).ExportRecipePdfConfig": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/moduprompt\",{with:{\"resolution-mode\":\"import\"}}).ExportRecipePdfConfig",
       "type": "object",
       "properties": {
         "margin": {

@@ -12,7 +12,7 @@ import {
   type CompileResult,
   type SnippetBundle,
 } from '@moduprompt/compiler';
-import { useDocumentStore } from '../../../state/document-model';
+import { useDocumentStore } from '../../../state/document-model.js';
 
 interface UsePreflightOptions {
   documentId: string;

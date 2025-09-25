@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { Block, Edge } from '@moduprompt/types';
 import type { Connection } from 'reactflow';
-import type { NodeProjection } from '../../../state/selectors/documentSelectors';
-import { computeLayout } from '../layout';
+import type { NodeProjection } from '../../../state/selectors/documentSelectors.js';
+import { computeLayout } from '../layout.js';
 import {
   buildReactFlowEdges,
   buildReactFlowNodes,
@@ -11,7 +11,7 @@ import {
   isConnectionTyped,
   parseHandleKind,
   wouldCreateCycle,
-} from '../graphUtils';
+} from '../graphUtils.js';
 
 const createBlock = (id: string, overrides: Partial<Block> = {}): Block => ({
   id,

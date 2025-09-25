@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { AuditLogEntry } from '@moduprompt/types';
-import { useAuditLogFeed } from '../hooks/useAuditLogFeed';
+import { useAuditLogFeed } from '../hooks/useAuditLogFeed.js';
 
 const panelClasses =
   'rounded-md border border-surface-strong bg-surface px-3 py-3 text-sm shadow-sm focus-within:ring-2 focus-within:ring-brand/40';

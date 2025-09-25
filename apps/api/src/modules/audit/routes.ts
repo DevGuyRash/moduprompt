@@ -8,12 +8,18 @@ import {
   auditLogListQuerySchema,
   auditLogListResponseSchema,
 } from './schemas.js';
+import type { AuditLogIngestRequest, AuditLogListQuery } from './schemas.js';
 
 export const auditRoutes: FastifyPluginAsync = async (app) => {
   const service = new AuditService(new AuditRepository(app.prisma));
   const withTypeProvider = app.withTypeProvider<ZodTypeProvider>();
 
-  withTypeProvider.get('/audit/logs', {
+  withTypeProvider.get<
+    {
+      Querystring: AuditLogListQuery;
+      Reply: z.infer<typeof auditLogListResponseSchema>;
+    }
+  >('/audit/logs', {
     schema: {
       tags: ['audit'],
       querystring: auditLogListQuerySchema,
@@ -26,7 +32,12 @@ export const auditRoutes: FastifyPluginAsync = async (app) => {
     return { items, nextCursor };
   });
 
-  withTypeProvider.post('/audit/ingest', {
+  withTypeProvider.post<
+    {
+      Body: AuditLogIngestRequest;
+      Reply: { accepted: true };
+    }
+  >('/audit/ingest', {
     schema: {
       tags: ['audit'],
       body: auditLogIngestRequestSchema,

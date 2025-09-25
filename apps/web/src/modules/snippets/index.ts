@@ -1,8 +1,8 @@
 export type {
   SnippetLibraryPanelProps,
   SnippetLibrarySelection,
-} from './types';
-export { SnippetLibraryPanel } from './SnippetLibraryPanel';
-export { SnippetLibraryProvider, useSnippetLibraryContext } from './provider';
-export { useSnippetLibrary } from './hooks/useSnippetLibrary';
-export { SNIPPET_DRAG_MIME } from './utils/constants';
+} from './types.js';
+export { SnippetLibraryPanel } from './SnippetLibraryPanel.js';
+export { SnippetLibraryProvider, useSnippetLibraryContext } from './provider.js';
+export { useSnippetLibrary } from './hooks/useSnippetLibrary.js';
+export { SNIPPET_DRAG_MIME } from './utils/constants.js';
