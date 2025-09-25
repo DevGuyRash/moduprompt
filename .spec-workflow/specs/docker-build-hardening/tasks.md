@@ -8,7 +8,7 @@
   - _Requirements: Requirement 1 (AC1–AC3)
   - _Prompt: Implement the task for spec docker-build-hardening, first run spec-workflow-guide to get the workflow guide then implement the task: Role: DevOps engineer specializing in pnpm workspaces and Docker multi-stage builds | Task: Update deploy/docker/Dockerfile to use pnpm deploy for production installs, add any necessary pnpm configuration (e.g., .npmrc) so the command succeeds, and verify the runtime stage only contains production dependencies | Restrictions: Do not remove existing build outputs, keep exporter stage functional, retain security hardening (non-root user, read_only) | Leverage: deploy/docker/Dockerfile, pnpm deploy documentation, existing build stage outputs | Requirements: Requirement 1 AC1–AC3 | Success: Docker build completes without pnpm errors, runtime image runs with production deps only, exporter stage still builds | Tasks.md: Mark this task as [-] when starting work and [x] when complete_
 
-- [ ] 2. Add reusable Docker verification scripts
+- [x] 2. Add reusable Docker verification scripts
   - Files: package.json, scripts/ (new helper if needed)
   - Create `pnpm docker:verify` (and supporting scripts) that run the Docker build with deterministic flags, emit timing/log info, and optionally validate absence of devDependencies by inspecting the built image.
   - Purpose: Provide local entry points aligned with Requirement 2 for regression detection.

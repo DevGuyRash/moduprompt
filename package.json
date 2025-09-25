@@ -4,11 +4,14 @@
   "packageManager": "pnpm@9.7.0",
   "scripts": {
     "build": "pnpm --filter @moduprompt/api prisma:generate && pnpm --filter @moduprompt/types build && pnpm -r --filter '!@moduprompt/types' build",
-    "typecheck": "pnpm --filter @moduprompt/types build && pnpm --filter @moduprompt/types typecheck && pnpm -r --filter '!@moduprompt/types' typecheck",
+    "docker:build": "docker build --file deploy/docker/Dockerfile --target runtime-base --tag moduprompt/app:verify .",
+    "docker:verify": "pnpm docker:build && pnpm docker:verify:deps",
+    "docker:verify:deps": "node ./scripts/docker/verify-runtime-deps.mjs",
     "schema": "pnpm -r schema",
     "test": "pnpm -r test",
+    "test:e2e": "playwright test --config tests/e2e/playwright.config.ts",
     "test:perf": "vitest bench tests/perf --run",
-    "test:e2e": "playwright test --config tests/e2e/playwright.config.ts"
+    "typecheck": "pnpm --filter @moduprompt/types build && pnpm --filter @moduprompt/types typecheck && pnpm -r --filter '!@moduprompt/types' typecheck"
   },
   "engines": {
     "node": ">=18.18.0"
