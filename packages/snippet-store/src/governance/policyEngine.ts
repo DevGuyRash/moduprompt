@@ -1,5 +1,11 @@
-import type { AuditLogEntry, ExportRecipe, ISODateString, WorkspaceStatus } from '@moduprompt/types';
-import { buildStatusIndex, findStatus } from './statusSchema';
+import type {
+  AuditLogEntry,
+  ExportRecipe,
+  ISODateString,
+  JsonObject,
+  WorkspaceStatus,
+} from '@moduprompt/types';
+import { buildStatusIndex, findStatus } from './statusSchema.js';
 
 export interface StatusTransitionInput {
   statuses: WorkspaceStatus[];
@@ -22,6 +28,11 @@ const normalizeStatusKey = (value?: string | null): string => {
     return '';
   }
   return value.trim().toLowerCase();
+};
+
+const toEpochMillis = (value: ISODateString): number => {
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? Date.now() : parsed;
 };
 
 export const normalizeTags = (tags: string[]): string[] => {
@@ -151,7 +162,7 @@ export interface StatusChangeAuditInput {
   actorId?: string;
   occurredAt: ISODateString;
   statuses?: WorkspaceStatus[];
-  metadata?: Record<string, unknown>;
+  metadata?: JsonObject;
 }
 
 export const createStatusChangeAuditEntry = ({
@@ -170,7 +181,7 @@ export const createStatusChangeAuditEntry = ({
   const fromStatus = index ? findStatus(index, fromKey) ?? null : null;
   const toStatus = index ? findStatus(index, toKey) ?? null : null;
 
-  const normalizedMetadata: Record<string, unknown> = {
+  const normalizedMetadata: JsonObject = {
     from: fromStatus?.key ?? (fromKey || null),
     to: toStatus?.key ?? (toKey || null),
     fromLabel: fromStatus?.name ?? undefined,
@@ -180,6 +191,8 @@ export const createStatusChangeAuditEntry = ({
     ...metadata,
   };
 
+  const timestamp = toEpochMillis(occurredAt);
+
   return {
     id,
     type: 'document.status.changed',
@@ -187,6 +200,8 @@ export const createStatusChangeAuditEntry = ({
     actorId,
     occurredAt,
     metadata: normalizedMetadata,
+    createdAt: timestamp,
+    updatedAt: timestamp,
   } satisfies AuditLogEntry;
 };
 
@@ -197,7 +212,7 @@ export interface TagChangeAuditInput {
   next: string[];
   actorId?: string;
   occurredAt: ISODateString;
-  metadata?: Record<string, unknown>;
+  metadata?: JsonObject;
 }
 
 const diffTags = (previous: string[], next: string[]): { added: string[]; removed: string[] } => {
@@ -236,7 +251,7 @@ export const createTagChangeAuditEntry = ({
   const normalizedNext = normalizeTags(next);
   const { added, removed } = diffTags(normalizedPrevious, normalizedNext);
 
-  const normalizedMetadata: Record<string, unknown> = {
+  const normalizedMetadata: JsonObject = {
     previous: normalizedPrevious,
     next: normalizedNext,
     added,
@@ -245,6 +260,8 @@ export const createTagChangeAuditEntry = ({
     ...metadata,
   };
 
+  const timestamp = toEpochMillis(occurredAt);
+
   return {
     id,
     type: 'document.tags.changed',
@@ -252,5 +269,7 @@ export const createTagChangeAuditEntry = ({
     actorId,
     occurredAt,
     metadata: normalizedMetadata,
+    createdAt: timestamp,
+    updatedAt: timestamp,
   } satisfies AuditLogEntry;
 };

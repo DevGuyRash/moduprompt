@@ -17,7 +17,7 @@ import {
   type WorkerCompileRequest,
   type WorkerCompileSuccess,
   type WorkerLike,
-} from '../src';
+} from '../src/index.js';
 
 const now = 1_701_000_000;
 

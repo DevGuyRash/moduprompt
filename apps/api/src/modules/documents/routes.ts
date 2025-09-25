@@ -1,6 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { ZodTypeProvider } from '@fastify/type-provider-zod';
-import { z } from 'zod';
 import { DocumentService } from './service.js';
 import {
   createDocumentSchema,
@@ -9,6 +8,7 @@ import {
   setTagsSchema,
   setStatusSchema,
 } from './schemas.js';
+import { z } from 'zod';
 
 const documentSchema = z.object({
   id: z.string(),
@@ -30,110 +30,149 @@ const documentSchema = z.object({
 });
 
 const documentListSchema = z.object({ items: z.array(documentSchema) });
+const documentParamsSchema = z.object({ id: z.string() });
+const createDocumentRequestSchema = createDocumentSchema.extend({
+  id: z.string().optional(),
+  actorId: z.string().optional(),
+});
+
+type DocumentResponse = z.infer<typeof documentSchema>;
+type DocumentListResponse = z.infer<typeof documentListSchema>;
+type DocumentParams = z.infer<typeof documentParamsSchema>;
+type DocumentListQuery = z.infer<typeof documentQuerySchema>;
+type CreateDocumentRequest = z.infer<typeof createDocumentRequestSchema>;
+type UpdateDocumentRequest = z.infer<typeof updateDocumentSchema>;
+type SetTagsRequest = z.infer<typeof setTagsSchema>;
+type SetStatusRequest = z.infer<typeof setStatusSchema>;
 
 export const documentsRoutes: FastifyPluginAsync = async (app) => {
   const service = new DocumentService(app);
   const withTypeProvider = app.withTypeProvider<ZodTypeProvider>();
 
-  withTypeProvider.get('/documents', {
-    schema: {
-      tags: ['documents'],
-      querystring: documentQuerySchema,
-      response: {
-        200: documentListSchema,
+  withTypeProvider.get<{ Querystring: DocumentListQuery; Reply: DocumentListResponse }>(
+    '/documents',
+    {
+      schema: {
+        tags: ['documents'],
+        querystring: documentQuerySchema,
+        response: {
+          200: documentListSchema,
+        },
       },
     },
-  }, async (request) => {
-    const items = await service.list(request.query);
-    return { items };
-  });
+    async (request) => {
+      const items = await service.list(request.query);
+      return { items };
+    },
+  );
 
-  withTypeProvider.post('/documents', {
-    schema: {
-      tags: ['documents'],
-      body: createDocumentSchema.extend({ id: z.string().optional(), actorId: z.string().optional() }),
-      response: {
-        201: documentSchema,
+  withTypeProvider.post<{ Body: CreateDocumentRequest; Reply: DocumentResponse }>(
+    '/documents',
+    {
+      schema: {
+        tags: ['documents'],
+        body: createDocumentRequestSchema,
+        response: {
+          201: documentSchema,
+        },
       },
     },
-  }, async (request, reply) => {
-    const { actorId, ...payload } = request.body;
-    const document = await service.create(payload, actorId);
-    reply.code(201);
-    return document;
-  });
+    async (request, reply) => {
+      const { actorId, ...payload } = request.body;
+      const document = await service.create(payload, actorId);
+      reply.code(201);
+      return document;
+    },
+  );
 
-  withTypeProvider.get('/documents/:id', {
-    schema: {
-      tags: ['documents'],
-      params: z.object({ id: z.string() }),
-      response: {
-        200: documentSchema,
-        404: z.object({ message: z.string() }),
+  withTypeProvider.get<{ Params: DocumentParams; Reply: DocumentResponse | { message: string } }>(
+    '/documents/:id',
+    {
+      schema: {
+        tags: ['documents'],
+        params: documentParamsSchema,
+        response: {
+          200: documentSchema,
+          404: z.object({ message: z.string() }),
+        },
       },
     },
-  }, async (request, reply) => {
-    const document = await service.get(request.params.id);
-    if (!document) {
-      reply.code(404);
-      return { message: 'Document not found' };
-    }
-    return document;
-  });
+    async (request, reply) => {
+      const document = await service.get(request.params.id);
+      if (!document) {
+        reply.code(404);
+        return { message: 'Document not found' };
+      }
+      return document;
+    },
+  );
 
-  withTypeProvider.patch('/documents/:id', {
-    schema: {
-      tags: ['documents'],
-      params: z.object({ id: z.string() }),
-      body: updateDocumentSchema,
-      response: {
-        200: documentSchema,
+  withTypeProvider.patch<{ Params: DocumentParams; Body: UpdateDocumentRequest; Reply: DocumentResponse | { message: string } }>(
+    '/documents/:id',
+    {
+      schema: {
+        tags: ['documents'],
+        params: documentParamsSchema,
+        body: updateDocumentSchema,
+        response: {
+          200: documentSchema,
+          404: z.object({ message: z.string() }),
+        },
       },
     },
-  }, async (request, reply) => {
-    try {
-      return await service.update(request.params.id, request.body);
-    } catch (error) {
-      reply.code(404);
-      return { message: (error as Error).message };
-    }
-  });
+    async (request, reply) => {
+      try {
+        return await service.update(request.params.id, request.body);
+      } catch (error) {
+        reply.code(404);
+        return { message: (error as Error).message };
+      }
+    },
+  );
 
-  withTypeProvider.patch('/documents/:id/tags', {
-    schema: {
-      tags: ['documents'],
-      params: z.object({ id: z.string() }),
-      body: setTagsSchema,
-      response: {
-        200: documentSchema,
-        400: z.object({ message: z.string() }),
+  withTypeProvider.patch<{ Params: DocumentParams; Body: SetTagsRequest; Reply: DocumentResponse | { message: string } }>(
+    '/documents/:id/tags',
+    {
+      schema: {
+        tags: ['documents'],
+        params: documentParamsSchema,
+        body: setTagsSchema,
+        response: {
+          200: documentSchema,
+          400: z.object({ message: z.string() }),
+        },
       },
     },
-  }, async (request, reply) => {
-    try {
-      return await service.setTags(request.params.id, request.body);
-    } catch (error) {
-      reply.code(400);
-      return { message: (error as Error).message };
-    }
-  });
+    async (request, reply) => {
+      try {
+        return await service.setTags(request.params.id, request.body);
+      } catch (error) {
+        reply.code(400);
+        return { message: (error as Error).message };
+      }
+    },
+  );
 
-  withTypeProvider.patch('/documents/:id/status', {
-    schema: {
-      tags: ['documents'],
-      params: z.object({ id: z.string() }),
-      body: setStatusSchema,
-      response: {
-        200: documentSchema,
-        400: z.object({ message: z.string() }),
+  withTypeProvider.patch<{ Params: DocumentParams; Body: SetStatusRequest; Reply: DocumentResponse | { message: string } }>(
+    '/documents/:id/status',
+    {
+      schema: {
+        tags: ['documents'],
+        params: documentParamsSchema,
+        body: setStatusSchema,
+        response: {
+          200: documentSchema,
+          400: z.object({ message: z.string() }),
+        },
       },
     },
-  }, async (request, reply) => {
-    try {
-      return await service.setStatus(request.params.id, request.body);
-    } catch (error) {
-      reply.code(400);
-      return { message: (error as Error).message };
-    }
-  });
+    async (request, reply) => {
+      try {
+        return await service.setStatus(request.params.id, request.body);
+      } catch (error) {
+        reply.code(400);
+        return { message: (error as Error).message };
+      }
+    },
+  );
 };

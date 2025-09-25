@@ -1,14 +1,14 @@
 import { Fragment, useCallback, useMemo, useState } from 'react';
 import type { Block, CommentBlock, GroupBlock, MarkdownBlock, SnippetBlock } from '@moduprompt/types';
-import { useDocumentStore, useDocumentStoreApi } from '../../state/document-model';
-import { selectNotebookProjection, type NotebookBlockNode } from '../../state/selectors/documentSelectors';
+import { useDocumentStore, useDocumentStoreApi } from '../../state/document-model.js';
+import { selectNotebookProjection, type NotebookBlockNode } from '../../state/selectors/documentSelectors.js';
 import type {
   NotebookFormatter,
   NotebookSnippetOption,
   NotebookViewProps,
-} from './types';
-import { applyFormatter } from './applyFormatter';
-import { generateId } from './id';
+} from './types.js';
+import { applyFormatter } from './applyFormatter.js';
+import { generateId } from './id.js';
 
 const containerClasses =
   'bg-surface-subtle text-foreground flex flex-col gap-4 rounded-lg border border-surface shadow-sm';

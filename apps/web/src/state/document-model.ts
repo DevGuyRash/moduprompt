@@ -9,7 +9,7 @@ import type {
 } from '@moduprompt/types';
 import { normalizeTags } from '@moduprompt/snippet-store';
 import type { StoreApi } from 'zustand/vanilla';
-import { createScopedStore } from './baseStore';
+import { createScopedStore } from './baseStore.js';
 
 const DEFAULT_HISTORY_CAPACITY = 100;
 
@@ -246,6 +246,10 @@ const computeTopologicalOrder = (
   let cursor = 0;
   while (cursor < queue.length) {
     const current = queue[cursor];
+    if (current === undefined) {
+      cursor += 1;
+      continue;
+    }
     cursor += 1;
     result.push(current);
     for (const target of adjacency[current] ?? []) {
@@ -441,17 +445,20 @@ const documentStoreFactory = createScopedStore<DocumentStoreValue>((set, get) =>
     get().runTransaction(
       documentId,
       (draft) => {
-        if (draft.blocks.some((existing: Block) => existing.id === block.id)) {
+        const draftAny = draft as { blocks: Block[]; updatedAt: number };
+        const blocks = [...draftAny.blocks];
+        if (blocks.some((existing) => existing.id === block.id)) {
           throw new Error(`Block with id ${block.id} already exists.`);
         }
         const targetIndex = options?.after
-          ? draft.blocks.findIndex((item: Block) => item.id === options.after) + 1
-          : draft.blocks.length;
+          ? blocks.findIndex((item) => item.id === options.after) + 1
+          : blocks.length;
         if (targetIndex === 0 && options?.after) {
           throw new Error(`Cannot insert after unknown block ${options.after}.`);
         }
-        draft.blocks.splice(targetIndex, 0, block);
-        draft.updatedAt = Date.now();
+        blocks.splice(targetIndex, 0, block);
+        draftAny.blocks = blocks;
+        draftAny.updatedAt = Date.now();
       },
       { captureHistory: options?.captureHistory },
     );
@@ -476,9 +483,10 @@ const documentStoreFactory = createScopedStore<DocumentStoreValue>((set, get) =>
     get().runTransaction(
       documentId,
       (draft) => {
-        draft.blocks = draft.blocks.filter((block: Block) => block.id !== blockId);
-        draft.edges = draft.edges.filter((edge: Edge) => edge.source !== blockId && edge.target !== blockId);
-        draft.updatedAt = Date.now();
+        const draftAny = draft as { blocks: Block[]; edges: Edge[]; updatedAt: number };
+        draftAny.blocks = draftAny.blocks.filter((block) => block.id !== blockId);
+        draftAny.edges = draftAny.edges.filter((edge) => edge.source !== blockId && edge.target !== blockId);
+        draftAny.updatedAt = Date.now();
       },
       { captureHistory: options?.captureHistory },
     );
@@ -556,6 +564,9 @@ const documentStoreFactory = createScopedStore<DocumentStoreValue>((set, get) =>
         return state;
       }
       const previous = record.history.past[record.history.past.length - 1];
+      if (!previous) {
+        return state;
+      }
       const past = record.history.past.slice(0, -1);
       const future = [cloneDocument(record.model), ...record.history.future];
       const normalized = normalizeDocumentModel(previous);
@@ -585,6 +596,9 @@ const documentStoreFactory = createScopedStore<DocumentStoreValue>((set, get) =>
         return state;
       }
       const [next, ...rest] = record.history.future;
+      if (!next) {
+        return state;
+      }
       const past = [...record.history.past, cloneDocument(record.model)];
       const normalized = normalizeDocumentModel(next);
       return {

@@ -12,9 +12,9 @@ import {
   type Edge as ReactFlowEdge,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { useDocumentStore, useDocumentStoreApi } from '../../state/document-model';
-import { selectNodeProjection } from '../../state/selectors/documentSelectors';
-import { computeLayout } from './layout';
+import { useDocumentStore, useDocumentStoreApi } from '../../state/document-model.js';
+import { selectNodeProjection } from '../../state/selectors/documentSelectors.js';
+import { computeLayout } from './layout.js';
 import {
   buildReactFlowEdges,
   buildReactFlowNodes,
@@ -24,8 +24,8 @@ import {
   parseHandleKind,
   removeEdgesById,
   wouldCreateCycle,
-} from './graphUtils';
-import { useNodeGraphState } from './state';
+} from './graphUtils.js';
+import { useNodeGraphState } from './state.js';
 
 export interface NodeGraphCanvasProps {
   documentId: string;
@@ -130,8 +130,10 @@ const InnerCanvas = ({ documentId }: NodeGraphCanvasProps) => {
       if (!projection || deleted.length === 0) return;
       const ids = new Set(deleted.map((edge) => edge.id));
       storeApi.getState().updateEdges(documentId, (draft) => {
-        const remaining = removeEdgesById(draft as Edge[], ids);
-        draft.splice(0, draft.length, ...remaining);
+        const draftEdges = draft as Edge[];
+        const remaining = removeEdgesById(draftEdges, ids);
+        draftEdges.length = 0;
+        draftEdges.push(...remaining);
       });
       graphState.clearSelection();
     },

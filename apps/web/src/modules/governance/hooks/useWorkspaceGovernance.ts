@@ -5,7 +5,7 @@ import {
   type WorkspaceSettingsRecord,
   type WorkspaceStore,
 } from '@moduprompt/snippet-store';
-import { useGovernanceStore } from '../provider';
+import { useGovernanceStore } from '../provider.js';
 
 const DEFAULT_STATUSES: WorkspaceStatus[] = [
   { key: 'draft', name: 'Draft', color: '#475569', order: 1 },

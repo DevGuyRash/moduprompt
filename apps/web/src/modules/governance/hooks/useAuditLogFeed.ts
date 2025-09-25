@@ -6,7 +6,7 @@ import {
   mergeAuditFeeds,
   type AuditBufferRecord,
 } from '@moduprompt/snippet-store';
-import { useGovernanceStore } from '../provider';
+import { useGovernanceStore } from '../provider.js';
 
 interface AuditFeedState {
   entries: Array<AuditLogEntry & { pending?: boolean; bufferedAt?: number; attempts?: number; lastError?: string | null }>;

@@ -7,7 +7,7 @@ import {
   normalizeStatusSchema,
   normalizeTags,
   validateStatusTransition,
-} from '../src';
+} from '../src/index.js';
 
 const sampleStatuses: WorkspaceStatus[] = [
   { key: 'Draft', name: 'Draft', color: '#475569', order: 2 },

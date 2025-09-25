@@ -1,5 +1,4 @@
 import { createHash } from 'node:crypto';
-import type { JsonObject } from '@moduprompt/types';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type {
   SnippetFrontmatter,
@@ -7,6 +6,7 @@ import type {
   SnippetVersion,
 } from '@moduprompt/types';
 import { mapSnippet, mapSnippetVersion } from '../shared/mapper.js';
+import { toInputJson } from '../shared/prismaJson.js';
 
 export interface SnippetListFilters {
   path?: string;
@@ -96,7 +96,7 @@ export class SnippetRepository {
         data: {
           title: input.title,
           path: input.path,
-          frontmatter: input.frontmatter as unknown as JsonObject,
+          frontmatter: toInputJson(input.frontmatter),
           body: input.body,
           headRev: 1,
         },
@@ -106,7 +106,7 @@ export class SnippetRepository {
           snippetId: snippet.id,
           rev: 1,
           body: input.body,
-          frontmatter: input.frontmatter as unknown as JsonObject,
+          frontmatter: toInputJson(input.frontmatter),
           hash,
         },
       });
@@ -123,9 +123,7 @@ export class SnippetRepository {
       data: {
         title: input.title,
         path: input.path,
-        frontmatter: input.frontmatter
-          ? (input.frontmatter as unknown as JsonObject)
-          : undefined,
+        frontmatter: input.frontmatter ? toInputJson(input.frontmatter) : undefined,
         body: input.body,
       },
     });
@@ -165,7 +163,7 @@ export class SnippetRepository {
           authorEmail: input.authorEmail,
           note: input.note,
           body,
-          frontmatter: frontmatter as unknown as JsonObject,
+          frontmatter: toInputJson(frontmatter),
           hash,
         },
       });
@@ -175,7 +173,7 @@ export class SnippetRepository {
         data: {
           headRev: nextRev,
           body,
-          frontmatter: frontmatter as unknown as JsonObject,
+          frontmatter: toInputJson(frontmatter),
           updatedAt: new Date(),
         },
       });
@@ -206,7 +204,7 @@ export class SnippetRepository {
           parentRev: snippet.headRev,
           authorId: input.actorId,
           body: target.body,
-          frontmatter: target.frontmatter,
+          frontmatter: toInputJson(target.frontmatter),
           hash: target.hash,
           note: `revert-to-${input.targetRev}`,
         },
@@ -217,7 +215,7 @@ export class SnippetRepository {
         data: {
           headRev: nextRev,
           body: target.body,
-          frontmatter: target.frontmatter,
+          frontmatter: toInputJson(target.frontmatter),
         },
       });
 

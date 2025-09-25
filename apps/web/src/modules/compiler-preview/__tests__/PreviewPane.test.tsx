@@ -15,8 +15,8 @@ import {
   createDocumentStore,
   DocumentStoreProvider,
   type DocumentStoreApi,
-} from '../../../state/document-model';
-import { PreviewPane } from '../PreviewPane';
+} from '../../../state/document-model.js';
+import { PreviewPane } from '../PreviewPane.js';
 
 class MemoryWorkspaceStore {
   private snippets = new Map<string, Snippet>();

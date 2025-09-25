@@ -1,4 +1,4 @@
-import { compileDocument } from './compiler';
+import { compileDocument } from './compiler.js';
 import type {
   RegisterWorkerOptions,
   WorkerClientOptions,
@@ -8,7 +8,7 @@ import type {
   WorkerCompileSuccess,
   WorkerLike,
   WorkerMessageEvent,
-} from './types';
+} from './types.js';
 
 let requestCounter = 0;
 
@@ -44,7 +44,7 @@ const disableNetworkApi = (scope: Record<string, unknown>, key: string): void =>
       writable: false,
     });
   } catch {
-    (scope as Record<string, unknown>)[key] = blocker;
+    (scope as unknown as Record<string, unknown>)[key] = blocker;
   }
 };
 
@@ -52,10 +52,11 @@ const enforceSandbox = (scope: RegisterWorkerOptions['scope']): void => {
   if (!scope) {
     return;
   }
-  disableNetworkApi(scope as unknown as Record<string, unknown>, 'fetch');
-  disableNetworkApi(scope as unknown as Record<string, unknown>, 'XMLHttpRequest');
-  disableNetworkApi(scope as unknown as Record<string, unknown>, 'WebSocket');
-  const maybeNavigator = (scope as Record<string, unknown>).navigator;
+  const sandboxScope = scope as unknown as Record<string, unknown>;
+  disableNetworkApi(sandboxScope, 'fetch');
+  disableNetworkApi(sandboxScope, 'XMLHttpRequest');
+  disableNetworkApi(sandboxScope, 'WebSocket');
+  const maybeNavigator = sandboxScope.navigator;
   if (maybeNavigator && typeof maybeNavigator === 'object') {
     disableNetworkApi(maybeNavigator as Record<string, unknown>, 'sendBeacon');
   }

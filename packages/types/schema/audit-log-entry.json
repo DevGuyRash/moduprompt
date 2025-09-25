@@ -65,7 +65,7 @@
           {
             "type": "array",
             "items": {
-              "$ref": "#/definitions/JsonValue"
+              "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonValue"
             }
           },
           {
@@ -82,13 +82,13 @@
         ]
       }
     },
-    "JsonValue": {
-      "title": "JsonValue",
+    "import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonValue": {
+      "title": "import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonValue",
       "anyOf": [
         {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/JsonValue"
+            "$ref": "#/definitions/import(\"/home/rashino/repos/moduprompt/packages/types/src/base\",{with:{\"resolution-mode\":\"import\"}}).JsonValue"
           }
         },
         {

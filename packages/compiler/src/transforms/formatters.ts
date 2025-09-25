@@ -7,7 +7,7 @@ import type {
   FormatterDefinition,
   FormatterFn,
   FormatterContext,
-} from '../types';
+} from '../types.js';
 
 const toMap = <T extends { id: string }>(definitions?: T[]): Map<string, T> => {
   const map = new Map<string, T>();

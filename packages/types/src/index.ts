@@ -1,3 +1,3 @@
-export * from './base';
-export * from './moduprompt';
-export * from './schemas';
+export * from './base.js';
+export * from './moduprompt.js';
+export * from './schemas.js';

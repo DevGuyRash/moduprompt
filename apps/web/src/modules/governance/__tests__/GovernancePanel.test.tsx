@@ -4,8 +4,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { DocumentModel, ExportRecipe, WorkspaceStatus } from '@moduprompt/types';
-import { createDocumentStore, DocumentStoreProvider, type DocumentStoreApi } from '../../../state/document-model';
-import { GovernancePanel } from '../GovernancePanel';
+import { createDocumentStore, DocumentStoreProvider, type DocumentStoreApi } from '../../../state/document-model.js';
+import { GovernancePanel } from '../GovernancePanel.js';
 import { createWorkspaceStore, type WorkspaceStore } from '@moduprompt/snippet-store';
 
 const timestamp = 42_000;

@@ -1,9 +1,10 @@
 import type { CSSProperties } from 'react';
 import type { Edge, EdgeCondition, EdgeKind } from '@moduprompt/types';
+import { MarkerType } from 'reactflow';
 import type { Node, Edge as ReactFlowEdge, Connection } from 'reactflow';
-import type { NodeProjection } from '../../state/selectors/documentSelectors';
-import type { LayoutResult } from './layout';
-import type { BlockNodeData } from './nodes/BlockNode';
+import type { NodeProjection } from '../../state/selectors/documentSelectors.js';
+import type { LayoutResult } from './layout.js';
+import type { BlockNodeData } from './nodes/BlockNode.js';
 
 export type HandleKind = EdgeKind;
 
@@ -97,7 +98,7 @@ export const buildReactFlowEdges = (projection: NodeProjection): ReactFlowEdge<E
       targetHandle: buildHandleId('target', edge.kind),
       data: edge,
       label: buildEdgeLabel(edge.kind, edge.condition),
-      markerEnd: { type: 'arrowclosed', color: EDGE_STYLE[edge.kind].stroke as string },
+      markerEnd: { type: MarkerType.ArrowClosed, color: EDGE_STYLE[edge.kind].stroke as string },
       style: EDGE_STYLE[edge.kind],
       type: edge.kind === 'conditional' ? 'smoothstep' : 'default',
     };

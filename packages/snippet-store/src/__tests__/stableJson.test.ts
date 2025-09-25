@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { stableStringify } from '../internal/stableJson';
+import { stableStringify } from '../internal/stableJson.js';
 
 describe('stableStringify', () => {
   it('produces deterministic output regardless of key insertion order', () => {

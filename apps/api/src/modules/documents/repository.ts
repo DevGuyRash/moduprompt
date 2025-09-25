@@ -1,6 +1,7 @@
-import type { Prisma, PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import type { DocumentModel } from '@moduprompt/types';
 import { mapDocument } from '../shared/mapper.js';
+import { toInputJson } from '../shared/prismaJson.js';
 
 export interface DocumentListFilters {
   status?: string;
@@ -49,13 +50,13 @@ export class DocumentRepository {
         id: input.id,
         title: input.title,
         schemaVersion: input.schemaVersion,
-        blocks: input.blocks as unknown as Prisma.JsonValue,
-        edges: input.edges as unknown as Prisma.JsonValue,
-        variables: input.variables as unknown as Prisma.JsonValue,
-        exportRecipes: input.exportRecipes as unknown as Prisma.JsonValue,
-        tags: input.tags as unknown as Prisma.JsonValue,
+        blocks: toInputJson(input.blocks),
+        edges: toInputJson(input.edges),
+        variables: toInputJson(input.variables),
+        exportRecipes: toInputJson(input.exportRecipes),
+        tags: toInputJson(input.tags),
         statusKey: input.statusKey,
-        settings: input.settings as unknown as Prisma.JsonValue,
+        settings: toInputJson(input.settings),
       },
     });
     return mapDocument(record);
@@ -66,13 +67,13 @@ export class DocumentRepository {
       where: { id },
       data: {
         title: input.title,
-        blocks: input.blocks as unknown as Prisma.JsonValue,
-        edges: input.edges as unknown as Prisma.JsonValue,
-        variables: input.variables as unknown as Prisma.JsonValue,
-        exportRecipes: input.exportRecipes as unknown as Prisma.JsonValue,
-        tags: input.tags as unknown as Prisma.JsonValue,
+        blocks: input.blocks ? toInputJson(input.blocks) : undefined,
+        edges: input.edges ? toInputJson(input.edges) : undefined,
+        variables: input.variables ? toInputJson(input.variables) : undefined,
+        exportRecipes: input.exportRecipes ? toInputJson(input.exportRecipes) : undefined,
+        tags: input.tags ? toInputJson(input.tags) : undefined,
         statusKey: input.statusKey,
-        settings: input.settings as unknown as Prisma.JsonValue,
+        settings: input.settings ? toInputJson(input.settings) : undefined,
       },
     });
     return mapDocument(record);
@@ -82,7 +83,7 @@ export class DocumentRepository {
     const record = await this.prisma.document.update({
       where: { id },
       data: {
-        tags: tags as unknown as Prisma.JsonValue,
+        tags: toInputJson(tags),
       },
     });
     return mapDocument(record);

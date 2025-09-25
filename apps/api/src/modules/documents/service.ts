@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import type { FastifyInstance } from 'fastify';
 import type { DocumentModel } from '@moduprompt/types';
 import { DocumentRepository } from './repository.js';
+import { toJsonObject } from '../shared/prismaJson.js';
 import type {
   CreateDocumentInput,
   DocumentListFilters,
@@ -82,7 +83,7 @@ export class DocumentService {
         id: audit.id,
         type: audit.type,
         subjectId: audit.subjectId,
-        metadata: audit.metadata as Record<string, unknown>,
+        metadata: toJsonObject(audit.metadata),
         actorId: audit.actorId,
         occurredAt: new Date(audit.occurredAt),
       },
@@ -134,7 +135,7 @@ export class DocumentService {
           id: evaluation.audit.id,
           type: evaluation.audit.type,
           subjectId: evaluation.audit.subjectId,
-          metadata: evaluation.audit.metadata as Record<string, unknown>,
+          metadata: toJsonObject(evaluation.audit.metadata),
           actorId: evaluation.audit.actorId,
           occurredAt: new Date(evaluation.audit.occurredAt),
         },

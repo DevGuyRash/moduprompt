@@ -1,4 +1,4 @@
-import Dexie, { Table } from 'dexie';
+import { Dexie, Table } from 'dexie';
 import type {
   DocumentModel,
   ExportRecipe,
@@ -6,9 +6,9 @@ import type {
   SnippetVersion,
   WorkspaceStatus,
 } from '@moduprompt/types';
-import { WORKSPACE_MIGRATIONS } from '../../migrations/workspace';
-import type { WorkspaceMigration } from '../../migrations/types';
-import type { AuditBufferRecord } from '../audit/types';
+import { WORKSPACE_MIGRATIONS } from '../../migrations/workspace.js';
+import type { WorkspaceMigration } from '../../migrations/types.js';
+import type { AuditBufferRecord } from '../audit/types.js';
 
 export interface WorkspaceSettingsRecord {
   id: 'workspace';

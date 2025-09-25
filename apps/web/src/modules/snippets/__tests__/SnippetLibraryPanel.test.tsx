@@ -3,9 +3,9 @@ import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import type { Snippet, SnippetVersion } from '@moduprompt/types';
 import { computeIntegrityHash, type WorkspaceStore } from '@moduprompt/snippet-store';
-import { SnippetLibraryPanel } from '../SnippetLibraryPanel';
-import { SnippetLibraryProvider } from '../provider';
-import { SNIPPET_DRAG_MIME } from '../utils/constants';
+import { SnippetLibraryPanel } from '../SnippetLibraryPanel.js';
+import { SnippetLibraryProvider } from '../provider.js';
+import { SNIPPET_DRAG_MIME } from '../utils/constants.js';
 
 class MemoryWorkspaceStore {
   private snippets = new Map<string, Snippet>();

@@ -15,8 +15,15 @@ export interface HtmlRenderContext {
   contentHash: string;
 }
 
-export const renderHtml = (options: HtmlRenderOptions): HtmlRenderContext => {
-  const sanitized = sanitizeHtml(marked.parse(options.result.markdown, { gfm: true }) as string, {
+const anchorTransformer: sanitizeHtml.Transformer = (tagName, attribs) => {
+  const attrs: sanitizeHtml.Attributes = { ...attribs };
+  if (attrs.target === '_blank') {
+    attrs.rel = 'noopener noreferrer';
+  }
+  return { tagName, attribs: attrs };
+};
+
+const sanitizeOptions: sanitizeHtml.IOptions = {
     allowedTags: [
       'p',
       'a',
@@ -59,15 +66,14 @@ export const renderHtml = (options: HtmlRenderOptions): HtmlRenderContext => {
     allowedSchemesAppliedToAttributes: ['href', 'src'],
     allowProtocolRelative: false,
     transformTags: {
-      a(tagName, attribs) {
-        const attrs = { ...attribs };
-        if ('target' in attrs && attrs.target === '_blank') {
-          attrs.rel = 'noopener noreferrer';
-        }
-        return { tagName, attribs: attrs };
-      },
+      a: anchorTransformer,
     },
-  });
+  };
+
+export const renderHtml = (options: HtmlRenderOptions): HtmlRenderContext => {
+  const markdownHtml = marked.parse(options.result.markdown, { gfm: true });
+  const htmlInput = typeof markdownHtml === 'string' ? markdownHtml : options.result.markdown;
+  const sanitized = sanitizeHtml(htmlInput, sanitizeOptions);
 
   const escape = (value: string): string => value.replace(/[&<>\"]/g, (char) => {
     switch (char) {

@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
+import { toJsonObject } from '../shared/prismaJson.js';
 
 export interface PluginRecord {
   id: string;
@@ -41,14 +42,14 @@ export class PluginRepository {
         },
       },
       update: {
-        manifest: input.manifest,
+        manifest: toJsonObject(input.manifest),
         enabled: true,
       },
       create: {
         name: input.name,
         version: input.version,
         kind: input.kind,
-        manifest: input.manifest,
+        manifest: toJsonObject(input.manifest),
       },
     });
     return {

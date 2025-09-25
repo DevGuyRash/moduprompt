@@ -10,16 +10,16 @@ import {
   collectTransclusionTokens,
   resolveSnippetById,
   resolveSnippetByPath,
-} from '../snippets';
+} from '../snippets.js';
 import type {
   PreflightIssue,
   PreflightOptions,
   PreflightReport,
   SnippetBundle,
   SnippetIndex,
-} from '../types';
-import { collectPlaceholders, findUnbalancedFences } from '../utils/text';
-import { resolveVariables } from '../variables';
+} from '../types.js';
+import { collectPlaceholders, findUnbalancedFences } from '../utils/text.js';
+import { resolveVariables } from '../variables.js';
 
 const createIssue = (issue: PreflightIssue): PreflightIssue => issue;
 

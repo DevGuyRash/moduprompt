@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import type { Block, CommentBlock, GroupBlock, MarkdownBlock, SnippetBlock } from '@moduprompt/types';
 import { Handle, Position, type NodeProps } from 'reactflow';
-import type { NodeHandleConfig, HandleKind } from '../graphUtils';
+import type { NodeHandleConfig, HandleKind } from '../graphUtils.js';
 
 export interface BlockNodeData {
   block: Block;

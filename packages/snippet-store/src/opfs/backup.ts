@@ -1,6 +1,6 @@
-import { writeTextFile, readTextFile } from './workspaceFs';
-import type { DirectoryHandle } from './types';
-import type { WorkspaceSnapshot, WorkspaceStore } from '../dexie/workspaceStore';
+import { writeTextFile, readTextFile } from './workspaceFs.js';
+import type { DirectoryHandle } from './types.js';
+import type { WorkspaceSnapshot, WorkspaceStore } from '../dexie/workspaceStore.js';
 
 export interface BackupOptions {
   path?: string | string[];

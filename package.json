@@ -3,8 +3,8 @@
   "private": true,
   "packageManager": "pnpm@9.7.0",
   "scripts": {
-    "build": "pnpm -r build",
-    "typecheck": "pnpm -r typecheck",
+    "build": "pnpm --filter @moduprompt/api prisma:generate && pnpm --filter @moduprompt/types build && pnpm -r --filter '!@moduprompt/types' build",
+    "typecheck": "pnpm --filter @moduprompt/types build && pnpm --filter @moduprompt/types typecheck && pnpm -r --filter '!@moduprompt/types' typecheck",
     "schema": "pnpm -r schema",
     "test": "pnpm -r test",
     "test:perf": "vitest bench tests/perf --run",
@@ -21,6 +21,7 @@
     "@vitejs/plugin-react": "^4.3.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
     "vite": "^5.4.7"
   }

@@ -1,5 +1,5 @@
 import type { Block, DocumentModel, Edge } from '@moduprompt/types';
-import type { DocumentStoreState, DocumentRecord, DocumentIndices } from '../document-model';
+import type { DocumentStoreState, DocumentRecord, DocumentIndices } from '../document-model.js';
 
 interface ResolvedDocument {
   id: string;

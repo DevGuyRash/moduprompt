@@ -1,10 +1,9 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { AuditLogEntry, AuditLogEventType } from '@moduprompt/types';
 import type { AuditLogListQuery } from './schemas.js';
+import { fromJson, toJsonObject } from '../shared/prismaJson.js';
 
 export interface AuditLogRecord extends AuditLogEntry {}
-
-const toJson = (value: Record<string, unknown>): Prisma.JsonObject => value as Prisma.JsonObject;
 
 export class AuditRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -15,7 +14,7 @@ export class AuditRepository {
       update: {
         type: entry.type,
         subjectId: entry.subjectId,
-        metadata: toJson(entry.metadata),
+        metadata: toJsonObject(entry.metadata),
         actorId: entry.actorId,
         occurredAt: new Date(entry.occurredAt),
       },
@@ -23,7 +22,7 @@ export class AuditRepository {
         id: entry.id,
         type: entry.type,
         subjectId: entry.subjectId,
-        metadata: toJson(entry.metadata),
+        metadata: toJsonObject(entry.metadata),
         actorId: entry.actorId,
         occurredAt: new Date(entry.occurredAt),
         createdAt: new Date(entry.createdAt),
@@ -37,7 +36,7 @@ export class AuditRepository {
       id: entry.id,
       type: entry.type,
       subjectId: entry.subjectId,
-      metadata: toJson(entry.metadata),
+      metadata: toJsonObject(entry.metadata),
       actorId: entry.actorId,
       occurredAt: new Date(entry.occurredAt),
       createdAt: new Date(entry.createdAt),
@@ -69,7 +68,7 @@ export class AuditRepository {
       id: record.id,
       type: record.type as AuditLogEventType,
       subjectId: record.subjectId,
-      metadata: (record.metadata as Prisma.JsonObject) ?? {},
+      metadata: fromJson(record.metadata, {}),
       actorId: record.actorId ?? undefined,
       occurredAt: record.occurredAt.toISOString(),
       createdAt: record.createdAt.getTime(),

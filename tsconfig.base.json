@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2021",
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -13,6 +13,12 @@
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "paths": {
+      "@moduprompt/api/*": ["apps/api/src/*"],
+      "@moduprompt/web/*": ["apps/web/src/*"],
+      "@moduprompt/compiler": ["packages/compiler/src/index.ts"],
+      "@moduprompt/compiler/*": ["packages/compiler/src/*"],
+      "@moduprompt/snippet-store": ["packages/snippet-store/src/index.ts"],
+      "@moduprompt/snippet-store/*": ["packages/snippet-store/src/*"],
       "@moduprompt/types": ["packages/types/src/index.ts"],
       "@moduprompt/types/*": ["packages/types/src/*"]
     }

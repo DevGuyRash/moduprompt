@@ -5,7 +5,7 @@ import {
   selectNotebookProjection,
   selectNodeProjection,
   selectDocumentModel,
-} from '../..';
+} from '../...js';
 
 const createDocument = (): DocumentModel => ({
   id: 'doc-1',

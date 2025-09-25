@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { AuditLogEntry } from '@moduprompt/types';
-import { mergeAuditFeeds } from '../src/audit/clientLogger';
+import { mergeAuditFeeds } from '../src/audit/clientLogger.js';
 
 describe('mergeAuditFeeds', () => {
   const createEntry = (id: string, occurredAt: string): AuditLogEntry => ({

@@ -1,28 +1,35 @@
-import type { AuditLogEntry } from '@moduprompt/types';
-import type { WorkspaceStore } from '../dexie/workspaceStore';
-import type { AuditBufferRecord } from './types';
+import type { AuditLogEntry, JsonObject, JsonValue } from '@moduprompt/types';
+import type { WorkspaceStore } from '../dexie/workspaceStore.js';
+import type { AuditBufferRecord } from './types.js';
 
 const SENSITIVE_KEY_PATTERN = /(password|secret|token|key|credential|auth|email|phone|ssn)/i;
 const MAX_STRING_LENGTH = 512;
 const MAX_COLLECTION_ITEMS = 100;
 const MAX_DEPTH = 6;
 
-const sanitizeValue = (value: unknown, depth = 0): unknown => {
+const sanitizeObject = (value: Record<string, unknown>, depth: number): JsonObject => {
+  const sanitized: JsonObject = {};
+  for (const [key, raw] of Object.entries(value)) {
+    if (SENSITIVE_KEY_PATTERN.test(key)) {
+      sanitized[key] = '[REDACTED]';
+      continue;
+    }
+    sanitized[key] = sanitizeValue(raw, depth + 1);
+  }
+  return sanitized;
+};
+
+const sanitizeValue = (value: unknown, depth = 0): JsonValue => {
   if (depth >= MAX_DEPTH) {
     return '[REDACTED]';
   }
   if (Array.isArray(value)) {
-    return value.slice(0, MAX_COLLECTION_ITEMS).map((item) => sanitizeValue(item, depth + 1));
+    return value
+      .slice(0, MAX_COLLECTION_ITEMS)
+      .map((item) => sanitizeValue(item, depth + 1)) as JsonValue[];
   }
   if (value && typeof value === 'object') {
-    const entries = Object.entries(value as Record<string, unknown>);
-    const sanitizedEntries = entries.map(([key, val]) => {
-      if (SENSITIVE_KEY_PATTERN.test(key)) {
-        return [key, '[REDACTED]'] as const;
-      }
-      return [key, sanitizeValue(val, depth + 1)] as const;
-    });
-    return Object.fromEntries(sanitizedEntries);
+    return sanitizeObject(value as Record<string, unknown>, depth);
   }
   if (typeof value === 'string') {
     const normalized = value.trim();
@@ -31,12 +38,15 @@ const sanitizeValue = (value: unknown, depth = 0): unknown => {
     }
     return normalized;
   }
-  return value;
+  if (value === null || typeof value === 'number' || typeof value === 'boolean') {
+    return value;
+  }
+  return String(value);
 };
 
 const sanitizeEntry = (entry: AuditLogEntry): AuditLogEntry => ({
   ...entry,
-  metadata: sanitizeValue(entry.metadata, 0) as Record<string, unknown>,
+  metadata: sanitizeObject(entry.metadata, 0),
 });
 
 const ensureOpen = async (store: WorkspaceStore): Promise<void> => {

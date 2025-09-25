@@ -1,6 +1,6 @@
-export { GovernancePanel } from './GovernancePanel';
-export { GovernanceProvider, useGovernanceStore } from './provider';
-export { useWorkspaceGovernance } from './hooks/useWorkspaceGovernance';
-export { useAuditLogFeed } from './hooks/useAuditLogFeed';
-export { AuditLogPanel } from './components/AuditLogPanel';
-export type { GovernancePanelProps } from './types';
+export { GovernancePanel } from './GovernancePanel.js';
+export { GovernanceProvider, useGovernanceStore } from './provider.js';
+export { useWorkspaceGovernance } from './hooks/useWorkspaceGovernance.js';
+export { useAuditLogFeed } from './hooks/useAuditLogFeed.js';
+export { AuditLogPanel } from './components/AuditLogPanel.js';
+export type { GovernancePanelProps } from './types.js';

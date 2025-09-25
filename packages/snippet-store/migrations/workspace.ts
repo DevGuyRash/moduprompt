@@ -1,6 +1,6 @@
 import type { SnippetVersion } from '@moduprompt/types';
-import type { MigrationList } from './types';
-import { computeIntegrityHash } from '../src/internal/hash';
+import type { MigrationList } from './types.js';
+import { computeIntegrityHash } from '../src/internal/hash.js';
 
 export const WORKSPACE_MIGRATIONS: MigrationList = [
   {

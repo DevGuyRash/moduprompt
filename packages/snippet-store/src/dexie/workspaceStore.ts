@@ -1,8 +1,8 @@
 import type { DocumentModel, Snippet, SnippetVersion } from '@moduprompt/types';
-import { WorkspaceDexie, type WorkspaceSettingsRecord } from './baseStore';
-import type { WorkspaceMigration } from '../../migrations/types';
-import { verifySnippetIntegrity } from '../internal/hash';
-import { normalizeStatusSchema, normalizeTags } from '../governance';
+import { WorkspaceDexie, type WorkspaceSettingsRecord } from './baseStore.js';
+import type { WorkspaceMigration } from '../../migrations/types.js';
+import { verifySnippetIntegrity } from '../internal/hash.js';
+import { normalizeStatusSchema, normalizeTags } from '../governance/index.js';
 
 export interface WorkspaceStoreOptions {
   dbName?: string;

@@ -8,7 +8,7 @@ import type {
   JsonValue,
   RevisionedEntity,
   Timestamped,
-} from './base';
+} from './base.js';
 
 export type BlockKind =
   | 'markdown'

@@ -10,9 +10,9 @@ import {
   type WorkspaceStore,
   type WorkspaceSettingsRecord,
 } from '@moduprompt/snippet-store';
-import { useDocumentStore } from '../../state/document-model';
-import { ExportDrawer } from './components/ExportDrawer';
-import { usePreflight } from './hooks/usePreflight';
+import { useDocumentStore } from '../../state/document-model.js';
+import { ExportDrawer } from './components/ExportDrawer.js';
+import { usePreflight } from './hooks/usePreflight.js';
 
 export interface PreviewPaneProps {
   documentId: string;

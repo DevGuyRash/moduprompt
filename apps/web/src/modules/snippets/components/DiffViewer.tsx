@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
 import type { SnippetVersion } from '@moduprompt/types';
-import { computeDiff } from '../utils/diff';
+import { computeDiff } from '../utils/diff.js';
 
 export interface DiffViewerProps {
   current?: SnippetVersion;

@@ -1,7 +1,7 @@
 import type { Block } from '@moduprompt/types';
-import { wrapWithSmartFence } from './utils/backticks';
-import { normalizeNewlines } from './utils/text';
-import type { FilterDefinition, FormatterDefinition, FormatterContext } from './types';
+import { wrapWithSmartFence } from './utils/backticks.js';
+import { normalizeNewlines } from './utils/text.js';
+import type { FilterDefinition, FormatterDefinition, FormatterContext } from './types.js';
 
 const getMetadata = (block: Block): Record<string, unknown> => {
   const metadata = (block as Block & { metadata?: unknown }).metadata;
