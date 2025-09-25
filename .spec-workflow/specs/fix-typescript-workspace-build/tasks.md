@@ -12,7 +12,7 @@
   - _Requirements: Requirement 1_
   - _Prompt: Implement the task for spec fix-typescript-workspace-build, first run spec-workflow-guide to get the workflow guide then implement the task: Role: TypeScript platform engineer focused on workspace tooling | Task: Normalize TypeScript module resolution so every package resolves @moduprompt/types during pnpm build; update base config, trim duplicate overrides, and confirm Docker builds pick up the change | Restrictions: Do not relax strict compiler flags, avoid per-package hacks, keep changes limited to configs and directly related scripts | _Leverage: tsconfig.base.json, packages/*/tsconfig.json | _Requirements: Requirement 1 | Success: pnpm typecheck passes, pnpm build completes without TS2307 errors, Docker build stage finishes without TypeScript failures_
 
-- [-] 2. Add sanitize-html typings and eliminate implicit anys
+- [x] 2. Add sanitize-html typings and eliminate implicit anys
   - Files: `packages/compiler/package.json`, `pnpm-lock.yaml`, `packages/compiler/src/server/export.ts`
   - Actions:
     - Add `@types/sanitize-html` as a dev dependency and regenerate the lockfile.
