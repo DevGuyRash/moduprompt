@@ -3,15 +3,17 @@
   "version": "0.1.0",
   "description": "ModuPrompt web client state and UI modules",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && vite build",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "dev": "vite dev --host",
+    "preview": "vite preview --host"
   },
   "dependencies": {
     "@moduprompt/compiler": "workspace:*",
@@ -34,6 +36,11 @@
     "fake-indexeddb": "5.0.1",
     "jsdom": "24.1.0",
     "typescript": "^5.5.4",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "vite": "^5.4.7"
   }
 }
