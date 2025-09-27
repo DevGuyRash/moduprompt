@@ -1,0 +1,71 @@
+:root {
+  color-scheme: light;
+  --mp-font-sans: 'Inter var', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mp-font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  --mp-color-surface-rgb: 248 250 252;
+  --mp-color-surface-subtle-rgb: 241 245 249;
+  --mp-color-surface-strong-rgb: 226 232 240;
+  --mp-color-surface-emphasis-rgb: 209 216 224;
+  --mp-color-border-rgb: 203 213 225;
+  --mp-color-text-primary-rgb: 15 23 42;
+  --mp-color-text-secondary-rgb: 71 85 105;
+  --mp-color-brand-rgb: 37 99 235;
+  --mp-color-brand-strong-rgb: 30 64 175;
+  --mp-color-danger-rgb: 220 38 38;
+  --mp-color-warning-rgb: 234 179 8;
+  --mp-color-success-rgb: 22 163 74;
+
+  --mp-color-surface: rgb(var(--mp-color-surface-rgb));
+  --mp-color-surface-subtle: rgb(var(--mp-color-surface-subtle-rgb));
+  --mp-color-surface-strong: rgb(var(--mp-color-surface-strong-rgb));
+  --mp-color-surface-emphasis: rgb(var(--mp-color-surface-emphasis-rgb));
+  --mp-color-border: rgb(var(--mp-color-border-rgb));
+  --mp-color-text-primary: rgb(var(--mp-color-text-primary-rgb));
+  --mp-color-text-secondary: rgb(var(--mp-color-text-secondary-rgb));
+  --mp-color-brand: rgb(var(--mp-color-brand-rgb));
+  --mp-color-brand-strong: rgb(var(--mp-color-brand-strong-rgb));
+  --mp-color-danger: rgb(var(--mp-color-danger-rgb));
+  --mp-color-warning: rgb(var(--mp-color-warning-rgb));
+  --mp-color-success: rgb(var(--mp-color-success-rgb));
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --mp-color-surface-rgb: 15 23 42;
+  --mp-color-surface-subtle-rgb: 22 33 62;
+  --mp-color-surface-strong-rgb: 30 41 74;
+  --mp-color-surface-emphasis-rgb: 45 57 105;
+  --mp-color-border-rgb: 71 85 105;
+  --mp-color-text-primary-rgb: 226 232 240;
+  --mp-color-text-secondary-rgb: 148 163 184;
+  --mp-color-brand-rgb: 96 165 250;
+  --mp-color-brand-strong-rgb: 59 130 246;
+  --mp-color-danger-rgb: 252 129 129;
+  --mp-color-warning-rgb: 250 204 21;
+  --mp-color-success-rgb: 74 222 128;
+
+  --mp-color-surface: rgb(var(--mp-color-surface-rgb));
+  --mp-color-surface-subtle: rgb(var(--mp-color-surface-subtle-rgb));
+  --mp-color-surface-strong: rgb(var(--mp-color-surface-strong-rgb));
+  --mp-color-surface-emphasis: rgb(var(--mp-color-surface-emphasis-rgb));
+  --mp-color-border: rgb(var(--mp-color-border-rgb));
+  --mp-color-text-primary: rgb(var(--mp-color-text-primary-rgb));
+  --mp-color-text-secondary: rgb(var(--mp-color-text-secondary-rgb));
+  --mp-color-brand: rgb(var(--mp-color-brand-rgb));
+  --mp-color-brand-strong: rgb(var(--mp-color-brand-strong-rgb));
+  --mp-color-danger: rgb(var(--mp-color-danger-rgb));
+  --mp-color-warning: rgb(var(--mp-color-warning-rgb));
+  --mp-color-success: rgb(var(--mp-color-success-rgb));
+}
+
+body {
+  font-family: var(--mp-font-sans);
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--mp-font-mono);
+}
