@@ -10,7 +10,7 @@
   - _Requirements: Requirement 1, Requirement 5_
   - _Prompt: Implement the task for spec moduprompt-stabilization, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Frontend Platform Engineer | Task: Introduce Vite + Tailwind build tooling, dev server, and PWA manifest so the web workspace builds to hashed assets and supports hot reload | Restrictions: Preserve workspace boundaries, avoid global refactors, ensure CSP compatibility with nonce/hash strategy | _Leverage: apps/web/src/modules/*, apps/web/src/state/*, packages/types_, deploy/docker/Dockerfile | _Requirements: Requirement 1, Requirement 5 | Success: `pnpm --filter @moduprompt/web dev` and `pnpm --filter @moduprompt/web build` succeed, PWA manifest + index.html emitted, hashed assets copy into Docker runtime_
 
-- [ ] 2. Implement AppShell, routing, and layout scaffolding
+- [x] 2. Implement AppShell, routing, and layout scaffolding
   - File: apps/web/src/app/AppShell.tsx, apps/web/src/app/router.tsx, apps/web/src/app/providers.tsx, apps/web/src/app/layouts/*.tsx, apps/web/src/styles/tokens.css
   - Compose navigation, sidebar, and workspace selection views integrating notebook/node graph/snippets/governance modules via React Router
   - Register providers (QueryClient, DocumentStoreProvider, Theme) and wire them into AppShell entry
