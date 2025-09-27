@@ -1,0 +1,232 @@
+{
+  "exportedAt": 1738934405000,
+  "schemaVersion": 3,
+  "documents": [
+    {
+      "id": "document-tour",
+      "title": "Demo Prompt – Product Tour",
+      "schemaVersion": 2,
+      "blocks": [
+        {
+          "id": "block-intro",
+          "kind": "markdown",
+          "sequence": 1738934400000,
+          "body": "# ModuPrompt product tour\\nWelcome to the governed workspace!",
+          "createdAt": 1738934400000,
+          "updatedAt": 1738934400000
+        },
+        {
+          "id": "block-groups",
+          "kind": "group",
+          "sequence": 1738934400010,
+          "label": "Reusable content",
+          "children": [
+            "block-greeting-snippet"
+          ],
+          "createdAt": 1738934400000,
+          "updatedAt": 1738934400000
+        },
+        {
+          "id": "block-greeting-snippet",
+          "kind": "snippet",
+          "snippetId": "snippet-greeting",
+          "mode": "transclude",
+          "sequence": 1738934400015,
+          "createdAt": 1738934400000,
+          "updatedAt": 1738934400000
+        },
+        {
+          "id": "block-body",
+          "kind": "markdown",
+          "sequence": 1738934400020,
+          "body": "Share snippet changes confidently with deterministic exports.",
+          "createdAt": 1738934400000,
+          "updatedAt": 1738934400000
+        }
+      ],
+      "edges": [
+        {
+          "id": "edge-flow-1",
+          "source": "block-intro",
+          "target": "block-greeting-snippet",
+          "kind": "default"
+        },
+        {
+          "id": "edge-flow-2",
+          "source": "block-greeting-snippet",
+          "target": "block-body",
+          "kind": "default"
+        }
+      ],
+      "variables": [],
+      "exportRecipes": [
+        {
+          "recipeId": "export-approved",
+          "includeProvenance": true,
+          "lastRunAt": null
+        }
+      ],
+      "tags": [
+        "demo"
+      ],
+      "statusKey": "draft",
+      "settings": {
+        "maxWidth": "96ch"
+      },
+      "createdAt": 1738934400000,
+      "updatedAt": 1738934400000
+    }
+  ],
+  "snippets": [
+    {
+      "id": "snippet-greeting",
+      "title": "Greetings block",
+      "path": "core/onboarding",
+      "body": "Thank you for evaluating **ModuPrompt**. This content stays deterministic across exports.",
+      "headRev": 2,
+      "frontmatter": {
+        "schemaVersion": 1,
+        "description": "Reusable workspace content",
+        "tags": [
+          "welcome",
+          "intro"
+        ]
+      },
+      "createdAt": 1738934400000,
+      "updatedAt": 1738934401000
+    },
+    {
+      "id": "snippet-cta",
+      "title": "Call to action",
+      "path": "core/actions",
+      "body": "→ Next: configure your governance statuses and export recipes.",
+      "headRev": 1,
+      "frontmatter": {
+        "schemaVersion": 1,
+        "description": "CTA snippet",
+        "tags": [
+          "cta"
+        ]
+      },
+      "createdAt": 1738934402000,
+      "updatedAt": 1738934402000
+    }
+  ],
+  "snippetVersions": [
+    {
+      "snippetId": "snippet-greeting",
+      "rev": 1,
+      "parentRev": null,
+      "timestamp": 1738934400500,
+      "body": "Thanks for trying **ModuPrompt**. Build audit-ready prompt pipelines with confidence.",
+      "frontmatter": {
+        "schemaVersion": 1,
+        "description": "Reusable workspace content",
+        "tags": [
+          "welcome",
+          "intro"
+        ]
+      },
+      "author": {
+        "id": "user-sample",
+        "name": "Sample Bundle"
+      },
+      "note": "Initial draft",
+      "hash": "858d0734861af1b7ecbeecf9181d1bdf9578145c0066991e956197c60fd9f788"
+    },
+    {
+      "snippetId": "snippet-greeting",
+      "rev": 2,
+      "parentRev": 1,
+      "timestamp": 1738934401000,
+      "body": "Thank you for evaluating **ModuPrompt**. This content stays deterministic across exports.",
+      "frontmatter": {
+        "schemaVersion": 1,
+        "description": "Reusable workspace content",
+        "tags": [
+          "welcome",
+          "intro"
+        ]
+      },
+      "author": {
+        "id": "user-sample",
+        "name": "Sample Bundle"
+      },
+      "note": "Refined emphasis",
+      "hash": "9c83844f91ec68f2ac94797c7fe5984351def2ab6ad01a34860f8867755a8fe7"
+    },
+    {
+      "snippetId": "snippet-cta",
+      "rev": 1,
+      "parentRev": null,
+      "timestamp": 1738934402000,
+      "body": "→ Next: configure your governance statuses and export recipes.",
+      "frontmatter": {
+        "schemaVersion": 1,
+        "description": "CTA snippet",
+        "tags": [
+          "cta"
+        ]
+      },
+      "author": {
+        "id": "user-sample",
+        "name": "Sample Bundle"
+      },
+      "note": "Initial CTA",
+      "hash": "544a7c0d2bc74a6593a81c20f650040664e14775be2181c6ab235072cf6d3868"
+    }
+  ],
+  "workspaceSettings": {
+    "id": "workspace",
+    "schemaVersion": 3,
+    "statuses": [
+      {
+        "key": "draft",
+        "name": "Draft",
+        "color": "#64748b",
+        "order": 1
+      },
+      {
+        "key": "review",
+        "name": "In Review",
+        "color": "#f59e0b",
+        "order": 2
+      },
+      {
+        "key": "approved",
+        "name": "Approved",
+        "color": "#10b981",
+        "order": 3,
+        "isFinal": true
+      }
+    ],
+    "exportRecipes": [
+      {
+        "id": "export-approved",
+        "name": "Approved Markdown",
+        "type": "markdown",
+        "include": {
+          "all": true
+        },
+        "allowedStatuses": [
+          "approved"
+        ]
+      },
+      {
+        "id": "export-draft",
+        "name": "Draft Markdown",
+        "type": "markdown",
+        "include": {
+          "all": true
+        },
+        "allowedStatuses": [
+          "draft",
+          "approved"
+        ]
+      }
+    ],
+    "lastExportedAt": null,
+    "updatedAt": 1738934403000
+  },
+  "integrityHash": "0848e8261bd9c232c820054820b9206c92e015443ee82884bed53fd4f048ae8c"
+}

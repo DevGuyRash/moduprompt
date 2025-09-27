@@ -1,83 +1,95 @@
 # ModuPrompt Quickstart Guide
 
 ## Audience
-Prompt architects, automation engineers, and compliance reviewers who need a
-repeatable workflow for composing prompts, governing snippet usage, and
-publishing deterministic exports.
+Prompt architects, automation engineers, enablement leads, and compliance reviewers who need a deterministic, offline-ready workflow for composing prompts, governing snippet usage, and deploying ModuPrompt via pnpm or Docker.
 
-## Prerequisites
-- ModuPrompt PWA installed or served from Docker stack per
-  `.spec-workflow/steering/tech.md` and `deploy/docker/docker-compose.yml`.
-- Workspace initialized with shared schemas from `packages/types` and offline
-  persistence enabled through `packages/snippet-store` (FR-2, FR-3).
-- At least one document created via the notebook or node graph modules.
+## Before You Begin
+- Choose **one** runtime path:
+  - Node.js 20.17.x (via Corepack) with pnpm 9.7.x for local development.
+  - Docker Engine/Compose v2 for containerised evaluation.
+- Populate environment variables using [`docs/ops/env-vars.md`](../ops/env-vars.md) so API, export, and storage services share consistent credentials.
+- Download the governed demo bundle [`docs/product/samples/workspace-demo.json`](samples/workspace-demo.json). This snapshot exercises notebook, node graph, compiler, governance, and provenance features.
+- Install Playwright browsers if you plan to run UI smoke tests: `pnpm exec playwright install`.
 
-## Workflow Overview
-1. **Open the notebook view** (`apps/web/src/modules/notebook`) to draft content
-   using cells, snippet drops, and formatter actions (FR-1, FR-6).
-2. **Switch to the node graph** (`apps/web/src/modules/node-graph`) to visualize
-   flow, validate connections, and confirm there are no cycle warnings (FR-1,
-   FR-5).
-3. **Manage snippets** through the snippet library panel, ensuring every insert
-   references versioned assets with provenance badges (FR-2, FR-3).
-4. **Configure governance** by selecting tags and statuses in the governance
-   controls. Status changes log to the audit trail and gate exports (FR-8,
-   FR-10).
-5. **Run preflight** from the preview pane to surface blocking issues, including
-   status gates, unbound variables, and sanitizer errors (FR-6, FR-10).
-6. **Trigger exports** using a recipe that matches the desired channel. Export
-   jobs record provenance metadata and respect gating rules (FR-10, NFR-3).
+## Launch the Stack
+### pnpm workspace (contributors)
+1. Install dependencies:
+   ```bash
+   pnpm install --frozen-lockfile
+   pnpm build
+   ```
+2. Start the API:
+   ```bash
+   pnpm --filter @moduprompt/api dev
+   ```
+   The API serves Fastify endpoints with structured logs, CSP headers, and health probes (`/healthz`, `/readyz`).
+3. In a second terminal start the web client:
+   ```bash
+   pnpm --filter @moduprompt/web dev
+   ```
+   Vite emits hashed assets, registers the service worker, and hydrates notebook/node graph stores on load.
 
-## Snippet Governance Essentials
-- Maintain metadata through YAML frontmatter. Smart folders reuse saved queries
-  for governance audits (FR-2).
-- Reversions create new snippet versions; use provenance pins to lock specific
-  revisions in documents (FR-3).
-- Audit entries for snippet changes sync to optional backend services when
-  available; offline edits buffer locally until connectivity returns (FR-3,
-  FR-11).
+### Docker Compose (operators)
+1. Copy `deploy/docker/.env.local` and adjust secrets before production use.
+2. Bring up the core stack:
+   ```bash
+   docker compose --profile core --env-file deploy/docker/.env.local up --build --wait
+   ```
+3. Add the exports profile when you need PDF/HTML generation:
+   ```bash
+   docker compose --profile exports --env-file deploy/docker/.env.local up --build --wait
+   ```
+4. Browse to http://localhost:8080. The container serves the compiled SPA through Fastify with CSP + integrity headers derived from the Vite manifest.
 
-## Preview, Preflight, and Export
-- Live preview renders Markdown, Mermaid, and syntax-highlighted code using the
-  deterministic compiler pipeline (`packages/compiler`) (FR-5, FR-6).
-- Preflight chips display blocking and warning-level diagnostics. Resolve
-  blocking items before export to satisfy R-12 traceability expectations.
-- Export drawer shows recipe-specific status gates; update document status in
-  governance controls to unlock export paths (FR-8, FR-10).
-- Export artifacts include provenance footers listing snippet revisions and
-  compile hashes for compliance validation (FR-10, R-12).
+## Seed the Sample Workspace
+1. Open **Settings → Workspace Snapshot → Import** in the PWA.
+2. Select `docs/product/samples/workspace-demo.json`. The bundle restores:
+   - A governed prompt document with synchronized notebook and node graph layouts.
+   - Snippet history with integrity hashes and provenance pins.
+   - Governance statuses (Draft → Review → Approved) and export recipes for deterministic Markdown.
+3. Verify the import by switching between **Notebook**, **Node Graph**, **Snippets**, and **Governance** panels. Changes propagate within 200 ms by design (Requirement 2).
 
-## Offline & Deterministic Operation
-- All changes persist to IndexedDB + OPFS via `packages/snippet-store`. Sync
-  conflicts produce guided resolution prompts once connectivity resumes
-  (FR-11, NFR-1).
-- Deterministic compiler guarantees bit-identical artifacts for identical inputs
-  (NFR-4). Avoid manual edits to exported files to keep provenance intact.
+> [!NOTE]
+> Workspace imports honour IndexedDB/OPFS migrations. If migrations fail, the UI surfaces audit entries and recovery guidance per Requirement 3.
 
-## Layout Width Controls (80/96/120 ch)
-- Document settings expose `maxWidth` options of `80ch`, `96ch`, or `120ch`
-  (design.md - DocumentModel). Use Governance > Display Controls to select a
-  width that matches your review context.
-- Keep prose within the chosen width to prevent horizontal scrolling. Quick
-  checks: toggle preview width and confirm no lines wrap beyond the column
-  guideline.
+## Tour the Stabilised Workflow
+1. **Notebook authoring (Requirement 1):** edit the imported document; confirm autosave and deterministic block ordering.
+2. **Node graph synchronisation (Requirement 2):** observe edges update as you rearrange blocks; undo/redo remains lossless.
+3. **Snippet governance (Requirement 3 & 4):** review snippet versions, provenance hashes, and audit log entries. Status transitions emit structured events.
+4. **Compiler preview (Requirement 2 & 5):** trigger `Preview → Markdown`. Inline diagnostics reference governance gates and sanitizer warnings.
+5. **Policy gating (Requirement 4):** attempt an export while status=Draft to see gating; mark as Approved to unlock recipes.
 
-## Traceability
-- FR-6: Preview & preflight pipeline
-  (`.spec-workflow/specs/moduprompt-overview/requirements.md`).
-- FR-8: Governance controls for tags/statuses.
-- FR-10: Export customization and status gates.
-- FR-17: Testing harness references ensuring deterministic preview behavior.
-- R-12: Traceability audits satisfied via provenance logging.
+## Offline & Recovery Checklist
+1. Install the PWA (`chrome://apps` or browser equivalent) to cache manifest and service worker assets.
+2. Trigger **Go offline** in devtools (or disconnect networking). Reload; the shell, document state, and snippets load from Dexie/OPFS without network calls.
+3. Reconnect and check the activity banner—queued audit/export events flush automatically. Confirm logs in the API (`pnpm --filter @moduprompt/api dev` terminal) include reconciliation entries.
+4. Review `Settings → Workspace Snapshot → Export` and capture the hash printed in the UI; compare with the `integrityHash` stored in the sample bundle for determinism.
 
-## Deterministic Checklist
-- [ ] Preflight cleared with no blocking diagnostics.
-- [ ] Document status matches export recipe gate.
-- [ ] All snippets reference pinned revisions.
-- [ ] Layout width verified at 80/96/120 ch as required.
+## Deterministic Exports & Smoke Tests
+- Generate a Markdown export via the governance-approved recipe. The footer lists snippet revisions and compile hashes; record the run in your change log.
+- Run Playwright journeys for an automated end-to-end validation:
+  ```bash
+  pnpm test:e2e --project journeys
+  pnpm test:e2e --project accessibility
+  DOCKER_SMOKE_BASE_URL=http://127.0.0.1:8080 pnpm test:e2e --project docker-smoke
+  ```
+  These suites assert notebook/node graph parity, WCAG coverage (axe-core), offline banners, and Fastify telemetry endpoints.
+- Call `pnpm docker:verify` (Requirement 5) to ensure the runtime image contains production dependencies only. The command relies on `scripts/docker/verify-runtime-deps.mjs` and outputs JSON suitable for audit trails.
 
-## Related Artifacts
-- `.spec-workflow/specs/moduprompt-overview/design.md`
-- `.spec-workflow/steering/product.md`
-- `.spec-workflow/steering/structure.md`
-- `docs/admin/governance.md`
+## Observability & Runbooks
+- Fastify emits structured logs (`pino` JSON) with correlation IDs; forward them to Loki/ELK as described in [`docs/ops/env-vars.md`](../ops/env-vars.md#health-observability--governance).
+- CSP, HSTS, CORP/COOP headers default to steering-compliant values. Adjust via environment variables if you terminate TLS elsewhere.
+- For incident handling, capture:
+  - Service worker failures (`navigator.serviceWorker.controller` logs).
+  - IndexedDB migration alerts (UI toast + `apps/web/src/services/storage` logs).
+  - Export worker retries (visible in `/api/exports` responses and Docker logs).
+
+## Accessibility & Governance Guardrails
+- Keyboard navigation covers all interactive regions (sidebar, notebook cells, node graph canvas). Use `?` to open shortcut help.
+- Governance chips meet WCAG AA; verify using the accessibility Playwright project.
+- Document width policies (80 / 96 / 120 ch) live under **Governance → Display Policies** and propagate to exports.
+
+## Traceability & References
+- Spec alignment: Requirements 1–5, Design §Architecture & Offline, Tasks document task 7.
+- Steering references: `.spec-workflow/steering/product.md`, `.spec-workflow/steering/tech.md`, `.spec-workflow/steering/structure.md`.
+- Change log: record adoption and risk notes in [`docs/changelog/moduprompt-stabilization.md`](../changelog/moduprompt-stabilization.md).

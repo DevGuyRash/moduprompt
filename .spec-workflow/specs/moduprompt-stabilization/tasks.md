@@ -58,7 +58,7 @@
   - _Requirements: Requirement 1, Requirement 2, Requirement 3, Requirement 4, Requirement 5_
   - _Prompt: Implement the task for spec moduprompt-stabilization, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Quality Engineering Lead | Task: Expand automated tests and CI pipeline to validate PWA shell, API, offline persistence, and exports end-to-end deterministically | Restrictions: Keep tests hermetic (mock network where appropriate), seed data via scripts, ensure CI runtime mirrors local workflow | _Leverage: tests/e2e/*, apps/web/vitest.config.ts, .github/workflows/pipeline.yml_ | _Requirements: Requirement 1, Requirement 2, Requirement 3, Requirement 4, Requirement 5 | Success: CI passes with new coverage, Docker smoke suite validates `/` load, offline/online flows tested, SBOM + security scans reported_
 
-- [ ] 7. Update documentation, samples, and operational runbooks
+- [x] 7. Update documentation, samples, and operational runbooks
   - File: README.md, docs/product/quickstart.md, docs/admin/governance.md, docs/developer/compiler.md, docs/ops/env-vars.md, docs/changelog/moduprompt-stabilization.md
   - Document new dev commands, architecture diagrams, offline workflows, export pipelines, and observability guidance
   - Provide sample data bundles and scripted smoke instructions for operators

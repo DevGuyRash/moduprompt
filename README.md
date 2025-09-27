@@ -2,7 +2,7 @@
 
 [![pnpm workspace](https://img.shields.io/badge/pnpm-9.7.0-FFAE00?logo=pnpm&logoColor=white)](https://pnpm.io/)
 [![Docker ready](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](deploy/docker/)
-[![Spec workflow](https://img.shields.io/badge/spec--workflow-docker--build--hardening-blueviolet)](.spec-workflow/specs/docker-build-hardening/)
+[![Spec workflow](https://img.shields.io/badge/spec--workflow-moduprompt--stabilization-7B3FA0)](.spec-workflow/specs/moduprompt-stabilization/)
 
 ModuPrompt is a local-first prompt authoring studio that unifies notebook and node graph editing, enforces snippet governance, and produces deterministic exports ready for audits. The stack aligns with our approved steering documents, keeping Docker-first delivery and pnpm workspaces at the core while remaining extensible for regulated environments.
 
@@ -13,6 +13,7 @@ ModuPrompt is a local-first prompt authoring studio that unifies notebook and no
 - **Governed snippets:** Attach metadata, provenance pins, and append-only history to every reusable fragment.
 - **Deterministic delivery:** Reproduce Markdown, HTML, PDF, DOCX, and chat exports with stable hashes and provenance logs.
 - **Local-first foundation:** Run entirely on your workstation via pnpm or Docker; optional services add collaboration, exports, and webhooks when you need them.
+- **Stabilized operations:** Offline-ready service worker, Dexie/OPFS migrations, and Docker runbooks now ship with documented smoke tests and recovery flows so ops teams can keep deployments healthy.
 
 > [!NOTE]
 > Product/technical/structure steering lives in `.spec-workflow/steering/`. Follow the spec workflow (Requirements → Design → Tasks → Implementation) before changing behavior.
@@ -38,7 +39,9 @@ Pick the workflow that matches how you want to evaluate or contribute to ModuPro
    ```bash
    pnpm --filter @moduprompt/web dev
    ```
-5. **Run checks as you iterate:** `pnpm typecheck`, `pnpm test`, and the Playwright harness under `tests/e2e/`.
+5. **Load the sample workspace (optional but recommended):** follow [`docs/product/quickstart.md`](docs/product/quickstart.md#seed-the-sample-workspace) to import `docs/product/samples/workspace-demo.json` so you can explore synchronized notebook, node graph, and compiler flows.
+6. **Validate offline & governance workflows:** use the quickstart's offline checklist to install the PWA, toggle airplane mode, and confirm service worker recovery plus accessibility shortcuts.
+7. **Run checks as you iterate:** `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, and the Playwright harness under `tests/e2e/` to keep deterministic coverage.
 
 ### 2. Docker Compose (evaluators & ops)
 1. **Prerequisites:** Docker Engine/Compose v2.
@@ -56,17 +59,18 @@ Pick the workflow that matches how you want to evaluate or contribute to ModuPro
    ```bash
    docker compose --profile exports --env-file .env.local up --build --wait
    ```
-5. Visit http://localhost:8080 for the PWA. Stop with `docker compose down --volumes` to clean generated data.
-6. (Optional) Verify the container serves the SPA bundle:
+5. Visit http://localhost:8080 for the PWA. Import `docs/product/samples/workspace-demo.json` from **Settings → Workspace** to populate governed demo content.
+6. Toggle the browser's offline mode or disconnect networking to confirm Dexie/OPFS persistence and reconnect handling. Capture audit notes per [`docs/admin/governance.md`](docs/admin/governance.md#offline-audit-readiness).
+7. (Optional) Verify the container serves the SPA bundle and governance APIs:
    ```bash
    DOCKER_SMOKE_BASE_URL=http://127.0.0.1:8080 pnpm test:e2e --project docker-smoke
    ```
-   The smoke suite asserts `/` returns the compiled shell, static assets stream with immutable caching, and `/api/*` retains JSON semantics.
+   The smoke suite asserts `/` returns the compiled shell, static assets stream with immutable caching, `/api/*` retains JSON semantics, and governance endpoints emit structured audit logs.
 
 ---
 
-## Verify the Runtime Image (required for releases)
-The docker-build-hardening spec introduces a shared verification workflow that proves runtime images only contain production dependencies.
+## Verify the Runtime Image & Offline Bundle (required for releases)
+The moduprompt-stabilization spec builds on the docker-build-hardening work: ship the hashed SPA bundle, confirm exports stay deterministic, and prove runtime images only contain production dependencies.
 
 - **Local & CI command:**
   ```bash
@@ -97,18 +101,27 @@ All commands mirror our GitHub Actions pipeline and respect <determinism-and-rep
 
 ## Documentation Map
 - Product quickstart: [`docs/product/quickstart.md`](docs/product/quickstart.md)
-- Governance administration: [`docs/admin/governance.md`](docs/admin/governance.md)
+- Governance administration & offline audit readiness: [`docs/admin/governance.md`](docs/admin/governance.md)
 - Compiler internals & extension guide: [`docs/developer/compiler.md`](docs/developer/compiler.md)
 - Environment variables & data classification: [`docs/ops/env-vars.md`](docs/ops/env-vars.md)
-- Release & readiness notes: [`docs/changelog/moduprompt-overview.md`](docs/changelog/moduprompt-overview.md)
+- Stabilization changelog & risk log: [`docs/changelog/moduprompt-stabilization.md`](docs/changelog/moduprompt-stabilization.md)
+- Release & foundational notes: [`docs/changelog/moduprompt-overview.md`](docs/changelog/moduprompt-overview.md)
+- Sample workspace bundle: [`docs/product/samples/workspace-demo.json`](docs/product/samples/workspace-demo.json)
 
-See `.spec-workflow/specs/` for approved specs, including `docker-build-hardening` (current implementation focus) and `moduprompt-overview` (foundational features).
+See `.spec-workflow/specs/` for approved specs, including `moduprompt-stabilization` (current implementation focus) and `moduprompt-overview` (foundational features).
+
+---
+
+## Sample Workspace & Smoke Tests
+- Import [`docs/product/samples/workspace-demo.json`](docs/product/samples/workspace-demo.json) through the web app settings to explore synchronized notebook, node graph, governance, and compiler flows with provenance metadata pre-populated.
+- Run `pnpm test:e2e --project journeys` for the guided authoring workflow and `pnpm test:e2e --project accessibility` to verify WCAG coverage with axe-core.
+- Execute `DOCKER_SMOKE_BASE_URL=http://127.0.0.1:8080 pnpm test:e2e --project docker-smoke` after a Compose deployment to assert the hashed SPA bundle, CSP headers, and Fastify observability endpoints are healthy.
 
 ---
 
 ## Working Within the Spec Workflow
 - Specs live under `.spec-workflow/specs/<name>/` with `requirements.md`, `design.md`, and `tasks.md` (versioned & approval-gated).
-- Before starting a task, mark it as `[-]` in `tasks.md`; mark as `[x]` when finished. This README update corresponds to task **5** of `docker-build-hardening`.
+- Before starting a task, mark it as `[-]` in `tasks.md`; mark as `[x]` when finished. This README update corresponds to task **7** of `moduprompt-stabilization`.
 - Align changes with steering (Product → Technical → Structure) before modifying code or docs. If scope drifts, update the spec and re-run approvals.
 
 ---
