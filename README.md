@@ -51,6 +51,30 @@ Pick the workflow that matches how you want to evaluate or contribute to ModuPro
    touch .env.local
    ```
    Populate values using the tables in [`docs/ops/env-vars.md`](docs/ops/env-vars.md); keep secrets out of version control.
+   ```env
+   # Example deploy/docker/.env.local (development defaults — rotate in production)
+   NODE_ENV=production
+   PORT=8080
+   LOG_LEVEL=info
+
+   DATABASE_URL=postgresql://moduprompt:moduprompt@postgres:5432/moduprompt?schema=public
+   POSTGRES_DB=moduprompt
+   POSTGRES_USER=moduprompt
+   POSTGRES_PASSWORD=moduprompt
+
+   STORAGE_ENDPOINT=http://minio:9000
+   STORAGE_BUCKET=moduprompt-exports
+   STORAGE_ACCESS_KEY=minioadmin
+   STORAGE_SECRET_KEY=minioadmin
+
+   EXPORT_QUEUE_URL=redis://redis:6379
+   EXPORT_CALLBACK_URL=http://app:8080
+   EXPORTER_PORT=8081
+
+   MINIO_ROOT_USER=minioadmin
+   MINIO_ROOT_PASSWORD=minioadmin
+   REDIS_PORT=6379
+   ```
 3. **Launch the core stack:**
    ```bash
    docker compose --profile core --env-file .env.local up --build --wait
