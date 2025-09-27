@@ -9,6 +9,8 @@ export pipeline in ModuPrompt.
   `packages/types` (FR-5, FR-6).
 - Worker adapters: `packages/compiler/src/workers/clientAdapter.ts` for browser
   execution and `packages/compiler/src/server/export.ts` for headless exports.
+  The service worker channels preview requests offline using the same adapter
+  pipeline (Requirement 3).
 - Governance policy integration flows through `packages/snippet-store`
   governance utilities and the compiler preflight stage (FR-8, FR-10).
 
@@ -24,7 +26,9 @@ export pipeline in ModuPrompt.
    - status gate violations (`allowedStatuses` mismatch),
    - missing or cyclic snippets,
    - sanitizer issues (Mermaid, Markdown),
-   - width configuration mismatches (ensuring chosen 80/96/120 ch fits recipes).
+   - width configuration mismatches (ensuring chosen 80/96/120 ch fits recipes),
+   - offline reconciliation issues (pending audit buffer flush) surfaced by the
+     Dexie audit queue.
 5. **Artifact emission** - produce Markdown, HTML, PDF, and chat-ready text with
    stable hashes recorded in export metadata (FR-10).
 
@@ -33,6 +37,8 @@ export pipeline in ModuPrompt.
   modules to honour the Functional Core, Imperative Shell principle.
 - When adding filters or formatters, declare deterministic constraints and
   include contract tests verifying identical output for identical input sets.
+  Use `docs/product/samples/workspace-demo.json` as a canonical fixture for
+  regression coverage.
 - New diagnostics must categorize errors using the taxonomy in
   `.spec-workflow/specs/moduprompt-overview/design.md` (Errors section) to align
   with governance surfaces.
@@ -43,7 +49,8 @@ export pipeline in ModuPrompt.
 - **Unit tests** (`packages/compiler/src/__tests__`) cover each pipeline stage
   with golden fixtures to enforce NFR-4.
 - **Integration tests** ensure compiler <-> governance interactions succeed across
-  browser and server environments (FR-8, FR-10).
+  browser (including service worker offline flows) and server environments
+  (FR-8, FR-10, Requirement 3).
 - **Performance benchmarks** (`tests/perf/compiler.bench.ts`) validate latency
   budgets for large documents (NFR-1).
 - **Security fuzzing** exercises sanitizer defenses against hostile Markdown and
@@ -52,6 +59,8 @@ export pipeline in ModuPrompt.
 ## Release & Observability Notes
 - Emit structured logs with correlation IDs when running in server context to
   satisfy observability contracts. Avoid logging snippet bodies or secrets.
+  Tag offline replay events so operators can reconcile state against
+  `docs/changelog/moduprompt-stabilization.md` risk entries.
 - Export workers must register success/failure metrics; coordinate with
   `docs/admin/governance.md` to keep decision logs synchronized (R-12).
 
@@ -72,5 +81,7 @@ export pipeline in ModuPrompt.
 ## Reference Material
 - `.spec-workflow/specs/moduprompt-overview/design.md`
 - `.spec-workflow/specs/moduprompt-overview/requirements.md`
+- `.spec-workflow/specs/moduprompt-stabilization/design.md`
+- `docs/product/samples/workspace-demo.json`
 - `packages/compiler/README.md` (if present)
 - `docs/product/quickstart.md`

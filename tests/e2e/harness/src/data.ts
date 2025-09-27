@@ -1,4 +1,5 @@
-import type { DocumentModel, ExportRecipe, Snippet, SnippetVersion } from '@moduprompt/types';
+import { createHash } from 'node:crypto';
+import type { DocumentModel, ExportRecipe, JsonValue, Snippet, SnippetVersion } from '@moduprompt/types';
 import type { WorkspaceSnapshot } from '@moduprompt/snippet-store';
 import { computeIntegrityHash } from '@moduprompt/snippet-store';
 import {
@@ -16,6 +17,32 @@ import {
 } from '../../fixtures/constants';
 
 const BASE_TIMESTAMP = 1_738_934_400_000; // 2025-09-20T00:00:00.000Z
+
+const normalizeJsonValue = (value: JsonValue): JsonValue => {
+  if (Array.isArray(value)) {
+    return value.map((item) => normalizeJsonValue(item as JsonValue));
+  }
+
+  if (value && typeof value === 'object') {
+    const entries = Object.entries(value)
+      .filter(([, v]) => v !== undefined)
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+    const normalized: Record<string, JsonValue> = {};
+    for (const [key, val] of entries) {
+      normalized[key] = normalizeJsonValue(val as JsonValue);
+    }
+    return normalized as JsonValue;
+  }
+
+  return value;
+};
+
+const stableStringify = (value: JsonValue): string => JSON.stringify(normalizeJsonValue(value));
+
+const computeSnapshotIntegrity = (snapshot: Omit<WorkspaceSnapshot, 'integrityHash'>): string =>
+  createHash('sha256').update(stableStringify(snapshot as JsonValue)).digest('hex');
+
+const WORKSPACE_SCHEMA_VERSION = 3;
 
 const createSnippet = (
   id: string,
@@ -196,14 +223,15 @@ export const createHarnessData = async (): Promise<HarnessData> => {
     },
   ];
 
-  const workspaceSnapshot: WorkspaceSnapshot = {
+  const baseSnapshot = {
     exportedAt: BASE_TIMESTAMP + 5_000,
+    schemaVersion: WORKSPACE_SCHEMA_VERSION,
     documents: [document],
     snippets: [greetingSnippet, ctaSnippet],
     snippetVersions: [...greetingVersions],
     workspaceSettings: {
       id: 'workspace',
-      schemaVersion: 1,
+      schemaVersion: WORKSPACE_SCHEMA_VERSION,
       statuses: [
         { key: STATUS_DRAFT, name: 'Draft', color: '#64748b', order: 1 },
         { key: STATUS_REVIEW, name: 'In Review', color: '#f59e0b', order: 2 },
@@ -213,6 +241,11 @@ export const createHarnessData = async (): Promise<HarnessData> => {
       updatedAt: BASE_TIMESTAMP + 3_000,
       lastExportedAt: undefined,
     },
+  } satisfies Omit<WorkspaceSnapshot, 'integrityHash'>;
+
+  const workspaceSnapshot: WorkspaceSnapshot = {
+    ...baseSnapshot,
+    integrityHash: computeSnapshotIntegrity(baseSnapshot),
   } satisfies WorkspaceSnapshot;
 
   return {

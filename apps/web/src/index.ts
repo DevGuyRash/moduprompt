@@ -35,3 +35,5 @@ export * from './modules/node-graph/index.js';
 export * from './modules/snippets/index.js';
 export * from './modules/governance/index.js';
 export * from './modules/compiler-preview/index.js';
+
+export { App } from './app/App.js';

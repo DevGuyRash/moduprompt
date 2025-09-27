@@ -1,0 +1,16 @@
+export type CreateSnippetRequest = Record<string, unknown>;
+export type CreateSnippetVersionRequest = Record<string, unknown>;
+export type RevertSnippetVersionRequest = Record<string, unknown>;
+export type SnippetListResponse = unknown;
+export type SnippetResponse = { snippet: unknown };
+export type SnippetVersionParams = Record<string, unknown>;
+export type SnippetVersionResponse = unknown;
+export const createSnippetRequestSchema = { parse: (value: unknown) => value } as const;
+export const createSnippetVersionRequestSchema = { parse: (value: unknown) => value } as const;
+export const revertSnippetVersionRequestSchema = { parse: (value: unknown) => value } as const;
+export const snippetListResponseSchema = { parse: (value: unknown) => value } as const;
+export const snippetParamsSchema = { parse: (value: unknown) => value } as const;
+export const snippetResponseSchema = { parse: (value: unknown) => value, shape: { snippet: { parse: (value: unknown) => value } } } as const;
+export const snippetVersionParamsSchema = { parse: (value: unknown) => value } as const;
+export const snippetVersionResponseSchema = { parse: (value: unknown) => value } as const;
+export const updateSnippetRequestSchema = { parse: (value: unknown) => value } as const;

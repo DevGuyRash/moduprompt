@@ -14,6 +14,8 @@ export default defineConfig({
       '@moduprompt/compiler/server/export': path.resolve(__dirname, 'src/stubs/compilerServerExport.ts'),
       '@moduprompt/snippet-store': path.resolve(repoRoot, 'packages/snippet-store/src'),
       '@moduprompt/types': path.resolve(repoRoot, 'packages/types/src'),
+      '@moduprompt/api/modules/documents/contracts.js': path.resolve(repoRoot, 'apps/web/src/test/stubs/documentsContracts.ts'),
+      '@moduprompt/api/modules/snippets/contracts.js': path.resolve(repoRoot, 'apps/web/src/test/stubs/snippetsContracts.ts'),
       '@fixtures': path.resolve(repoRoot, 'tests/e2e/fixtures'),
       'node:crypto': path.resolve(__dirname, 'src/stubs/crypto.ts'),
     },

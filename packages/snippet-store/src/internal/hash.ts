@@ -12,20 +12,21 @@ const nobleDigest = (payload: Uint8Array): string => {
   return bytesToHex(digest);
 };
 
+export const computeSha256Hex = async (payload: string): Promise<string> => {
+  const encoded = encoder.encode(payload);
+  if (typeof globalThis.crypto?.subtle?.digest === 'function') {
+    const digest = await globalThis.crypto.subtle.digest('SHA-256', encoded);
+    return bufferToHex(digest);
+  }
+  return nobleDigest(encoded);
+};
+
 export const computeIntegrityHash = async (
   body: string,
   frontmatter: SnippetVersion['frontmatter'],
 ): Promise<string> => {
   const serializedFrontmatter = stableStringify(frontmatter);
-  const payload = encoder.encode(`${body}\n---\n${serializedFrontmatter}`);
-
-  if (typeof globalThis.crypto?.subtle?.digest === 'function') {
-    const digest = await globalThis.crypto.subtle.digest('SHA-256', payload);
-    return bufferToHex(digest);
-  }
-
-  // Fallback to pure JS implementation to support non-secure contexts (e.g., unit tests).
-  return nobleDigest(payload);
+  return computeSha256Hex(`${body}\n---\n${serializedFrontmatter}`);
 };
 
 export const verifySnippetIntegrity = async (version: SnippetVersion): Promise<void> => {

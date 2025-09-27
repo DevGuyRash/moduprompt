@@ -1,3 +1,4 @@
+import { performance } from 'node:perf_hooks';
 import PQueue from 'p-queue';
 import pino from 'pino';
 import type { FastifyInstance } from 'fastify';
@@ -184,16 +185,35 @@ export class WebhookDispatcher {
 
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
       try {
+        const startedAt = performance.now();
         await this.send({ subscriptionId, url, secret, event: domainEvent, auditId, payload });
-        if (attempt > 1) {
-          this.logger.info({ subscriptionId, attempt }, 'webhook delivery succeeded after retry');
-        }
+        const durationMs = Math.round(performance.now() - startedAt);
+        this.logger.info(
+          {
+            subscriptionId,
+            attempt,
+            event: domainEvent.type,
+            durationMs,
+            type: 'webhook.delivery.succeeded',
+            metrics: { webhook_deliveries: 1 },
+          },
+          attempt > 1 ? 'Webhook delivery succeeded after retry' : 'Webhook delivered',
+        );
         return;
       } catch (error) {
         const isFinalAttempt = attempt >= maxAttempts;
         this.logger.warn({ subscriptionId, attempt, error }, 'webhook delivery attempt failed');
         if (isFinalAttempt) {
-          this.logger.error({ subscriptionId, auditId, event: domainEvent.type }, 'webhook delivery exhausted retries');
+          this.logger.error(
+            {
+              subscriptionId,
+              auditId,
+              event: domainEvent.type,
+              type: 'webhook.delivery.failed',
+              metrics: { webhook_failures: 1 },
+            },
+            'Webhook delivery exhausted retries',
+          );
           return;
         }
         const backoff = computeBackoff(attempt, this.options.backoffMinMs, this.options.backoffMaxMs);

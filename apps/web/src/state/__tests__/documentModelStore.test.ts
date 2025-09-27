@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { DocumentModel, MarkdownBlock, Edge, CommentBlock } from '@moduprompt/types';
+import { createDocumentStore } from '../document-model.js';
 import {
-  createDocumentStore,
   selectNotebookProjection,
   selectNodeProjection,
   selectDocumentModel,
-} from '../...js';
+} from '../selectors/documentSelectors.js';
 
 const createDocument = (): DocumentModel => ({
   id: 'doc-1',

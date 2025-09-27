@@ -30,4 +30,29 @@ test.describe('Docker Compose SPA smoke', () => {
     const payload = await response.json();
     expect(payload).toMatchObject({ error: 'Not Found' });
   });
+
+  test('exposes PWA manifest with offline start URL', async ({ request }) => {
+    const response = await request.get('/manifest.webmanifest', { timeout: 10_000 });
+    expect(response.status()).toBe(200);
+    const contentType = response.headers()['content-type'] ?? '';
+    expect(contentType).toMatch(/application\/(manifest\+json|json)/i);
+    const manifest = await response.json();
+    expect(manifest).toMatchObject({
+      name: expect.any(String),
+      start_url: '/',
+      display: expect.stringMatching(/standalone|minimal-ui/),
+    });
+    expect(Array.isArray(manifest.icons)).toBe(true);
+  });
+
+  test('publishes service worker for offline caching', async ({ request }) => {
+    const response = await request.get('/service-worker.js', { timeout: 10_000 });
+    expect(response.status()).toBe(200);
+    const contentType = response.headers()['content-type'] ?? '';
+    expect(contentType).toMatch(/javascript/);
+    const body = await response.text();
+    expect(body).toMatch(/self\.addEventListener/);
+    expect(body).toMatch(/moduprompt-shell/);
+  });
+
 });

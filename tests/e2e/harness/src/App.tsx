@@ -20,6 +20,7 @@ import {
   createTagChangeAuditEntry,
   createWorkspaceStore,
   listBufferedAuditEntries,
+  type WorkspaceSnapshot,
   type WorkspaceStore,
 } from '@moduprompt/snippet-store';
 import type { ExportRecipe } from '@moduprompt/types';
@@ -31,6 +32,15 @@ import {
   STATUS_DRAFT,
 } from '../../fixtures/constants';
 import { createHarnessData, HARNESS_DB_NAME, type HarnessData } from './data';
+
+declare global {
+  interface Window {
+    __HARNESS__?: {
+      exportWorkspaceSnapshot: () => Promise<WorkspaceSnapshot>;
+      listBufferedAuditEntries: () => Promise<unknown[]>;
+    };
+  }
+}
 
 interface ExportState {
   timestamp: number;
@@ -113,6 +123,20 @@ const HarnessAppInner = () => {
   useFetchStub();
 
   const { documentStore, workspaceStore } = useHarnessStores();
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+    const harnessApi = {
+      exportWorkspaceSnapshot: () => workspaceStore.exportSnapshot(),
+      listBufferedAuditEntries: () => listBufferedAuditEntries(workspaceStore),
+    };
+    (window as typeof window & { __HARNESS__?: typeof harnessApi }).__HARNESS__ = harnessApi;
+    return () => {
+      delete (window as typeof window & { __HARNESS__?: typeof harnessApi }).__HARNESS__;
+    };
+  }, [workspaceStore]);
+
   const [harnessData, setHarnessData] = useState<HarnessData | null>(null);
   const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState<string>('Harness ready');

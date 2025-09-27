@@ -8,3 +8,4 @@ coverage/
 .tmp/
 logs/
 *.log
+*.tsbuildinfo

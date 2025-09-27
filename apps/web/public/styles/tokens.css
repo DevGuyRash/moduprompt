@@ -1,0 +1,38 @@
+/* ModuPrompt design tokens baseline; shared between runtime and build pipelines. */
+@font-face {
+  font-family: 'Inter var';
+  src: url('../fonts/inter-roman.var.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+:root {
+  color-scheme: dark light;
+  --mp-color-surface: #080b12;
+  --mp-color-surface-alt: #121926;
+  --mp-color-border: rgba(112, 135, 168, 0.35);
+  --mp-color-text-primary: #e7ecf5;
+  --mp-color-text-secondary: #9fb0cc;
+  --mp-color-accent: #7f8cff;
+  --mp-color-success: #6fd6a4;
+  --mp-color-danger: #ff6584;
+  --mp-font-sans: 'Inter var', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mp-font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, SFMono, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --mp-radius-sm: 6px;
+  --mp-radius-md: 10px;
+  --mp-radius-lg: 16px;
+  --mp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --mp-shadow-md: 0 10px 35px rgba(9, 17, 34, 0.35);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --mp-color-surface: #f8faff;
+    --mp-color-surface-alt: #eef4ff;
+    --mp-color-border: rgba(92, 114, 153, 0.2);
+    --mp-color-text-primary: #0b1220;
+    --mp-color-text-secondary: #33415c;
+    --mp-shadow-md: 0 18px 44px rgba(112, 125, 196, 0.2);
+  }
+}

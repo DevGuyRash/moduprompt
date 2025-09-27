@@ -3,24 +3,28 @@
   "version": "0.1.0",
   "description": "ModuPrompt web client state and UI modules",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && vite build",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "dev": "vite dev --host",
+    "preview": "vite preview --host"
   },
   "dependencies": {
     "@moduprompt/compiler": "workspace:*",
     "@moduprompt/snippet-store": "workspace:*",
     "@moduprompt/types": "workspace:*",
+    "@tanstack/react-query": "^5.59.0",
     "immer": "^10.1.1",
     "nanoid": "^5.1.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-router-dom": "^6.27.0",
     "reactflow": "^11.10.2",
     "zustand": "^4.5.4"
   },
@@ -31,9 +35,15 @@
     "@types/node": "^20.11.5",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "autoprefixer": "^10.4.20",
     "fake-indexeddb": "5.0.1",
     "jsdom": "24.1.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
     "typescript": "^5.5.4",
-    "vitest": "^1.6.0"
+    "vite": "^5.4.7",
+    "vitest": "^1.6.0",
+    "zod": "^4.1.11"
   }
 }

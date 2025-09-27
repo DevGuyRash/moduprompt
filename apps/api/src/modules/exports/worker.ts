@@ -58,6 +58,16 @@ export class ExportWorker {
       return;
     }
 
+    this.logger.info(
+      {
+        jobId,
+        attempt: context.attempt,
+        maxAttempts: context.maxAttempts,
+        type: 'export.job.started',
+      },
+      'Export job processing started',
+    );
+
     await this.deps.repository.markProcessing(jobId, {
       attempt: context.attempt,
       maxAttempts: context.maxAttempts,
@@ -91,6 +101,15 @@ export class ExportWorker {
             preflight: compileResult.preflight,
           },
         });
+        this.logger.warn(
+          {
+            jobId,
+            attempt: context.attempt,
+            type: 'export.job.preflight_blocked',
+            issues: blockingIssues.length,
+          },
+          'Export job blocked by preflight errors',
+        );
         await this.deps.events.dispatch({
           id: randomUUID(),
           type: 'export.failed',
@@ -158,6 +177,18 @@ export class ExportWorker {
         artifactUri: stored.uri,
         metadata,
       });
+      this.logger.info(
+        {
+          jobId,
+          attempt: context.attempt,
+          durationMs: Math.round(durationMs),
+          artifactUri: stored.uri,
+          snippetCount: snippetIds.length,
+          type: 'export.job.completed',
+          metrics: { exports_completed: 1 },
+        },
+        'Export job completed',
+      );
       await this.deps.events.dispatch({
         id: randomUUID(),
         type: 'export.completed',
@@ -180,6 +211,15 @@ export class ExportWorker {
             failedAt: new Date().toISOString(),
           },
         });
+        this.logger.error(
+          {
+            jobId,
+            attempt: context.attempt,
+            type: 'export.job.failed',
+            metrics: { exports_failed: 1 },
+          },
+          'Export job failed after exhausting retries',
+        );
         await this.deps.events.dispatch({
           id: randomUUID(),
           type: 'export.failed',
@@ -197,6 +237,15 @@ export class ExportWorker {
           lastError: message,
           requeuedAt: new Date().toISOString(),
         });
+        this.logger.warn(
+          {
+            jobId,
+            attempt: context.attempt,
+            nextAttempt: context.attempt + 1,
+            type: 'export.job.requeued',
+          },
+          'Export job will be retried',
+        );
       }
       throw error;
     }

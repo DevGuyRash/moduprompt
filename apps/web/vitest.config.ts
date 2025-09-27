@@ -14,6 +14,14 @@ export default defineConfig({
       { find: '@moduprompt/snippet-store/', replacement: fromRoot('../../packages/snippet-store/src/') },
       { find: '@moduprompt/types', replacement: fromRoot('../../packages/types/src/index.ts') },
       { find: '@moduprompt/types/', replacement: fromRoot('../../packages/types/src/') },
+      {
+        find: '@moduprompt/api/modules/documents/contracts.js',
+        replacement: fromRoot('src/test/stubs/documentsContracts.ts'),
+      },
+      {
+        find: '@moduprompt/api/modules/snippets/contracts.js',
+        replacement: fromRoot('src/test/stubs/snippetsContracts.ts'),
+      },
     ],
   },
   test: {

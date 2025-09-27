@@ -1,3 +1,4 @@
+
 name: CI
 
 on:
@@ -28,6 +29,20 @@ jobs:
     name: Install, Typecheck, Test, Build
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: moduprompt
+          POSTGRES_PASSWORD: moduprompt
+          POSTGRES_DB: moduprompt_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U moduprompt"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,6 +62,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
       - name: Typecheck
         run: pnpm typecheck
 
@@ -55,6 +73,16 @@ jobs:
 
       - name: Build packages
         run: pnpm build
+
+      - name: Run Prisma migrations against Postgres
+        env:
+          DATABASE_URL: postgresql://moduprompt:moduprompt@localhost:5432/moduprompt_ci
+        run: pnpm --filter @moduprompt/api prisma:migrate
+
+      - name: Run Playwright journeys and accessibility suites
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+        run: pnpm test:e2e --project=journeys --project=accessibility
 
   container-security:
     name: Build Containers & Scan
@@ -80,6 +108,9 @@ jobs:
       - name: Install dependencies (no scripts)
         run: pnpm install --frozen-lockfile --ignore-scripts
 
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
       - name: Verify Docker build workflow
         env:
           PNPM_LOG_LEVEL: info
@@ -94,6 +125,60 @@ jobs:
 
       - name: Build export worker image
         run: docker build -f deploy/docker/Dockerfile --target exporter -t moduprompt/exporter:${{ github.sha }} .
+
+      - name: Launch application container
+        run: |
+          set -euxo pipefail
+          docker run -d --name moduprompt-smoke \
+            -e DATABASE_URL="file:/srv/moduprompt/data/smoke.db" \
+            -e NODE_ENV=production \
+            -e EXPORT_STORAGE_DRIVER=local \
+            -e EXPORT_LOCAL_STORAGE_PATH=/srv/moduprompt/exports \
+            -p 8080:8080 \
+            moduprompt/app:${{ github.sha }}
+          for i in {1..10}; do
+            if curl -fsS http://127.0.0.1:8080/healthz > /dev/null; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Application container failed to become healthy" >&2
+          docker logs moduprompt-smoke
+          exit 1
+
+      - name: Run Docker smoke tests
+        env:
+          DOCKER_SMOKE_BASE_URL: http://127.0.0.1:8080
+          PLAYWRIGHT_BROWSERS_PATH: 0
+        run: pnpm test:e2e --project=docker-smoke
+
+      - name: Gather container logs
+        if: always()
+        run: docker logs moduprompt-smoke || true
+
+      - name: Stop application container
+        if: always()
+        run: docker rm -f moduprompt-smoke || true
+
+      - name: Generate SBOM (app image)
+        uses: anchore/syft-action@v0
+        with:
+          image: moduprompt/app:${{ github.sha }}
+          output: spdx-json=sbom-app.spdx.json
+
+      - name: Generate SBOM (exporter image)
+        uses: anchore/syft-action@v0
+        with:
+          image: moduprompt/exporter:${{ github.sha }}
+          output: spdx-json=sbom-exporter.spdx.json
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-images
+          path: |
+            sbom-app.spdx.json
+            sbom-exporter.spdx.json
 
       - name: Run Trivy image scan (app)
         uses: aquasecurity/trivy-action@0.24.0

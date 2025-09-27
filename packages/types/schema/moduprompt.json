@@ -1078,7 +1078,8 @@
         "export.completed",
         "plugin.installed",
         "snippet.version.created",
-        "snippet.version.reverted"
+        "snippet.version.reverted",
+        "workspace.migration.applied"
       ],
       "type": "string"
     },

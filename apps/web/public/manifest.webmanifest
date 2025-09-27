@@ -1,0 +1,44 @@
+{
+  "id": "/",
+  "name": "ModuPrompt Studio",
+  "short_name": "ModuPrompt",
+  "description": "Offline-first prompt authoring studio for deterministic exports and governance.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080b12",
+  "theme_color": "#121926",
+  "dir": "ltr",
+  "lang": "en",
+  "orientation": "any",
+  "categories": ["productivity", "developer-tools"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Prompt",
+      "short_name": "New",
+      "description": "Jump to creating a new prompt document.",
+      "url": "/app/new"
+    },
+    {
+      "name": "Snippet Library",
+      "short_name": "Snippets",
+      "description": "Browse versioned snippets and insert them into prompts.",
+      "url": "/app/snippets"
+    }
+  ]
+}

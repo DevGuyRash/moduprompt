@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { SnippetLibraryPanelProps } from './types.js';
 import { useSnippetLibrary } from './hooks/useSnippetLibrary.js';
 import { SnippetTree } from './components/SnippetTree.js';
@@ -138,9 +138,31 @@ export const SnippetLibraryPanel = ({
     return index >= 0 ? timeline[index]?.previous : undefined;
   }, [activeVersion, timeline]);
 
-  const offlineStatus = useMemo(() => {
-    if (typeof navigator === 'undefined') return 'Offline-capable store';
+  const [offlineStatus, setOfflineStatus] = useState<string>(() => {
+    if (typeof navigator === 'undefined') {
+      return 'Offline-capable store';
+    }
     return navigator.onLine ? 'Online · persisting to IndexedDB' : 'Offline · changes queue locally';
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const updateStatus = () => {
+      setOfflineStatus(
+        navigator.onLine ? 'Online · persisting to IndexedDB' : 'Offline · changes queue locally',
+      );
+    };
+
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+
+    return () => {
+      window.removeEventListener('online', updateStatus);
+      window.removeEventListener('offline', updateStatus);
+    };
   }, []);
 
   return (

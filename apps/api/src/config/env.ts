@@ -31,6 +31,33 @@ const EnvSchema = z.object({
   EXPORT_PDF_RENDERER: z.enum(['puppeteer', 'stub']).default('stub'),
   PUPPETEER_EXECUTABLE_PATH: z.string().optional(),
   STATIC_ROOT: z.string().min(1).default(DEFAULT_STATIC_ROOT),
+  SECURITY_CSP_DEFAULT_SRC: z.string().default("'none'"),
+  SECURITY_CSP_BASE_URI: z.string().default("'self'"),
+  SECURITY_CSP_FORM_ACTION: z.string().default("'self'"),
+  SECURITY_CSP_FRAME_ANCESTORS: z.string().default("'none'"),
+  SECURITY_CSP_CONNECT_SRC: z.string().default("'self'"),
+  SECURITY_CSP_SCRIPT_SRC: z.string().default("'self'"),
+  SECURITY_CSP_SCRIPT_SRC_HASHES: z.string().optional(),
+  SECURITY_CSP_STYLE_SRC: z.string().default("'self'"),
+  SECURITY_CSP_STYLE_SRC_HASHES: z.string().optional(),
+  SECURITY_CSP_IMG_SRC: z.string().default("'self' data:"),
+  SECURITY_CSP_FONT_SRC: z.string().default("'self' data:"),
+  SECURITY_CSP_OBJECT_SRC: z.string().default("'none'"),
+  SECURITY_CSP_WORKER_SRC: z.string().default("'self'"),
+  SECURITY_CSP_MANIFEST_SRC: z.string().default("'self'"),
+  SECURITY_CSP_PREFETCH_SRC: z.string().default("'self'"),
+  SECURITY_CSP_REPORT_URI: z.string().default('/api/security/csp-report'),
+  SECURITY_REPORT_TO: z.string().optional(),
+  SECURITY_REFERRER_POLICY: z.string().default('no-referrer'),
+  SECURITY_PERMISSIONS_POLICY: z
+    .string()
+    .default('camera=(), microphone=(), geolocation=(), interest-cohort=()'),
+  SECURITY_STRICT_TRANSPORT_SECURITY: z
+    .string()
+    .default('max-age=31536000; includeSubDomains'),
+  SECURITY_CROSS_ORIGIN_EMBEDDER_POLICY: z.string().default('require-corp'),
+  SECURITY_CROSS_ORIGIN_OPENER_POLICY: z.string().default('same-origin'),
+  SECURITY_CROSS_ORIGIN_RESOURCE_POLICY: z.string().default('same-origin'),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
