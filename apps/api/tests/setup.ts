@@ -81,9 +81,15 @@ beforeAll(async () => {
   }
   mkdirSync(staticRootDir, { recursive: true });
   process.env.STATIC_ROOT = staticRootDir;
-  const indexHtml = '<!doctype html><html><head><title>ModuPrompt Test Shell</title></head><body><div id="root">stub</div><script src="/app.js" type="module"></script></body></html>';
+  const hashedScriptHref = '/assets/index-test.js';
+  const hashedStyleHref = '/assets/index-test.css';
+  const hashedScriptFile = hashedScriptHref.slice(1);
+  const hashedStyleFile = hashedStyleHref.slice(1);
+  const indexHtml = `<!doctype html><html><head><title>ModuPrompt Test Shell</title><link rel="modulepreload" href="${hashedScriptHref}"/><link rel="stylesheet" href="${hashedStyleHref}"/></head><body><div id="root">stub</div><script src="${hashedScriptHref}" type="module"></script></body></html>`;
   const appJs = 'export const ready = true;';
-  const stylesheet = 'body{background:#000;}';
+  const hashedJs = "console.log('hashed bundle loaded');";
+  const hashedCss = 'body{background:#000;}';
+  const stylesheet = ':root{color-scheme:dark;}';
   const writeFile = (filePath: string, contents: string) => {
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     mkdirSync(dirname(filePath), { recursive: true });
@@ -92,7 +98,22 @@ beforeAll(async () => {
   };
   writeFile(join(staticRootDir, 'index.html'), indexHtml);
   writeFile(join(staticRootDir, 'app.js'), appJs);
+  writeFile(join(staticRootDir, hashedScriptFile), hashedJs);
+  writeFile(join(staticRootDir, hashedStyleFile), hashedCss);
   writeFile(join(staticRootDir, 'styles', 'app.css'), stylesheet);
+  writeFile(
+    join(staticRootDir, 'manifest.json'),
+    JSON.stringify(
+      {
+        'src/main.tsx': {
+          file: hashedScriptFile,
+          css: [hashedStyleFile],
+        },
+      },
+      null,
+      2,
+    ),
+  );
   process.env.DATABASE_URL = `file:${dbPath}`;
   prisma = new PrismaClient({ datasources: { db: { url: process.env.DATABASE_URL } } });
   await applyMigration();

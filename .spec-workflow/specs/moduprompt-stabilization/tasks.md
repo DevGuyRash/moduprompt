@@ -39,7 +39,7 @@
   - _Requirements: Requirement 3, Requirement 5_
   - _Prompt: Implement the task for spec moduprompt-stabilization, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Offline Systems Engineer | Task: Harden Dexie/OPFS storage, implement deterministic migrations, and ship a service worker with cache + sync flows that keep ModuPrompt usable offline | Restrictions: Avoid blocking main thread, validate migrations before apply, respect storage quotas and security policies | _Leverage: packages/snippet-store/src/dexie/*, packages/snippet-store/src/opfs/*, apps/web/src/state/*_ | _Requirements: Requirement 3, Requirement 5 | Success: Offline reload restores workspace, migrations log audit events without data loss, service worker passes Lighthouse offline audit_
 
-- [ ] 5. Harden Fastify static delivery, CSP, and observability
+- [x] 5. Harden Fastify static delivery, CSP, and observability
   - File: apps/api/src/plugins/staticAssets.ts, apps/api/src/plugins/security.ts, apps/api/src/plugins/events.ts, apps/api/src/modules/audit/service.ts, deploy/docker/Dockerfile
   - Load Vite manifest to map hashed assets, adjust fallback to serve `index.html`, and set cache-control headers per asset type
   - Update CSP to allow hashed scripts/styles via nonce or manifest digests while keeping strict defaults; expose nonce to Vite templates
