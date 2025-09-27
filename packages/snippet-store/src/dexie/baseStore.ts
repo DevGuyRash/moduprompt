@@ -9,6 +9,7 @@ import type {
 import { WORKSPACE_MIGRATIONS } from '../../migrations/workspace.js';
 import type { WorkspaceMigration } from '../../migrations/types.js';
 import type { AuditBufferRecord } from '../audit/types.js';
+import { validateMigrationList } from './validateMigrations.js';
 
 export interface WorkspaceSettingsRecord {
   id: 'workspace';
@@ -48,6 +49,8 @@ export const registerMigrations = (
 ): void => {
   const seen = new Set<number>();
   const ordered = [...migrations].sort((a, b) => a.version - b.version);
+
+  validateMigrationList(ordered);
 
   for (const migration of ordered) {
     if (seen.has(migration.version)) {

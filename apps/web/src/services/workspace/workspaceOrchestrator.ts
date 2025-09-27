@@ -98,6 +98,8 @@ export class WorkspaceOrchestrator {
       remoteSnippets: 0,
     };
 
+    await this.workspaceStore.initialize();
+
     if (this.offlineEnabled) {
       const { documents, snippets } = await this.hydrateFromStorage();
       summary.localDocuments = documents;

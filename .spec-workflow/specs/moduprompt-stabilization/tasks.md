@@ -29,7 +29,7 @@
   - _Requirements: Requirement 2, Requirement 3_
   - _Prompt: Implement the task for spec moduprompt-stabilization, first run spec-workflow-guide to get the workflow guide then implement the task: Role: TypeScript Domain Engineer | Task: Create API/service layers, worker bridge, and orchestration hooks that glue existing feature modules to Fastify endpoints and worker pools with optimistic state management | Restrictions: Maintain typed contracts via zod, avoid duplicate schema logic, ensure deterministic updates and undo/redo compatibility | _Leverage: apps/api/src/modules/*, packages/snippet-store, packages/compiler, apps/web/src/state/*_ | _Requirements: Requirement 2, Requirement 3 | Success: Modules load data via shared services, worker bridge returns deterministic compiler output, optimistic updates reconcile with server responses and persist to Dexie_
 
-- [ ] 4. Enable offline persistence, Dexie/OPFS migrations, and service worker caching
+- [x] 4. Enable offline persistence, Dexie/OPFS migrations, and service worker caching
   - File: packages/snippet-store/src/dexie/*.ts, packages/snippet-store/src/opfs/*.ts, apps/web/src/services/storage/dexieSync.ts, apps/web/src/service-worker.ts, apps/web/src/offline/manifest.ts
   - Finalize Dexie schema registration, migration flows, and OPFS asset handling with integrity hashes and backup/export routines
   - Implement service worker caching strategy (stale-while-revalidate for documents/snippets, cache-first for shell) and background sync queues

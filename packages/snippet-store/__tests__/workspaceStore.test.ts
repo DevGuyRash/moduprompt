@@ -239,12 +239,46 @@ describe('WorkspaceStore', () => {
     });
 
     const snapshot = await store.exportSnapshot();
+    expect(snapshot.schemaVersion).toBeGreaterThan(0);
+    expect(snapshot.integrityHash).toMatch(/^[0-9a-f]{64}$/);
     await store.clear();
     await store.importSnapshot(snapshot);
 
     expect(await store.listDocuments()).toHaveLength(1);
     expect((await store.listSnippets())[0].headRev).toBe(1);
     expect((await store.listSnippetVersions(snippet.id)).length).toBe(1);
+    const settings = await store.getWorkspaceSettings();
+    expect(settings?.schemaVersion).toBe(Math.trunc(store.database.verno));
+  });
+
+  it('applies schema upgrades and buffers migration audits', async () => {
+    const dbName = `legacy-${Math.random()}`;
+    const legacyStore = new WorkspaceStore({
+      dbName,
+      migrations: WORKSPACE_MIGRATIONS.slice(0, 2),
+    });
+
+    await legacyStore.saveWorkspaceSettings({
+      statuses: sampleStatuses,
+      exportRecipes: sampleRecipes,
+      schemaVersion: 2,
+      updatedAt: Date.now(),
+      lastExportedAt: undefined,
+    });
+
+    await legacyStore.close();
+
+    const upgradedStore = new WorkspaceStore({ dbName });
+    await upgradedStore.listDocuments();
+
+    const settings = await upgradedStore.getWorkspaceSettings();
+    const latestVersion = WORKSPACE_MIGRATIONS[WORKSPACE_MIGRATIONS.length - 1]!.version;
+    expect(settings?.schemaVersion).toBe(latestVersion);
+
+    const auditRecords = await upgradedStore.database.auditBuffer.toArray();
+    expect(auditRecords.some((record) => record.entry.type === 'workspace.migration.applied')).toBe(true);
+
+    await upgradedStore.close();
   });
 });
 
@@ -268,10 +302,14 @@ describe('OPFS backup utilities', () => {
     await exportWorkspaceBackup(store, opfsRoot);
     const contents = await readTextFile(opfsRoot, ['moduprompt', 'workspace-backup.json']);
     expect(contents).toBeTruthy();
+    const serialized = JSON.parse(contents!);
+    expect(serialized.integrityHash).toMatch(/^[0-9a-f]{64}$/);
+    expect(serialized.schemaVersion).toBeGreaterThan(0);
 
     await store.clear();
     const snapshot = await importWorkspaceBackup(store, opfsRoot);
     expect(snapshot).not.toBeNull();
+    expect(snapshot?.integrityHash).toMatch(/^[0-9a-f]{64}$/);
     expect(await store.listDocuments()).toHaveLength(1);
   });
 

@@ -12,6 +12,8 @@ class InMemoryWorkspaceStore {
   snippets = new Map<string, Snippet>();
   versions = new Map<string, SnippetVersion[]>();
 
+  async initialize(): Promise<void> {}
+
   async listDocuments(): Promise<DocumentModel[]> {
     return Array.from(this.documents.values());
   }

@@ -228,7 +228,8 @@ export type AuditLogEventType =
   | 'document.status.changed'
   | 'document.tags.changed'
   | 'export.completed'
-  | 'plugin.installed';
+  | 'plugin.installed'
+  | 'workspace.migration.applied';
 
 export interface AuditLogEntry extends Identifiable, Timestamped {
   type: AuditLogEventType;

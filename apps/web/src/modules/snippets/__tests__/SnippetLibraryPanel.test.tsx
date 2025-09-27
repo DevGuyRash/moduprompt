@@ -6,6 +6,11 @@ import { computeIntegrityHash, type WorkspaceStore } from '@moduprompt/snippet-s
 import { SnippetLibraryPanel } from '../SnippetLibraryPanel.js';
 import { SnippetLibraryProvider } from '../provider.js';
 import { SNIPPET_DRAG_MIME } from '../utils/constants.js';
+import { WorkspaceServicesProvider } from '../../../services/workspace/workspaceServicesContext.js';
+import type { DocumentsApi } from '../../../services/api/documents.js';
+import type { SnippetsApi } from '../../../services/api/snippets.js';
+import type { WorkspaceOrchestrator } from '../../../services/workspace/workspaceOrchestrator.js';
+import type { DexieSyncService } from '../../../services/storage/dexieSync.js';
 
 class MemoryWorkspaceStore {
   private snippets = new Map<string, Snippet>();
@@ -114,10 +119,30 @@ const createFixtureStore = async (): Promise<WorkspaceStoreLike> => {
 };
 
 const renderPanel = async (store: WorkspaceStoreLike, expectedName: RegExp = /snippet/i) => {
+  const servicesValue = {
+    workspaceStore: store as unknown as WorkspaceStore,
+    documentsApi: {} as DocumentsApi,
+    snippetsApi: {} as SnippetsApi,
+    orchestrator: {
+      dispose: () => {},
+    } as unknown as WorkspaceOrchestrator,
+    storageSync: {
+      initialize: async () => {},
+      restoreIfEmpty: async () => false,
+      backupNow: async () => false,
+      startAutoBackup: () => {},
+      stopAutoBackup: () => {},
+      dispose: () => {},
+      handleServiceWorkerMessage: () => {},
+    } as unknown as DexieSyncService,
+  };
+
   render(
-    <SnippetLibraryProvider store={store as unknown as WorkspaceStore}>
-      <SnippetLibraryPanel store={store as unknown as WorkspaceStore} />
-    </SnippetLibraryProvider>,
+    <WorkspaceServicesProvider value={servicesValue}>
+      <SnippetLibraryProvider store={store as unknown as WorkspaceStore}>
+        <SnippetLibraryPanel store={store as unknown as WorkspaceStore} />
+      </SnippetLibraryProvider>
+    </WorkspaceServicesProvider>,
   );
 
   await screen.findByRole('button', { name: expectedName });

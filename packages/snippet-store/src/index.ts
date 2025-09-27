@@ -34,3 +34,4 @@ export {
   mergeAuditFeeds,
 } from './audit/clientLogger.js';
 export type { AuditBufferRecord } from './audit/types.js';
+export { createMigrationAuditEntry } from './audit/migrations.js';

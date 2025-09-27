@@ -3,12 +3,14 @@ import type { WorkspaceStore } from '@moduprompt/snippet-store';
 import type { DocumentsApi } from '../api/documents.js';
 import type { SnippetsApi } from '../api/snippets.js';
 import type { WorkspaceOrchestrator } from './workspaceOrchestrator.js';
+import type { DexieSyncService } from '../storage/dexieSync.js';
 
 export interface WorkspaceServices {
   workspaceStore: WorkspaceStore;
   documentsApi: DocumentsApi;
   snippetsApi: SnippetsApi;
   orchestrator: WorkspaceOrchestrator;
+  storageSync: DexieSyncService;
 }
 
 const WorkspaceServicesContext = createContext<WorkspaceServices | null>(null);
