@@ -11,6 +11,7 @@ import type {
 } from '../types.js';
 import { buildFolderTree, buildSmartFolders, computeDuplicateIds, filterSnippets } from '../utils/tree.js';
 import type { SmartFolderConfig } from '../utils/constants.js';
+import { useWorkspaceServices } from '../../../services/workspace/workspaceServicesContext.js';
 
 interface UseSnippetLibraryOptions {
   initialSnippetId?: string;
@@ -46,6 +47,7 @@ export const useSnippetLibrary = ({
 }: UseSnippetLibraryOptions = {}) => {
   const contextStore = useSnippetLibraryContext();
   const store = storeOverride ?? contextStore;
+  const { snippetsApi } = useWorkspaceServices();
 
   const [state, setState] = useState<SnippetLibraryState>(() => ({
     store,
@@ -234,41 +236,75 @@ export const useSnippetLibrary = ({
   const restoreRevision = useCallback(
     async (revision: number, note?: string) => {
       if (!state.selectedSnippetId) return;
-      const snippet = await store.getSnippet(state.selectedSnippetId);
-      if (!snippet) {
-        throw new Error(`Snippet ${state.selectedSnippetId} not found`);
-      }
-      const sourceVersion = state.versions.find((item) => item.rev === revision);
-      if (!sourceVersion) {
-        throw new Error(`Revision ${revision} not found for snippet ${state.selectedSnippetId}`);
-      }
-      const nextRev = snippet.headRev + 1;
-      const timestamp = Date.now();
-      const hash = await computeIntegrityHash(sourceVersion.body, sourceVersion.frontmatter);
-      const newVersion: SnippetVersion = {
-        snippetId: snippet.id,
-        rev: nextRev,
-        parentRev: snippet.headRev,
-        author: sourceVersion.author,
-        note: note ?? `Restore v${revision}`,
-        timestamp,
-        body: sourceVersion.body,
-        frontmatter: sourceVersion.frontmatter,
-        hash,
+      const snippetId = state.selectedSnippetId;
+
+      const applyLocalRestore = async () => {
+        const snippet = await store.getSnippet(snippetId);
+        if (!snippet) {
+          throw new Error(`Snippet ${snippetId} not found`);
+        }
+        const sourceVersion = state.versions.find((item) => item.rev === revision);
+        if (!sourceVersion) {
+          throw new Error(`Revision ${revision} not found for snippet ${snippetId}`);
+        }
+        const nextRev = snippet.headRev + 1;
+        const timestamp = Date.now();
+        const hash = await computeIntegrityHash(sourceVersion.body, sourceVersion.frontmatter);
+        const newVersion: SnippetVersion = {
+          snippetId,
+          rev: nextRev,
+          parentRev: snippet.headRev,
+          author: sourceVersion.author,
+          note: note ?? `Restore v${revision}`,
+          timestamp,
+          body: sourceVersion.body,
+          frontmatter: sourceVersion.frontmatter,
+          hash,
+        };
+        await store.putSnippetVersion(newVersion);
+        await store.upsertSnippet({
+          ...snippet,
+          headRev: nextRev,
+          updatedAt: timestamp,
+          body: sourceVersion.body,
+          frontmatter: sourceVersion.frontmatter,
+        });
+        await refreshSnippets(snippetId);
+        await loadVersions(snippetId);
+        setState((prev) => ({ ...prev, selectedRevision: nextRev }));
       };
-      await store.putSnippetVersion(newVersion);
-      await store.upsertSnippet({
-        ...snippet,
-        headRev: nextRev,
-        updatedAt: timestamp,
-        body: sourceVersion.body,
-        frontmatter: sourceVersion.frontmatter,
-      });
-      await refreshSnippets(snippet.id);
-      await loadVersions(snippet.id);
-      setState((prev) => ({ ...prev, selectedRevision: nextRev }));
+
+      if (snippetsApi) {
+        try {
+          const response = await snippetsApi.revertVersion(
+            snippetId,
+            { id: snippetId, rev: revision },
+            { targetRev: revision },
+          );
+          const [createdVersion] = response.versions;
+          if (createdVersion) {
+            await store.putSnippetVersion(createdVersion);
+          }
+          await store.upsertSnippet(response.snippet);
+          await refreshSnippets(snippetId);
+          await loadVersions(snippetId);
+          setState((prev) => ({
+            ...prev,
+            selectedRevision: createdVersion?.rev ?? response.snippet.headRev,
+          }));
+          return;
+        } catch (error) {
+          console.warn('Failed to revert snippet via API, falling back to local restore', {
+            error,
+            snippetId,
+            revision,
+          });
+        }
+      }
+
+      await applyLocalRestore();
     },
-    [loadVersions, refreshSnippets, state.selectedSnippetId, state.versions, store],
+    [loadVersions, refreshSnippets, snippetsApi, state.selectedSnippetId, state.versions, store],
   );
 
   const pinRevision = useCallback(

@@ -20,7 +20,7 @@
   - _Requirements: Requirement 1, Requirement 2_
   - _Prompt: Implement the task for spec moduprompt-stabilization, first run spec-workflow-guide to get the workflow guide then implement the task: Role: React Application Architect | Task: Construct the AppShell, providers, and layout layers to host notebook, node graph, snippets, governance, and compiler views with routing and shared state | Restrictions: Keep feature modules decoupled, respect accessibility (ARIA, keyboard), avoid blocking operations on render | _Leverage: apps/web/src/modules/*, apps/web/src/state/document-model.ts_, packages/types | _Requirements: Requirement 1, Requirement 2 | Success: Navigating between routes keeps state synchronized, layout matches governance/accessibility standards, Lighthouse passes basic PWA audits_
 
-- [ ] 3. Build client data services, worker bridge, and module orchestration
+- [x] 3. Build client data services, worker bridge, and module orchestration
   - File: apps/web/src/services/api/*.ts, apps/web/src/services/storage/*.ts, apps/web/src/services/workers/*.ts, apps/web/src/modules/*/hooks/*.ts (updates)
   - Implement typed API clients for documents, snippets, exports, governance using fetch + TanStack Query with zod validation
   - Connect notebook/node graph/snippet modules to centralized stores, register worker bridge for compiler/formatter execution, and ensure optimistic updates with rollback

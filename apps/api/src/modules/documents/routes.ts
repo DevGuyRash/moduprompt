@@ -1,49 +1,25 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { ZodTypeProvider } from '@fastify/type-provider-zod';
+import { z } from 'zod';
 import { DocumentService } from './service.js';
 import {
-  createDocumentSchema,
-  updateDocumentSchema,
+  createDocumentRequestSchema,
+  documentListResponseSchema,
+  documentParamsSchema,
   documentQuerySchema,
-  setTagsSchema,
-  setStatusSchema,
-} from './schemas.js';
-import { z } from 'zod';
-
-const documentSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  schemaVersion: z.literal(2),
-  blocks: z.array(z.any()),
-  edges: z.array(z.any()),
-  variables: z.array(z.any()),
-  exportRecipes: z.array(z.any()),
-  tags: z.array(z.string()),
-  statusKey: z.string(),
-  settings: z.object({
-    maxWidth: z.enum(['80ch', '96ch', '120ch']),
-    theme: z.string().optional(),
-    pageNumbering: z.enum(['none', 'decimal', 'roman']).optional(),
-  }),
-  createdAt: z.number(),
-  updatedAt: z.number(),
-});
-
-const documentListSchema = z.object({ items: z.array(documentSchema) });
-const documentParamsSchema = z.object({ id: z.string() });
-const createDocumentRequestSchema = createDocumentSchema.extend({
-  id: z.string().optional(),
-  actorId: z.string().optional(),
-});
-
-type DocumentResponse = z.infer<typeof documentSchema>;
-type DocumentListResponse = z.infer<typeof documentListSchema>;
-type DocumentParams = z.infer<typeof documentParamsSchema>;
-type DocumentListQuery = z.infer<typeof documentQuerySchema>;
-type CreateDocumentRequest = z.infer<typeof createDocumentRequestSchema>;
-type UpdateDocumentRequest = z.infer<typeof updateDocumentSchema>;
-type SetTagsRequest = z.infer<typeof setTagsSchema>;
-type SetStatusRequest = z.infer<typeof setStatusSchema>;
+  documentResponseSchema,
+  setStatusRequestSchema,
+  setTagsRequestSchema,
+  updateDocumentRequestSchema,
+  type CreateDocumentRequest,
+  type DocumentListQuery,
+  type DocumentListResponse,
+  type DocumentParams,
+  type DocumentResponse,
+  type SetStatusRequest,
+  type SetTagsRequest,
+  type UpdateDocumentRequest,
+} from './contracts.js';
 
 export const documentsRoutes: FastifyPluginAsync = async (app) => {
   const service = new DocumentService(app);
@@ -56,7 +32,7 @@ export const documentsRoutes: FastifyPluginAsync = async (app) => {
       tags: ['documents'],
       querystring: documentQuerySchema,
       response: {
-        200: documentListSchema,
+        200: documentListResponseSchema,
       },
     },
     handler: async (request) => {
@@ -72,7 +48,7 @@ export const documentsRoutes: FastifyPluginAsync = async (app) => {
       tags: ['documents'],
       body: createDocumentRequestSchema,
       response: {
-        201: documentSchema,
+        201: documentResponseSchema,
       },
     },
     handler: async (request, reply) => {
@@ -90,7 +66,7 @@ export const documentsRoutes: FastifyPluginAsync = async (app) => {
       tags: ['documents'],
       params: documentParamsSchema,
       response: {
-        200: documentSchema,
+        200: documentResponseSchema,
         404: z.object({ message: z.string() }),
       },
     },
@@ -116,7 +92,7 @@ export const documentsRoutes: FastifyPluginAsync = async (app) => {
       params: documentParamsSchema,
       body: updateDocumentSchema,
       response: {
-        200: documentSchema,
+        200: documentResponseSchema,
         404: z.object({ message: z.string() }),
       },
     },
@@ -142,7 +118,7 @@ export const documentsRoutes: FastifyPluginAsync = async (app) => {
       params: documentParamsSchema,
       body: setTagsSchema,
       response: {
-        200: documentSchema,
+        200: documentResponseSchema,
         400: z.object({ message: z.string() }),
       },
     },
@@ -168,7 +144,7 @@ export const documentsRoutes: FastifyPluginAsync = async (app) => {
       params: documentParamsSchema,
       body: setStatusSchema,
       response: {
-        200: documentSchema,
+        200: documentResponseSchema,
         400: z.object({ message: z.string() }),
       },
     },

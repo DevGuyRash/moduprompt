@@ -3,64 +3,27 @@ import { ZodTypeProvider } from '@fastify/type-provider-zod';
 import { z } from 'zod';
 import { SnippetService } from './service.js';
 import {
-  createSnippetBodySchema,
-  updateSnippetBodySchema,
-  createSnippetVersionBodySchema,
-  revertSnippetVersionBodySchema,
+  createSnippetRequestSchema,
+  createSnippetVersionRequestSchema,
+  revertSnippetVersionRequestSchema,
+  snippetListResponseSchema,
+  snippetParamsSchema,
   snippetQuerySchema,
-} from './schemas.js';
-
-const snippetResponseSchema = z.object({
-  snippet: z.object({
-    id: z.string(),
-    title: z.string(),
-    path: z.string(),
-    frontmatter: z.record(z.string(), z.any()),
-    body: z.string(),
-    headRev: z.number(),
-    createdAt: z.number(),
-    updatedAt: z.number(),
-  }),
-  versions: z.array(
-    z.object({
-      snippetId: z.string(),
-      rev: z.number(),
-      parentRev: z.number().nullable().optional(),
-      author: z
-        .object({
-          id: z.string(),
-          name: z.string().optional(),
-          email: z.string().optional(),
-        })
-        .optional(),
-      note: z.string().optional(),
-      timestamp: z.number(),
-      body: z.string(),
-      frontmatter: z.record(z.string(), z.any()),
-      hash: z.string(),
-    }),
-  ),
-});
-
-const snippetListSchema = z.object({
-  items: z.array(snippetResponseSchema.shape.snippet),
-});
-
-const snippetVersionSchema = snippetResponseSchema.shape.versions.element;
-const snippetParamsSchema = z.object({ id: z.string() });
-const snippetVersionParamsSchema = z.object({ id: z.string(), rev: z.coerce.number().int().positive() });
-const createSnippetRequestSchema = createSnippetBodySchema.extend({ actorId: z.string().optional() });
-
-type SnippetResponse = z.infer<typeof snippetResponseSchema>;
-type SnippetListResponse = z.infer<typeof snippetListSchema>;
-type SnippetVersionResponse = z.infer<typeof snippetVersionSchema>;
-type SnippetParams = z.infer<typeof snippetParamsSchema>;
-type SnippetVersionParams = z.infer<typeof snippetVersionParamsSchema>;
-type SnippetQuery = z.infer<typeof snippetQuerySchema>;
-type CreateSnippetRequest = z.infer<typeof createSnippetRequestSchema>;
-type UpdateSnippetRequest = z.infer<typeof updateSnippetBodySchema>;
-type CreateSnippetVersionRequest = z.infer<typeof createSnippetVersionBodySchema>;
-type RevertSnippetVersionRequest = z.infer<typeof revertSnippetVersionBodySchema>;
+  snippetResponseSchema,
+  snippetVersionParamsSchema,
+  snippetVersionResponseSchema,
+  updateSnippetRequestSchema,
+  type CreateSnippetRequest,
+  type CreateSnippetVersionRequest,
+  type RevertSnippetVersionRequest,
+  type SnippetListResponse,
+  type SnippetParams,
+  type SnippetQuery,
+  type SnippetResponse,
+  type SnippetVersionParams,
+  type SnippetVersionResponse,
+  type UpdateSnippetRequest,
+} from './contracts.js';
 
 export const snippetsRoutes: FastifyPluginAsync = async (app) => {
   const service = new SnippetService(app);
@@ -73,7 +36,7 @@ export const snippetsRoutes: FastifyPluginAsync = async (app) => {
       tags: ['snippets'],
       querystring: snippetQuerySchema,
       response: {
-        200: snippetListSchema,
+        200: snippetListResponseSchema,
       },
     },
     handler: async (request) => {
@@ -130,7 +93,7 @@ export const snippetsRoutes: FastifyPluginAsync = async (app) => {
     schema: {
       tags: ['snippets'],
       params: snippetParamsSchema,
-      body: updateSnippetBodySchema,
+      body: updateSnippetRequestSchema,
       response: {
         200: snippetResponseSchema.shape.snippet,
       },
@@ -151,9 +114,9 @@ export const snippetsRoutes: FastifyPluginAsync = async (app) => {
     schema: {
       tags: ['snippets'],
       params: snippetParamsSchema,
-      body: createSnippetVersionBodySchema,
+      body: createSnippetVersionRequestSchema,
       response: {
-        201: snippetVersionSchema,
+        201: snippetVersionResponseSchema,
       },
     },
     handler: async (request, reply) => {
@@ -173,7 +136,7 @@ export const snippetsRoutes: FastifyPluginAsync = async (app) => {
     schema: {
       tags: ['snippets'],
       params: snippetVersionParamsSchema,
-      body: revertSnippetVersionBodySchema,
+      body: revertSnippetVersionRequestSchema,
       response: {
         200: snippetResponseSchema,
       },

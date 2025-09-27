@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type {
   DocumentModel,
   ExportRecipe,
@@ -7,12 +7,9 @@ import type {
 } from '@moduprompt/types';
 import type { WorkspaceStore } from '@moduprompt/snippet-store';
 import { computeIntegrityHash } from '@moduprompt/snippet-store';
-import {
-  compileDocument,
-  type CompileResult,
-  type SnippetBundle,
-} from '@moduprompt/compiler';
+import { type CompileResult, type SnippetBundle } from '@moduprompt/compiler';
 import { useDocumentStore } from '../../../state/document-model.js';
+import { CompilerWorkerBridge } from '../../../services/workers/compilerBridge.js';
 
 interface UsePreflightOptions {
   documentId: string;
@@ -120,6 +117,11 @@ export const usePreflight = ({ documentId, store, recipe, variables }: UsePrefli
     hasBlockingIssues: false,
   });
 
+  const bridgeRef = useRef<CompilerWorkerBridge>();
+  if (!bridgeRef.current) {
+    bridgeRef.current = new CompilerWorkerBridge({ timeoutMs: 10_000 });
+  }
+
   const recipeKey = useMemo(() => {
     if (!recipe) {
       return 'none';
@@ -157,12 +159,16 @@ export const usePreflight = ({ documentId, store, recipe, variables }: UsePrefli
         }
 
         const documentClone = cloneDocument(snapshot.document);
-        const result = compileDocument({
-          document: documentClone,
-          snippets: bundles,
-          variables: resolvedVariables,
-          allowedStatuses,
-        });
+        const bridge = bridgeRef.current!;
+        const result = await bridge.compile(
+          {
+            document: documentClone,
+            snippets: bundles,
+            variables: resolvedVariables,
+            allowedStatuses,
+          },
+          { timeoutMs: 10_000 },
+        );
 
         if (cancelled) {
           return;
@@ -199,6 +205,8 @@ export const usePreflight = ({ documentId, store, recipe, variables }: UsePrefli
       cancelled = true;
     };
   }, [snapshot, store, recipeKey, variablesKey, resolvedVariables, allowedStatuses]);
+
+  useEffect(() => () => bridgeRef.current?.dispose(), []);
 
   return state;
 };
