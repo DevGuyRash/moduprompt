@@ -49,7 +49,7 @@
   - _Requirements: Requirement 1, Requirement 4_
   - _Prompt: Implement the task for spec moduprompt-stabilization, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Node Platform Engineer | Task: Enhance static asset serving, CSP enforcement, and observability so Fastify securely hosts the SPA and exposes governance telemetry | Restrictions: Maintain zero inline scripts, keep headers configurable via env, ensure health/readiness endpoints unaffected | _Leverage: apps/api/src/plugins/staticAssets.ts, apps/api/src/plugins/security.ts, apps/api/src/modules/*_ | _Requirements: Requirement 1, Requirement 4 | Success: `/` serves SPA with CSP-compliant assets, security headers allow hashed bundles, structured logs capture asset + CSP metrics, docker runtime passes smoke tests_
 
-- [ ] 6. Expand tests, fixtures, and CI pipeline for deterministic delivery
+- [x] 6. Expand tests, fixtures, and CI pipeline for deterministic delivery
   - File: apps/web/vitest.config.ts, apps/web/src/__tests__/*.test.tsx, tests/e2e/playwright.config.ts, tests/e2e/specs/**/*.spec.ts, .github/workflows/pipeline.yml, scripts/docker/verify-runtime-deps.mjs
   - Author unit tests for AppShell, services, offline flows; extend Playwright suites to cover end-to-end authoring, offline/online transitions, and export validation
   - Wire CI to build Vite assets, run Prisma migrations against ephemeral Postgres, execute smoke suite against Docker runtime, and publish SBOM artifacts
